@@ -11,15 +11,22 @@
 		var KEYCODE_LEFT = 37; 	//usefull keycode
 		var KEYCODE_RIGHT = 39; 	//usefull keycode
 		var KEYCODE_DOWN = 40; 	//usefull keycode
+		var PI = Math.PI;
+	
+		var background;
+		var backgroundBorder;
 	
 		var stage;
-		var circle;
+		var shipDrawer;
+		var ship;
+		var shipHeight = 15;
+		
 		var lineDrawer;
-		var lines;
+		var blocks;
 		
 		var rad = 50;
 		
-		var vx = -5;
+		var vx = 0;
 		var vy = 0;
 		
 		var leftPressed = false;
@@ -27,35 +34,73 @@
 		var upPressed = false;
 		var downPressed = false;
 		
-		function Line(x1, y1, x2, y2){
-		this.x1 = x1;
-		this.x2 = x2;
-		this.y1 = y1;
-		this.y2 = y2;
+		function Point(x, y){
+		this.x = x;
+		this.y = y;
+		}
+		
+		function Line(p1, p2){
+		this.p1 = p1;
+		this.p2 = p2;
+		}
+		
+		function Block(p1, p2, p3, p4){
+		this.p1 = p1;
+		this.p2 = p2;
+		this.p3 = p3;
+		this.p4 = p4;
+		}
+		
+		function SpaceShip(height){
+		this.theta = 0;
+		this.height = height;
+		this.dx1 = this.height * Math.cos( this.theta + PI/2 );
+		this.dy1 = this.height * Math.sin( this.theta + PI/2 );
+		this.dx2 = this.height * Math.cos( this.theta - 2*PI/6 );
+		this.dy2 = this.height * Math.sin( this.theta - 2*PI/6 );
+		this.dx3 = this.height * Math.cos( this.theta + 8*PI/6 );
+		this.dy3 = this.height * Math.sin( this.theta + 8*PI/6 );
 		}
 		
         function init() {
             stage = new createjs.Stage("demoCanvas");
 			
-			circle = new createjs.Shape();
-			circle.graphics.beginFill("red").drawCircle(0, 0, rad);
-			circle.x = 0;
-			circle.y = 50;
+			backgroundBorder = new createjs.Shape();
+			backgroundBorder.graphics.setStrokeStyle(4);
+			backgroundBorder.graphics.beginStroke("green").rect(0,0, stage.canvas.width, stage.canvas.height);
+			background = new createjs.Shape();
+			background.graphics.beginFill("black").rect(0,0, stage.canvas.width, stage.canvas.height);
+			-->background.graphics.beginStroke("red").rect(40,40, 20, 20);
+			
+			shipDrawer = new createjs.Shape();
+			shipDrawer.x = 0;
+			shipDrawer.y = 0;
+			ship = new SpaceShip( shipHeight );
+			shipDrawer.graphics.beginStroke("red").moveTo(shipDrawer.x + ship.dx1, shipDrawer.y - ship.dy1).lineTo(shipDrawer.x + ship.dx2, shipDrawer.y - ship.dy2);
+			shipDrawer.graphics.beginStroke("red").moveTo(shipDrawer.x + ship.dx2, shipDrawer.y - ship.dy2).lineTo(shipDrawer.x + ship.dx3, shipDrawer.y - ship.dy3);
+			shipDrawer.graphics.beginStroke("red").moveTo(shipDrawer.x + ship.dx3, shipDrawer.y - ship.dy3).lineTo(shipDrawer.x + ship.dx1, shipDrawer.y - ship.dy1);
+			-->circle.graphics.beginStroke("red").moveTo(ship.p1.x, ship.p1.y).lineTo(ship.p2.x, ship.p2.y);
+			-->circle.graphics.beginStroke("red").moveTo(ship.p2.x, ship.p2.y).lineTo(ship.p3.x, ship.p3.y);
+			-->circle.graphics.beginStroke("red").moveTo(ship.p3.x, ship.p3.y).lineTo(ship.p1.x, ship.p1.y);
 			
 			lineDrawer = new createjs.Shape();
 			
-			lines = new Array();
-			lines[0] = new Line(50, 0, 50, 50);
-			lines[1] = new Line(50, 50, 100, 50);
-			lines[2] = new Line(100, 50, 100, 0);
-			lines[3] = new Line(100, 0, 50, 0);
+			blocks = new Array();
+			blocks[0] = new Block(new Point(50, 50), new Point(100, 50), new Point(100, 250), new Point(50, 250));
 			
-			for(index in lines){
-				var line = lines[index];
-				lineDrawer.graphics.beginStroke("red").moveTo(line.x1, line.y1).lineTo(line.x2, line.y2);
+			for( blockIndex in blocks ){
+			
+				var b = blocks[blockIndex];
+				lineDrawer.graphics.beginStroke("green").moveTo(b.p1.x, b.p1.y).lineTo(b.p2.x, b.p2.y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.p2.x, b.p2.y).lineTo(b.p3.x, b.p3.y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.p3.x, b.p3.y).lineTo(b.p4.x, b.p4.y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.p4.x, b.p4.y).lineTo(b.p1.x, b.p1.y);
+			
 			}
 			
-			stage.addChild(circle);
+			stage.addChild(background);
+			stage.addChild(backgroundBorder);
+			stage.addChild(shipDrawer);
 			stage.addChild(lineDrawer);
 			
 			createjs.Ticker.on("tick", tick);
@@ -68,8 +113,8 @@
 		
 		function tick(event) {
 		
-			circle.x = circle.x + vx;
-			circle.y = circle.y + vy;
+			shipDrawer.x = shipDrawer.x + vx;
+			shipDrawer.y = shipDrawer.y + vy;
 			
 			if( leftPressed ){
 				vx = vx - 1;
@@ -84,10 +129,10 @@
 				vy = vy + 1;
 			}
 			
-			if (circle.x > stage.canvas.width + rad) { circle.x = -rad; }
-			if (circle.x < -rad) { circle.x = stage.canvas.width + rad; }
-			if( circle.y > stage.canvas.height + rad){ circle.y = -rad; }
-			if( circle.y < -rad) { circle.y = stage.canvas.height +rad;}
+			if (shipDrawer.x > stage.canvas.width + shipHeight) { shipDrawer.x = -shipHeight; }
+			if (shipDrawer.x < -shipHeight) { shipDrawer.x = stage.canvas.width + shipHeight; }
+			if( shipDrawer.y > stage.canvas.height + shipHeight){ shipDrawer.y = -shipHeight; }
+			if( shipDrawer.y < -shipHeight) { shipDrawer.y = stage.canvas.height +shipHeight;}
 			stage.update(event); // important!!
 		}
 		
