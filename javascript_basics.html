@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+
+    <script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+    <script>
+	
+		var KEYCODE_UP = 38; 	//usefull keycode
+		var KEYCODE_LEFT = 37; 	//usefull keycode
+		var KEYCODE_RIGHT = 39; 	//usefull keycode
+	
+		var stage, circle;
+		
+		var rad = 50;
+		
+		var v = -5;
+		
+		var leftDown = false;
+		var rightDown = false;
+		
+        function init() {
+            stage = new createjs.Stage("demoCanvas");
+			
+			circle = new createjs.Shape();
+			circle.graphics.beginFill("red").drawCircle(0, 0, rad);
+			circle.x = 0;
+			circle.y = 50;
+			stage.addChild(circle);
+			
+			createjs.Ticker.on("tick", tick);
+			createjs.Ticker.setFPS(30);
+			
+			document.onkeydown = handleKeyDown;
+			document.onkeyup = handleKeyUp;
+			createjs.Ticker.addListener(stage);
+		}
+		
+		function tick(event) {
+			circle.x = circle.x + v;
+			
+			if( leftDown ){
+				v = v - 1;
+			}
+			if( rightDown ){
+				v = v + 1;
+			}
+			
+			if (circle.x > stage.canvas.width + rad) { circle.x = -rad; }
+			if (circle.x < -rad) { circle.x = stage.canvas.width + rad; }
+			stage.update(event); // important!!
+		}
+		
+		function handleKeyDown(e){
+		
+			 if (!e) { var e = window.event; }
+		
+			switch (e.keyCode){
+			
+			case KEYCODE_LEFT:
+				leftDown = true;
+				break;
+			case KEYCODE_RIGHT:
+				rightDown = true;
+				break;
+			}
+		}
+		
+		function handleKeyUp(e){
+		
+		 if (!e) { var e = window.event; }
+		
+			switch (e.keyCode){
+			
+			case KEYCODE_LEFT:
+			leftDown = false;
+			break;
+			case KEYCODE_RIGHT:
+			rightDown = false;
+			break;
+			}
+		}
+		
+		
+    </script>
+</head>
+<body onLoad="init();">
+    <canvas id="demoCanvas" width="500" height="300">
+        alternate content
+    </canvas>
+</body>
+</html>
