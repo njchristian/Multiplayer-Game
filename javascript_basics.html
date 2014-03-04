@@ -104,14 +104,26 @@
 			stage.addChild(lineDrawer);
 			
 			createjs.Ticker.on("tick", tick);
-			createjs.Ticker.setFPS(30);
+			createjs.Ticker.setFPS(20);
 			
 			document.onkeydown = handleKeyDown;
 			document.onkeyup = handleKeyUp;
 			createjs.Ticker.addListener(stage);
 		}
 		
+		function hasCollided(){
+			return false;
+		}
+		
 		function tick(event) {
+		
+			if( hasCollided() ){
+				--> this is the death page
+				
+				shipDrawer.x = 0;
+				shipDrawer.y = 0;
+				
+			}
 		
 			shipDrawer.x = shipDrawer.x + vx;
 			shipDrawer.y = shipDrawer.y + vy;
@@ -182,7 +194,7 @@
     </script>
 </head>
 <body onLoad="init();">
-    <canvas id="demoCanvas" width="500" height="500">
+    <canvas id="demoCanvas" width="1000" height="650">
         alternate content
     </canvas>
 </body>
