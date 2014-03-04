@@ -1,8 +1,8 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
-
 
     <script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
     <script>
@@ -10,15 +10,29 @@
 		var KEYCODE_UP = 38; 	//usefull keycode
 		var KEYCODE_LEFT = 37; 	//usefull keycode
 		var KEYCODE_RIGHT = 39; 	//usefull keycode
+		var KEYCODE_DOWN = 40; 	//usefull keycode
 	
-		var stage, circle;
+		var stage;
+		var circle;
+		var lineDrawer;
+		var lines;
 		
 		var rad = 50;
 		
-		var v = -5;
+		var vx = -5;
+		var vy = 0;
 		
-		var leftDown = false;
-		var rightDown = false;
+		var leftPressed = false;
+		var rightPressed = false;
+		var upPressed = false;
+		var downPressed = false;
+		
+		function Line(x1, y1, x2, y2){
+		this.x1 = x1;
+		this.x2 = x2;
+		this.y1 = y1;
+		this.y2 = y2;
+		}
 		
         function init() {
             stage = new createjs.Stage("demoCanvas");
@@ -27,7 +41,22 @@
 			circle.graphics.beginFill("red").drawCircle(0, 0, rad);
 			circle.x = 0;
 			circle.y = 50;
+			
+			lineDrawer = new createjs.Shape();
+			
+			lines = new Array();
+			lines[0] = new Line(50, 0, 50, 50);
+			lines[1] = new Line(50, 50, 100, 50);
+			lines[2] = new Line(100, 50, 100, 0);
+			lines[3] = new Line(100, 0, 50, 0);
+			
+			for(index in lines){
+				var line = lines[index];
+				lineDrawer.graphics.beginStroke("red").moveTo(line.x1, line.y1).lineTo(line.x2, line.y2);
+			}
+			
 			stage.addChild(circle);
+			stage.addChild(lineDrawer);
 			
 			createjs.Ticker.on("tick", tick);
 			createjs.Ticker.setFPS(30);
@@ -38,17 +67,27 @@
 		}
 		
 		function tick(event) {
-			circle.x = circle.x + v;
+		
+			circle.x = circle.x + vx;
+			circle.y = circle.y + vy;
 			
-			if( leftDown ){
-				v = v - 1;
+			if( leftPressed ){
+				vx = vx - 1;
 			}
-			if( rightDown ){
-				v = v + 1;
+			if( rightPressed ){
+				vx = vx + 1;
+			}
+			if( upPressed ){
+				vy = vy - 1;
+			}
+			if( downPressed ){
+				vy = vy + 1;
 			}
 			
 			if (circle.x > stage.canvas.width + rad) { circle.x = -rad; }
 			if (circle.x < -rad) { circle.x = stage.canvas.width + rad; }
+			if( circle.y > stage.canvas.height + rad){ circle.y = -rad; }
+			if( circle.y < -rad) { circle.y = stage.canvas.height +rad;}
 			stage.update(event); // important!!
 		}
 		
@@ -59,10 +98,16 @@
 			switch (e.keyCode){
 			
 			case KEYCODE_LEFT:
-				leftDown = true;
+				leftPressed = true;
 				break;
 			case KEYCODE_RIGHT:
-				rightDown = true;
+				rightPressed = true;
+				break;
+			case KEYCODE_UP:
+				upPressed = true;
+				break;
+			case KEYCODE_DOWN:
+				downPressed = true;
 				break;
 			}
 		}
@@ -74,11 +119,17 @@
 			switch (e.keyCode){
 			
 			case KEYCODE_LEFT:
-			leftDown = false;
-			break;
+				leftPressed = false;
+				break;
 			case KEYCODE_RIGHT:
-			rightDown = false;
-			break;
+				rightPressed = false;
+				break;
+			case KEYCODE_UP:
+				upPressed = false;
+				break;
+			case KEYCODE_DOWN:
+				downPressed = false;
+				break;
 			}
 		}
 		
@@ -86,7 +137,7 @@
     </script>
 </head>
 <body onLoad="init();">
-    <canvas id="demoCanvas" width="500" height="300">
+    <canvas id="demoCanvas" width="500" height="500">
         alternate content
     </canvas>
 </body>
