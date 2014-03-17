@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+    <script>
+	
+		var KEYCODE_UP = 38; 	//usefull keycode
+		var KEYCODE_LEFT = 37; 	//usefull keycode
+		var KEYCODE_RIGHT = 39; 	//usefull keycode
+		var KEYCODE_DOWN = 40; 	//usefull keycode
+		var PI = Math.PI;
+	
+		var background;
+		var backgroundBorder;
+	
+		var stage;
+		var ship;
+		var shipHeight = 15;
+		var rotationSpeed = 7;
+		
+		var sw;
+		var sh;
+		
+		var bw = 40;
+		var r2bw = bw/Math.sqrt(2);
+		
+		var lineDrawer;
+		var blocks;
+		
+		var levels;
+		
+		var rad = 50;
+		
+		var vx = 0.0;
+		var vy = 0.0;
+		var vTheta = 0;
+		
+		var leftPressed = false;
+		var rightPressed = false;
+		var upPressed = false;
+		var downPressed = false;
+		
+		function intersect(l1, l2){
+		
+			var x = (l2.b - l1.b)/(l1.m - l2.m);
+			var result = new Point( x, (l1.m * x + l1.b) );
+			return result;
+		}
+		
+		function LinearFunction( p1, p2 ){
+		
+			this.m = (p2.y - p1.y)/(p2.x - p1.x);
+			this.b = p1.y - this.m * p1.x;
+		
+		}
+		
+		function evaluateIm( p ){
+			return this.c * p.x + this.d * p.y + this.e;
+		}
+		
+		function ImplicitFunction( p1, p2 ){
+		
+		this.c = p1.y - p2.y;
+		this.d = p2.x - p1.x;
+		var m = (p1.y - p2.y) / (p1.x - p2.x);
+		var b = p1.y - m * p1.x;
+		this.e = b * (p1.x - p2.x);
+		
+		this.eval = evaluateIm;
+		
+		}
+		
+		function Point(x, y){
+		this.x = x;
+		this.y = y;
+		}
+		
+		function Line(p1, p2){
+		this.p1 = p1;
+		this.p2 = p2;
+		}
+		
+		function Block(p1, p2, p3, p4){
+		this.points = new Array();
+		this.points[0] = p1;
+		this.points[1] = p2;
+		this.points[2] = p3;
+		this.points[3] = p4;
+		
+		this.lines = new Array();
+		this.lines[0] = new LinearFunction(p1, p2);
+		this.lines[1] = new LinearFunction(p2, p3);
+		this.lines[2] = new LinearFunction(p3, p4);
+		this.lines[3] = new LinearFunction(p4, p1);
+		
+		this.zeroIsLower = p1.y < p3.y;
+		this.oneIsLower  = p2.y < p4.y;
+		
+		}
+		
+		function Level(){
+		
+		this.blocks = new Array();
+		
+		}
+		
+		function initializeLevels(){
+		
+		//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
+		
+		levels[0] = new Level();
+		
+		levels[0].blocks[0] = new Block( new Point( sw/4, sh ), new Point( sw/4, sh/4 ), new Point( sw/4 + bw, sh/4 ), new Point( sw/4 + bw, sh ) );
+		levels[0].blocks[1] = new Block( new Point( sw/4 + bw, sh/4 ), new Point( sw/2 + bw, sh/4 ), new Point( sw/2 + bw, sh/4 + bw ), new Point( sw/4 + bw, sh/4 + bw ) );
+		levels[0].blocks[2] = new Block( new Point( 3*sw/4, 0 ), new Point( 3*sw/4, 3*sh/4 ), new Point( 3*sw/4 + bw, 3*sh/4 ), new Point( 3*sw/4 + bw, 0 ) );
+		levels[0].blocks[3] = new Block( new Point( 3*sw/4, 3*sh/4 - bw ), new Point( 3*sw/4, 3*sh/4 ), new Point( sw/2 - bw , 3*sh/4 ), new Point( sw/2 - bw, 3*sh/4 - bw ) );
+		
+		levels[1] = new Level();
+		
+		levels[1].blocks[0] = new Block( new Point( sw/5, 0 ), new Point( sw/5+ bw, 0 ), new Point( sw/5 + bw, sh/2 - bw ), new Point( sw/5, sh/2 - bw ) );
+		levels[1].blocks[1] = new Block( new Point( sw/5, sh ), new Point( sw/5+ bw, sh ), new Point( sw/5 + bw, sh/2 + bw ), new Point( sw/5, sh/2 + bw ) );
+		levels[1].blocks[2] = new Block( new Point( 4*sw/5, 0 ), new Point( 4*sw/5+ bw, 0 ), new Point( 4*sw/5 + bw, sh/2 - bw ), new Point( 4*sw/5, sh/2 - bw ) );
+		levels[1].blocks[3] = new Block( new Point( 4*sw/5, sh ), new Point( 4*sw/5+ bw, sh ), new Point( 4*sw/5 + bw, sh/2 + bw ), new Point( 4*sw/5, sh/2 + bw ) );
+		levels[1].blocks[4] = new Block( new Point( sw/5 + bw, sh/2 - bw ), new Point( sw/5 + bw, sh/2 - 2*bw ), new Point( 4*sw/5, sh/2 - 2*bw ), new Point( 4*sw/5, sh/2 - bw ) );
+		levels[1].blocks[5] = new Block( new Point( sw/5 + bw, sh/2 + bw ), new Point( sw/5 + bw, sh/2 + 2*bw ), new Point( 4*sw/5, sh/2 + 2*bw ), new Point( 4*sw/5, sh/2 + bw ) );
+		
+		levels[2] = new Level();
+		
+		levels[2].blocks[0] = new Block( new Point( 3*sw/4, 0 ), new Point( 3*sw/4+ bw, 0 ), new Point( 3*sw/4 + bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3 ) );
+		levels[2].blocks[1] = new Block( new Point( 3*sw/4, sh ), new Point( 3*sw/4+ bw, sh ), new Point( 3*sw/4 + bw, sh/2 + 2*bw/3 ), new Point( 3*sw/4, sh/2 + 2*bw/3 ) );
+		levels[2].blocks[2] = new Block( new Point( sw/5, 0 ), new Point( sw/5 - r2bw, r2bw ), new Point( 3*sw/4 - r2bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3- r2bw ) );
+		levels[2].blocks[3] = new Block( new Point( sw/5, sh ), new Point( sw/5 - r2bw, sh-r2bw ), new Point( 3*sw/4 - r2bw, sh/2 + 2*bw/3 ), new Point( 3*sw/4, sh/2 + 2*bw/3 + r2bw ) );
+		
+		
+		}
+		
+		function drawShip(){
+		
+			ship.graphics.beginStroke("red").moveTo(
+				ship.x + shipHeight * Math.cos( PI/2 ), 
+				ship.y - shipHeight * Math.sin( PI/2 )).lineTo(
+				ship.x + shipHeight * Math.cos( -2*PI/6 ), 
+				ship.y - shipHeight * Math.sin( -2*PI/6 ));
+			ship.graphics.beginStroke("red").moveTo(
+				ship.x + shipHeight * Math.cos( -2*PI/6 ), 
+				ship.y - shipHeight * Math.sin( -2*PI/6 )).lineTo(
+				ship.x + shipHeight * Math.cos( 8*PI/6 ), 
+				ship.y - shipHeight * Math.sin( 8*PI/6 ));
+			ship.graphics.beginStroke("red").moveTo(
+				ship.x + shipHeight * Math.cos( 8*PI/6 ), 
+				ship.y - shipHeight * Math.sin( 8*PI/6 )).lineTo(
+				ship.x + shipHeight * Math.cos( PI/2 ), 
+				ship.y - shipHeight * Math.sin( PI/2 ));
+			ship.graphics.moveTo(ship.x, ship.y);
+			
+		}
+		
+        function init() {
+            stage = new createjs.Stage("demoCanvas");
+			
+			sw = stage.canvas.width;
+			sh = stage.canvas.height;
+			
+			backgroundBorder = new createjs.Shape();
+			backgroundBorder.graphics.setStrokeStyle(4);
+			backgroundBorder.graphics.beginStroke("green").rect(0,0, stage.canvas.width, stage.canvas.height);
+			background = new createjs.Shape();
+			background.graphics.beginFill("black").rect(0,0, stage.canvas.width, stage.canvas.height);
+			-->background.graphics.beginStroke("red").rect(40,40, 20, 20);
+			
+			levels = new Array();
+			initializeLevels();
+			
+			ship = new createjs.Shape();
+			ship.x = 0;
+			ship.y = 0;
+			
+			drawShip();
+			
+			lineDrawer = new createjs.Shape();
+			
+			blocks = levels[0].blocks;
+			
+			
+			for( blockIndex in blocks ){
+			
+				var b = blocks[blockIndex];
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[0].x, b.points[0].y).lineTo(b.points[1].x, b.points[1].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[1].x, b.points[1].y).lineTo(b.points[2].x, b.points[2].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[2].x, b.points[2].y).lineTo(b.points[3].x, b.points[3].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[3].x, b.points[3].y).lineTo(b.points[0].x, b.points[0].y);
+			
+			}
+			
+			stage.addChild(background);
+			stage.addChild(backgroundBorder);
+			stage.addChild(ship);
+			stage.addChild(lineDrawer);
+			
+			ship.x = stage.canvas.width/2;
+			ship.y = stage.canvas.height/2;
+			
+			createjs.Ticker.addEventListener("tick", tick);
+			createjs.Ticker.setFPS(20);
+			
+			document.onkeydown = handleKeyDown;
+			document.onkeyup = handleKeyUp;
+			
+		}
+		
+		function hasCollidedWithShip(block){
+		
+			var shipVertices = new Array();
+			
+			shipVertices[0] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) + PI/2 ), 
+							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) + PI/2 ));
+			shipVertices[1] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) - 2*PI/6 ), 
+							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) - 2*PI/6 ));
+			shipVertices[2] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) + 8*PI/6 ), 
+							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) + 8*PI/6 ));
+			
+			var shipLines = new Array();
+			shipLines[0] = new LinearFunction( shipVertices[0], shipVertices[1] );
+			shipLines[1] = new LinearFunction( shipVertices[1], shipVertices[2] );
+			shipLines[2] = new LinearFunction( shipVertices[2], shipVertices[0] );
+			
+			var blockLines = new Array();
+			blockLines[0] = block.lines[0];
+			blockLines[1] = block.lines[1];
+			blockLines[2] = block.lines[2];
+			blockLines[3] = block.lines[3];
+	
+			//Intersection between shipLines and blockLines
+			
+			for( var i = 0; i < 3; i++){
+			
+				for( var j = 0; j < 4; j++ ){
+			
+					var intersection = intersect( shipLines[i], blockLines[j] );
+			
+					if( intersection.x >= Math.min( block.points[j].x, block.points[(j+1)%4].x ) && intersection.x < Math.max( block.points[j].x, block.points[(j+1)%4].x )
+						&& intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && intersection.x < Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+						return true;
+					}
+				
+				}
+	
+			}
+			
+			//Else we've been through all points and no intersection
+			return false;
+		}
+		
+		function dToR(degrees){
+			return degrees/360 * 2*PI;
+		
+		}
+		
+		function tick(event) {
+			
+			if( leftPressed ){
+				ship.rotation -= rotationSpeed;
+			}
+			if( rightPressed ){
+				ship.rotation += rotationSpeed;
+			}
+			if( upPressed ){
+				vx -= Math.cos( dToR(ship.rotation) + PI/2 );
+				vy -= Math.sin( dToR(ship.rotation) + PI/2 );
+			}
+			if( downPressed ){
+				
+			}
+		
+			ship.x += vx;
+			ship.y += vy;
+			
+			for( var i = 0; i < blocks.length; i++ ){
+			
+				if( hasCollidedWithShip(blocks[i]) ){
+					--> this is the death page
+				
+					ship.x = shipHeight;
+					ship.y = stage.canvas.height/2;
+					vx = 0;
+					vy = 0;
+				
+				}
+			
+				break;
+			
+			}
+			
+			if (ship.x > stage.canvas.width + shipHeight) { ship.x = -shipHeight; }
+			if (ship.x < -shipHeight) { ship.x = stage.canvas.width + shipHeight; }
+			if( ship.y > stage.canvas.height + shipHeight){ ship.y = -shipHeight; }
+			if( ship.y < -shipHeight) { ship.y = stage.canvas.height +shipHeight;}
+			
+			-->drawBack();
+			-->drawShip();
+			
+			
+			stage.update(event); // important!!
+		}
+		
+		function handleKeyDown(e){
+		
+			 if (!e) { var e = window.event; }
+		
+			switch (e.keyCode){
+			
+			case KEYCODE_LEFT:
+				leftPressed = true;
+				break;
+			case KEYCODE_RIGHT:
+				rightPressed = true;
+				break;
+			case KEYCODE_UP:
+				upPressed = true;
+				break;
+			case KEYCODE_DOWN:
+				downPressed = true;
+				break;
+			}
+		}
+		
+		function handleKeyUp(e){
+		
+		 if (!e) { var e = window.event; }
+		
+			switch (e.keyCode){
+			
+			case KEYCODE_LEFT:
+				leftPressed = false;
+				break;
+			case KEYCODE_RIGHT:
+				rightPressed = false;
+				break;
+			case KEYCODE_UP:
+				upPressed = false;
+				break;
+			case KEYCODE_DOWN:
+				downPressed = false;
+				break;
+			}
+		}
+		
+		
+    </script>
+</head>
+<body onLoad="init();">
+    <canvas id="demoCanvas" width="1000" height="650">
+        alternate content
+    </canvas>
+</body>
+</html>
