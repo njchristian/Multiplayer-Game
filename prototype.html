@@ -29,6 +29,7 @@
 		
 		var lineDrawer;
 		var blocks;
+		var boundingBlocks;
 		
 		var levels;
 		
@@ -52,8 +53,16 @@
 		
 		function LinearFunction( p1, p2 ){
 		
-			this.m = (p2.y - p1.y)/(p2.x - p1.x);
-			this.b = p1.y - this.m * p1.x;
+			if( p2.x == p1.x ){
+				this.isVertical = true;
+				this.b = p1.x;
+				this.m = 0;
+			}else{
+				this.isVertical = false;
+				this.m = (p2.y - p1.y)/(p2.x - p1.x);
+				this.b = p1.y - this.m * p1.x;
+				
+			}
 		
 		}
 		
@@ -115,23 +124,23 @@
 		
 		levels[0].blocks[0] = new Block( new Point( sw/4, sh ), new Point( sw/4, sh/4 ), new Point( sw/4 + bw, sh/4 ), new Point( sw/4 + bw, sh ) );
 		levels[0].blocks[1] = new Block( new Point( sw/4 + bw, sh/4 ), new Point( sw/2 + bw, sh/4 ), new Point( sw/2 + bw, sh/4 + bw ), new Point( sw/4 + bw, sh/4 + bw ) );
-		levels[0].blocks[2] = new Block( new Point( 3*sw/4, 0 ), new Point( 3*sw/4, 3*sh/4 ), new Point( 3*sw/4 + bw, 3*sh/4 ), new Point( 3*sw/4 + bw, 0 ) );
+		levels[0].blocks[2] = new Block( new Point( 3*sw/4, bw ), new Point( 3*sw/4, 3*sh/4 ), new Point( 3*sw/4 + bw, 3*sh/4 ), new Point( 3*sw/4 + bw, bw ) );
 		levels[0].blocks[3] = new Block( new Point( 3*sw/4, 3*sh/4 - bw ), new Point( 3*sw/4, 3*sh/4 ), new Point( sw/2 - bw , 3*sh/4 ), new Point( sw/2 - bw, 3*sh/4 - bw ) );
 		
 		levels[1] = new Level();
 		
-		levels[1].blocks[0] = new Block( new Point( sw/5, 0 ), new Point( sw/5+ bw, 0 ), new Point( sw/5 + bw, sh/2 - bw ), new Point( sw/5, sh/2 - bw ) );
+		levels[1].blocks[0] = new Block( new Point( sw/5, bw ), new Point( sw/5+ bw, bw ), new Point( sw/5 + bw, sh/2 - bw ), new Point( sw/5, sh/2 - bw ) );
 		levels[1].blocks[1] = new Block( new Point( sw/5, sh ), new Point( sw/5+ bw, sh ), new Point( sw/5 + bw, sh/2 + bw ), new Point( sw/5, sh/2 + bw ) );
-		levels[1].blocks[2] = new Block( new Point( 4*sw/5, 0 ), new Point( 4*sw/5+ bw, 0 ), new Point( 4*sw/5 + bw, sh/2 - bw ), new Point( 4*sw/5, sh/2 - bw ) );
+		levels[1].blocks[2] = new Block( new Point( 4*sw/5, bw ), new Point( 4*sw/5+ bw, bw ), new Point( 4*sw/5 + bw, sh/2 - bw ), new Point( 4*sw/5, sh/2 - bw ) );
 		levels[1].blocks[3] = new Block( new Point( 4*sw/5, sh ), new Point( 4*sw/5+ bw, sh ), new Point( 4*sw/5 + bw, sh/2 + bw ), new Point( 4*sw/5, sh/2 + bw ) );
 		levels[1].blocks[4] = new Block( new Point( sw/5 + bw, sh/2 - bw ), new Point( sw/5 + bw, sh/2 - 2*bw ), new Point( 4*sw/5, sh/2 - 2*bw ), new Point( 4*sw/5, sh/2 - bw ) );
 		levels[1].blocks[5] = new Block( new Point( sw/5 + bw, sh/2 + bw ), new Point( sw/5 + bw, sh/2 + 2*bw ), new Point( 4*sw/5, sh/2 + 2*bw ), new Point( 4*sw/5, sh/2 + bw ) );
 		
 		levels[2] = new Level();
 		
-		levels[2].blocks[0] = new Block( new Point( 3*sw/4, 0 ), new Point( 3*sw/4+ bw, 0 ), new Point( 3*sw/4 + bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3 ) );
+		levels[2].blocks[0] = new Block( new Point( 3*sw/4, bw ), new Point( 3*sw/4+ bw, bw ), new Point( 3*sw/4 + bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3 ) );
 		levels[2].blocks[1] = new Block( new Point( 3*sw/4, sh ), new Point( 3*sw/4+ bw, sh ), new Point( 3*sw/4 + bw, sh/2 + 2*bw/3 ), new Point( 3*sw/4, sh/2 + 2*bw/3 ) );
-		levels[2].blocks[2] = new Block( new Point( sw/5, 0 ), new Point( sw/5 - r2bw, r2bw ), new Point( 3*sw/4 - r2bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3- r2bw ) );
+		levels[2].blocks[2] = new Block( new Point( sw/5, bw ), new Point( sw/5 - r2bw, r2bw ), new Point( 3*sw/4 - r2bw, sh/2 - 2*bw/3 ), new Point( 3*sw/4, sh/2 - 2*bw/3- r2bw ) );
 		levels[2].blocks[3] = new Block( new Point( sw/5, sh ), new Point( sw/5 - r2bw, sh-r2bw ), new Point( 3*sw/4 - r2bw, sh/2 + 2*bw/3 ), new Point( 3*sw/4, sh/2 + 2*bw/3 + r2bw ) );
 		
 		
@@ -162,7 +171,7 @@
             stage = new createjs.Stage("demoCanvas");
 			
 			sw = stage.canvas.width;
-			sh = stage.canvas.height;
+			sh = stage.canvas.height - bw;
 			
 			backgroundBorder = new createjs.Shape();
 			backgroundBorder.graphics.setStrokeStyle(4);
@@ -182,8 +191,19 @@
 			
 			lineDrawer = new createjs.Shape();
 			
+			
 			blocks = levels[0].blocks;
 			
+			boundingBlocks = new Array();
+			boundingBlocks[0] = new Block(new Point(0,0), new Point(0, bw), new Point( stage.canvas.width, bw)
+				, new Point( stage.canvas.width, 0) );
+			boundingBlocks[1] = new Block(new Point(0,stage.canvas.height), new Point(0, stage.canvas.height-bw), new Point( stage.canvas.width, stage.canvas.height-bw)
+				, new Point( stage.canvas.width, stage.canvas.height) );
+			
+
+			//blocks = new Array();
+			//blocks[0] = new Block( new Point( 50, 50 ), new Point(50, 250), new Point(100, 250), new Point(100, 50));
+				
 			
 			for( blockIndex in blocks ){
 			
@@ -195,10 +215,22 @@
 			
 			}
 			
+			for( blockIndex in boundingBlocks ){
+			
+				var b = boundingBlocks[blockIndex];
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[0].x, b.points[0].y).lineTo(b.points[1].x, b.points[1].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[1].x, b.points[1].y).lineTo(b.points[2].x, b.points[2].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[2].x, b.points[2].y).lineTo(b.points[3].x, b.points[3].y);
+				lineDrawer.graphics.beginStroke("green").moveTo(b.points[3].x, b.points[3].y).lineTo(b.points[0].x, b.points[0].y);
+			
+			}
+			
 			stage.addChild(background);
 			stage.addChild(backgroundBorder);
 			stage.addChild(ship);
 			stage.addChild(lineDrawer);
+			
+			
 			
 			ship.x = stage.canvas.width/2;
 			ship.y = stage.canvas.height/2;
@@ -239,11 +271,33 @@
 			
 				for( var j = 0; j < 4; j++ ){
 			
-					var intersection = intersect( shipLines[i], blockLines[j] );
+					if(blockLines[j].isVertical){
+						
+						//for vertical lines, the variable b describes the constant x value
+						//So the intersection is just the ship lines function executed at the x value
+						var intersection = new Point( blockLines[j].b, shipLines[i].m * blockLines[j].b + shipLines[i].b);
+						
+						if( intersection.y >= Math.min( block.points[j].y, block.points[(j+1)%4].y ) && 
+							intersection.y <  Math.max( block.points[j].y, block.points[(j+1)%4].y ) && 
+							intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && 
+							intersection.x <  Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+								
+								return true;
+						}
+					
+
+					}else{
 			
-					if( intersection.x >= Math.min( block.points[j].x, block.points[(j+1)%4].x ) && intersection.x < Math.max( block.points[j].x, block.points[(j+1)%4].x )
-						&& intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && intersection.x < Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
-						return true;
+						var intersection = intersect( shipLines[i], blockLines[j] );
+			
+						if( intersection.x >= Math.min( block.points[j].x, block.points[(j+1)%4].x ) && 
+							intersection.x <  Math.max( block.points[j].x, block.points[(j+1)%4].x ) && 
+							intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && 
+							intersection.x <  Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+							
+							return true;
+						}
+					
 					}
 				
 				}
@@ -278,7 +332,7 @@
 			ship.x += vx;
 			ship.y += vy;
 			
-			for( var i = 0; i < blocks.length; i++ ){
+			for( i in blocks ){
 			
 				if( hasCollidedWithShip(blocks[i]) ){
 					--> this is the death page
@@ -287,17 +341,31 @@
 					ship.y = stage.canvas.height/2;
 					vx = 0;
 					vy = 0;
-				
+					
+					break;
 				}
-			
-				break;
 			
 			}
 			
-			if (ship.x > stage.canvas.width + shipHeight) { ship.x = -shipHeight; }
+			for( i in boundingBlocks ){
+			
+				if( hasCollidedWithShip(boundingBlocks[i]) ){
+					--> this is the death page
+				
+					ship.x = shipHeight;
+					ship.y = stage.canvas.height/2;
+					vx = 0;
+					vy = 0;
+					
+					break;
+				}
+			
+			}
+			
+			if (ship.x > stage.canvas.width + shipHeight) { ship.x = -shipHeight; blocks = levels[1].blocks;}
 			if (ship.x < -shipHeight) { ship.x = stage.canvas.width + shipHeight; }
 			if( ship.y > stage.canvas.height + shipHeight){ ship.y = -shipHeight; }
-			if( ship.y < -shipHeight) { ship.y = stage.canvas.height +shipHeight;}
+			if( ship.y < -shipHeight) { ship.y = stage.canvas.height +shipHeight; }
 			
 			-->drawBack();
 			-->drawShip();
