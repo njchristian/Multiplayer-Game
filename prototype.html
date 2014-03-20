@@ -338,7 +338,9 @@
 			
 				if( hasCollidedWithShip(blocks[i]) ){
 					--> this is the death page
-				
+					
+					init();
+					
 					ship.x = shipHeight;
 					ship.y = stage.canvas.height/2;
 					vx = 0;
@@ -353,6 +355,8 @@
 			
 				if( hasCollidedWithShip(boundingBlocks[i]) ){
 					--> this is the death page
+					
+					init();
 				
 					ship.x = shipHeight;
 					ship.y = stage.canvas.height/2;
