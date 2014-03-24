@@ -7,13 +7,14 @@ function Game( g ){
 	
 	this.menuManager = new MenuManager( this );
 	this.gameManager = new GameManager( this );
+	
 }
 
 Game.prototype.start = function(){
 
 	this.isOnMenu = true;
 	this.menuManager.toMainMenu();
-	setInterval( this.run, 1000/fps );
+	setInterval( run, 1000/fps );
 	
 }
 
@@ -45,19 +46,19 @@ Game.prototype.update = function(){
 	//the menu does not need to be updated
 }
 
-Game.prototype.run = function(){
+var run = function( game ){
 
-	this.update();
-	this.draw();
+	myGame.update();
+	myGame.draw();
 
 }
 
 Game.prototype.draw = function(){
 
-	if( this.isOnMenu() ){
-		this.menuManager.draw( graphics );
+	if( this.isOnMenu ){
+		this.menuManager.draw( this.graphics );
 	}else{
-		this.gameManager.draw( graphics );
+		this.gameManager.draw( this.graphics );
 	}
 
 }
