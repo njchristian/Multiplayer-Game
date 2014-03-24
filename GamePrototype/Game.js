@@ -1,25 +1,36 @@
 
 function(fps, sw, sh) Game{
 
-	this.start = function(){
-	
-		setInterval( gameLoop, 1000/fps );
-	
-	}
-	
-	this.end = function(){
-		clearInterval( gameLoop );
-	}
-
 	this.isOnMenu = true;
 	
-	this.MenuManager = new MenuManager(sw, sh);
-	this.GameManager = new GameManager(sw, sh);
+	this.menuManager = new MenuManager( this );
+	this.gameManager = new GameManager( this );
 }
 
 Game.prototype.start = function(){
 
 	this.isOnMenu = true;
+	setInterval( gameLoop, 1000/fps );
+	
+}
+
+Game.prototype.end = function(){
+
+	clearInterval( gameLoop );
+
+}
+
+Game.prototype.returnToMenu = function(){
+
+	menuManager.toMainMenu();
+	isOnMenu = true;
+
+}
+
+Game.prototype.goToGame = function(){
+
+	isOnMenu = false;
+	gameManager.newGame();
 
 }
 
@@ -32,13 +43,19 @@ Game.prototype.run = function(){
 
 Game.prototype.update = function(){
 
-	//Tick
+	if( !isOnMenu ){
+		gameManager.update();
+	}
 
 }
 
 Game.prototype.draw = function(){
 
-
+	if( isOnMenu() ){
+		menuManager.draw();
+	}else{
+		gameManager.update();
+	}
 
 }
 

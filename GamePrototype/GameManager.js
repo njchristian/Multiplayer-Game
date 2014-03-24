@@ -1,15 +1,14 @@
 
 
 
-function GameManager( sw, sh ){
+function GameManager( gameObject ){
+
+	this.parentGame = gameObject;
 
 	this.ship = new Ship();
 	
 	//An array of levels
 	this.levelLayout = new Array();
-
-	this.sw = sw;
-	this.sh = sh;
 	
 	this.currentLevel = 0;
 	
@@ -19,12 +18,23 @@ function GameManager( sw, sh ){
 	//Array of active blocks for collision detection
 	this.activeBlocks = new Array();
 	
+	//Flags for ship movement
 	this.thrust = false;
-	
 	this.leftTurn = false;
-	
 	this.rightTurn = false;
 	
+	//Flag for death - use later during animations
+	this.dead = false;
+	
+	//Flag for pause menu
+	this.pause = false;
+	
+}
+
+Game.prototype.newGame(){
+
+	//Sets all states to those to start a new game
+
 }
 
 GameManager.prototype.generateLevelLayout = function(){
@@ -38,10 +48,14 @@ GameManager.prototype.draw = function( graphics ){
 	drawBackground();
 	drawShip();
 	drawBlocks();
+	
+	if( pause ) drawPause();
 
 }
 
 GameManager.prototype.update = function(){
+
+	if( pause ) return;
 
 	if( thrust ) ship.thrust();
 	
@@ -53,6 +67,48 @@ GameManager.prototype.update = function(){
 			ship.rightTurn();
 		}
 	}
+	
+	//update active blocks
+	/****
+	
+	****/
+	//
+	
+	for( i in activeBlocks ){
+			
+		if( hasCollidedWithShip(ship, activeBlocks[i]) ){
+					
+			init();
+					
+			ship.x = shipHeight;
+			ship.y = stage.canvas.height/2;
+			vx = 0;
+			vy = 0;
+					
+			break;
+		}
+			
+	}
+
+}
+
+GameManager.prototype.resumeGame = function(){
+
+	pause = false;
+
+}
+
+GameManager.prototype.pauseGame = function(){
+
+	pause = true;
+
+}
+
+GameManager.prototype.quitGame = function(){
+
+	//Clear game state
+	
+	parentGame.isOnMenu = true;
 
 }
 
@@ -127,4 +183,65 @@ GameManager.prototype.drawShip = function( graphics ){
 		ship.x + shipHeight * Math.cos( PI/2 + ship.rotation ), 
 		ship.y - shipHeight * Math.sin( PI/2 + ship.rotation ));
 			
+}
+
+GameManager.prototype.drawPause = function(){
+
+	//draw the pause menu
+
+}
+
+function gameHandleKeyDown(e){
+		
+	if( pause ) return;	
+		
+	if (!e) { var e = window.event; }
+		
+	switch (e.keyCode){
+	
+	case KEYCODE_LEFT:
+		leftPressed = true;
+		break;
+	case KEYCODE_RIGHT:
+		rightPressed = true;
+		break;
+	case KEYCODE_UP:
+		upPressed = true;
+		break;
+	case KEYCODE_DOWN:
+		downPressed = true;
+		break;
+		
+	}
+}
+
+function gameHandleKeyUp(e){
+		
+	if( pause ) return;
+		
+	if (!e) { var e = window.event; }
+		
+	switch (e.keyCode){
+			
+	case KEYCODE_LEFT:
+		leftPressed = false;
+		break;
+	case KEYCODE_RIGHT:
+		rightPressed = false;
+		break;
+	case KEYCODE_UP:
+		upPressed = false;
+		break;
+	case KEYCODE_DOWN:
+		downPressed = false;
+		break;
+			
+	}
+	
+}
+
+function gameHandleClick(e){
+
+
+
 }

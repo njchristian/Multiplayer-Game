@@ -2,11 +2,10 @@ var MAIN_MENU = 1;
 var INSTRUCTIONS = 2;
 var HIGHSCORES = 3;
 
-function MenuManager(sw, sh){
+function MenuManager( gameObject ){
 
 	this.currentScreen = MAIN_MENU;
-	this.sw = sw;
-	this.sh = sh;
+	this.parentGame = gameObject;
 
 }
 
@@ -37,5 +36,23 @@ MenuManager.prototype.drawInstructions = function(){
 MenuManager.prototype.drawHighscores = function(){
 
 	//Draw highscores
+
+}
+
+MenuManager.prototype.toMainMenu = function(){
+
+	currentScreen = MAIN_MENU;
+
+}
+
+MenuManager.prototype.toInstructions = function(){
+
+	currentScreen = INSTRUCTIONS;
+
+}
+
+MenuManager.prototype.toHighscores = function(){
+
+	currentScreen = HIGHSCORES;
 
 }
