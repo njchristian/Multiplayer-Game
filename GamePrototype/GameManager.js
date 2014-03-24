@@ -1,5 +1,8 @@
 
-
+var TIME_TRIAL = 1;
+var SINGLE_CHALLENGE = 2;
+var MULTI_RACE = 3;
+var MULTI_CHALLENGE = 4;
 
 function GameManager( gameObject ){
 
@@ -18,6 +21,9 @@ function GameManager( gameObject ){
 	//Array of active blocks for collision detection
 	this.activeBlocks = new Array();
 	
+	//Buffer array for challenge mode
+	this.challengeBuffer = new Array();
+	
 	//Flags for ship movement
 	this.thrust = false;
 	this.leftTurn = false;
@@ -29,10 +35,21 @@ function GameManager( gameObject ){
 	//Flag for pause menu
 	this.pause = false;
 	
+	//Identify a variable for game mode.
+	this.gameMode = 0;
+	
 }
 
-Game.prototype.newGame(){
+Game.prototype.newGame = function( gm ){
 
+	this.gameMode = gm;
+	
+	if( this.gameMode == TIME_TRIAL || this.gameMode == MULTI_RACE ){
+		this.generateLevelLayout();
+	}else{
+		this.initChallengeBuffer();
+	}
+	
 	//Sets all states to those to start a new game
 
 }
@@ -43,28 +60,46 @@ GameManager.prototype.generateLevelLayout = function(){
 
 }
 
+GameManager.prototype.initChallengeBuffer = function(){
+
+	//initialize the challenge level buffer
+
+}
+
+GameManager.prototype.generateChallengeLevel = function(){
+
+	//Create a new challenge level in the challenge buffer
+
+}
+
 GameManager.prototype.draw = function( graphics ){
 
-	drawBackground();
-	drawShip();
-	drawBlocks();
+	this.drawBackground();
+	this.drawShip();
+	this.drawBlocks();
 	
-	if( pause ) drawPause();
+	if( this.pause ) this.drawPause();
 
 }
 
 GameManager.prototype.update = function(){
 
-	if( pause ) return;
+	if( this.pause ) return;
+	
+	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
+	
+		//check if we need to add a new level
+	
+	}
 
-	if( thrust ) ship.thrust();
+	if( this.thrust ) this.ship.thrust();
 	
 	//If one of them, but not both (exclusive OR)
-	if( leftTurn ^ rightTurn ){
-		if( leftTurn ){
-			ship.leftTurn();
+	if( this.leftTurn ^ this.rightTurn ){
+		if( this.leftTurn ){
+			this.ship.leftTurn();
 		}else{
-			ship.rightTurn();
+			this.ship.rightTurn();
 		}
 	}
 	
@@ -74,16 +109,14 @@ GameManager.prototype.update = function(){
 	****/
 	//
 	
-	for( i in activeBlocks ){
+	for( i in this.activeBlocks ){
 			
-		if( hasCollidedWithShip(ship, activeBlocks[i]) ){
+		if( hasCollidedWithShip(this.ship, this.activeBlocks[i]) ){
 					
-			init();
-					
-			ship.x = shipHeight;
-			ship.y = stage.canvas.height/2;
-			vx = 0;
-			vy = 0;
+			this.ship.xPos = shipHeight;
+			this.ship.yPos = stage.canvas.height/2;
+			this.ship.vx = 0;
+			this.ship.vy = 0;
 					
 			break;
 		}
@@ -94,13 +127,13 @@ GameManager.prototype.update = function(){
 
 GameManager.prototype.resumeGame = function(){
 
-	pause = false;
+	this.pause = false;
 
 }
 
 GameManager.prototype.pauseGame = function(){
 
-	pause = true;
+	this.pause = true;
 
 }
 
@@ -108,7 +141,7 @@ GameManager.prototype.quitGame = function(){
 
 	//Clear game state
 	
-	parentGame.isOnMenu = true;
+	this.parentGame.isOnMenu = true;
 
 }
 
@@ -123,11 +156,11 @@ GameManager.prototype.drawBlocks = function( graphics ){
 
 	graphics.fillStyle = "green";
 	
-	for( int i = currentLevel - 1; i <= currentLevel + 1; ++i){
+	for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
 	
 		//bounds for the first and last levels
 		if( i < 0 ) i = 0;
-		if( i > layoutSize ) i = layoutSize;
+		if( i > this.layoutSize ) i = this.layoutSize;
 	
 		var currentBlocks = levelLayout.at(i).blocks;
 	
@@ -193,23 +226,20 @@ GameManager.prototype.drawPause = function(){
 
 function gameHandleKeyDown(e){
 		
-	if( pause ) return;	
+	if( this.pause ) return;	
 		
 	if (!e) { var e = window.event; }
 		
 	switch (e.keyCode){
 	
 	case KEYCODE_LEFT:
-		leftPressed = true;
+		this.leftTurn = true;
 		break;
 	case KEYCODE_RIGHT:
-		rightPressed = true;
+		this.rightTurn = true;
 		break;
 	case KEYCODE_UP:
-		upPressed = true;
-		break;
-	case KEYCODE_DOWN:
-		downPressed = true;
+		this.thrust = true;
 		break;
 		
 	}
@@ -217,23 +247,20 @@ function gameHandleKeyDown(e){
 
 function gameHandleKeyUp(e){
 		
-	if( pause ) return;
+	if( this.pause ) return;
 		
 	if (!e) { var e = window.event; }
 		
 	switch (e.keyCode){
 			
 	case KEYCODE_LEFT:
-		leftPressed = false;
+		this.leftTurn = false;
 		break;
 	case KEYCODE_RIGHT:
-		rightPressed = false;
+		this.rightTurn = false;
 		break;
 	case KEYCODE_UP:
-		upPressed = false;
-		break;
-	case KEYCODE_DOWN:
-		downPressed = false;
+		this.thrust = false;
 		break;
 			
 	}

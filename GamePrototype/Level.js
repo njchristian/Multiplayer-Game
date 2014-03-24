@@ -6,7 +6,7 @@ function Level(){
 		
 }
 		
-function initializeLevels( sw, sh, bw){
+function initializeLevels( levels ){
 		
 	//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
 		

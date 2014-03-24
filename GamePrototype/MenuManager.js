@@ -9,31 +9,32 @@ function MenuManager( gameObject ){
 
 }
 
-MenuManager.prototype.draw = function(){
+MenuManager.prototype.draw = function( graphics ){
 
-	if( currentScreen == MAIN_MENU ){
-		drawMainMenu();
-	}else if( currentScreen == INSTRUCTIONS ){
-		drawInstructions();
-	}else if( currentScreen == HIGHSCORES ){
-		drawHighscores();
+	if( this.currentScreen == MAIN_MENU ){
+		this.drawMainMenu(graphics);
+	}else if( this.currentScreen == INSTRUCTIONS ){
+		this.drawInstructions(graphics);
+	}else if( this.currentScreen == HIGHSCORES ){
+		this.drawHighscores(graphics);
 	}
 
 }
 
-MenuManager.prototype.drawMainMenu = function(){
+MenuManager.prototype.drawMainMenu = function( graphics ){
 
 	//Draw main menu
+	graphics.fillRect(0,0,sw, sh);
 
 }
 
-MenuManager.prototype.drawInstructions = function(){
+MenuManager.prototype.drawInstructions = function( graphics ){
 
 	//Draw instructions
 
 }
 
-MenuManager.prototype.drawHighscores = function(){
+MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
 
@@ -41,18 +42,18 @@ MenuManager.prototype.drawHighscores = function(){
 
 MenuManager.prototype.toMainMenu = function(){
 
-	currentScreen = MAIN_MENU;
+	this.currentScreen = MAIN_MENU;
 
 }
 
 MenuManager.prototype.toInstructions = function(){
 
-	currentScreen = INSTRUCTIONS;
+	this.currentScreen = INSTRUCTIONS;
 
 }
 
 MenuManager.prototype.toHighscores = function(){
 
-	currentScreen = HIGHSCORES;
+	this.currentScreen = HIGHSCORES;
 
 }

@@ -1,6 +1,8 @@
 
-function(fps, sw, sh) Game{
+function Game( g ){
 
+	this.graphics = g;
+	
 	this.isOnMenu = true;
 	
 	this.menuManager = new MenuManager( this );
@@ -10,51 +12,52 @@ function(fps, sw, sh) Game{
 Game.prototype.start = function(){
 
 	this.isOnMenu = true;
-	setInterval( gameLoop, 1000/fps );
+	this.menuManager.toMainMenu();
+	setInterval( this.run, 1000/fps );
 	
 }
 
 Game.prototype.end = function(){
 
-	clearInterval( gameLoop );
+	clearInterval( this.run );
 
 }
 
 Game.prototype.returnToMenu = function(){
 
-	menuManager.toMainMenu();
-	isOnMenu = true;
+	this.menuManager.toMainMenu();
+	this.isOnMenu = true;
 
 }
 
 Game.prototype.goToGame = function(){
 
-	isOnMenu = false;
-	gameManager.newGame();
-
-}
-
-Game.prototype.run = function(){
-
-	Game.update();
-	Game.draw();
+	this.isOnMenu = false;
+	this.gameManager.newGame();
 
 }
 
 Game.prototype.update = function(){
 
-	if( !isOnMenu ){
-		gameManager.update();
+	if( !this.isOnMenu ){
+		this.gameManager.update();
 	}
+	//the menu does not need to be updated
+}
+
+Game.prototype.run = function(){
+
+	this.update();
+	this.draw();
 
 }
 
 Game.prototype.draw = function(){
 
-	if( isOnMenu() ){
-		menuManager.draw();
+	if( this.isOnMenu() ){
+		this.menuManager.draw( graphics );
 	}else{
-		gameManager.update();
+		this.gameManager.draw( graphics );
 	}
 
 }
