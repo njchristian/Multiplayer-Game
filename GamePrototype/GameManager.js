@@ -48,8 +48,10 @@ GameManager.prototype.newGame = function( gm ){
 
 	this.gameMode = gm;
 	
-	if( this.gameMode == TIME_TRIAL || this.gameMode == MULTI_RACE ){
-		this.generateLevelLayout();
+	if( this.gameMode == TIME_TRIAL ){
+		this.generateLevelLayout( this.levelLayout, false, false );
+	} else if( this.gameMode == MULTI_RACE ){
+		this.generateLevelLayout( this.levelLayout, true, true );
 	}else{
 		this.initChallengeBuffer();
 	}
@@ -131,15 +133,18 @@ GameManager.prototype.update = function(){
 		this.currentLevel--;
 	}
 	
-	console.log(this.currentLevel);
-	
 	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
 		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] ) ){
 					
-			console.log("Collision");
+			//console.log("Collision");
 			
-			this.ship.xPos = shipHeight;
+			var respawnPoint = this.currentLevel * sw;
+			var respawnOffset = this.ship.xPos - respawnPoint;
+			
+			this.so-=respawnOffset;
+			
+			this.ship.xPos = respawnPoint;
 			this.ship.yPos = sh/2;
 			this.ship.vx = 0;
 			this.ship.vy = 0;
