@@ -9,7 +9,6 @@ function GameManager( gameObject ){
 	this.parentGame = gameObject;
 
 	this.ship = new Ship();
-	
 	this.shipHeight = this.ship.height;
 	
 	//An array of levels
@@ -21,12 +20,11 @@ function GameManager( gameObject ){
 	//length of a level layout
 	this.layoutSize = 1;
 	
-	//Array of active blocks for collision detection
-	this.activeBlocks = new Array();
-	this.activeBlocks = this.levelLayout[0].blocks;
-	
 	//Buffer array for challenge mode
 	this.challengeBuffer = new Array();
+	
+	//Scroll offset
+	this.so = 0;
 	
 	//Flags for ship movement
 	this.thrust = false;
@@ -118,7 +116,10 @@ GameManager.prototype.update = function(){
 		}
 	}
 	
-	this.ship.update();
+	//scroll velocity is linked to the x-velocity of the ship
+	var sv = this.ship.update();
+	
+	this.so += sv;
 	
 	//update active blocks
 	/****
@@ -126,9 +127,9 @@ GameManager.prototype.update = function(){
 	****/
 	//
 	
-	for( i in this.activeBlocks ){
+	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, this.activeBlocks[i]) ){
+		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] ) ){
 					
 			console.log("Collision");
 			
@@ -195,18 +196,18 @@ GameManager.prototype.drawBlocks = function( graphics ){
 			var b = currentBlocks[blockIndex];
 			graphics.beginPath();
 			
-			graphics.moveTo(b.points[0].x, b.points[0].y);
-			graphics.lineTo(b.points[1].x, b.points[1].y);
+			graphics.moveTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.lineTo(b.points[1].x - this.so, b.points[1].y);
 			
-			graphics.moveTo(b.points[1].x, b.points[1].y);
-			graphics.lineTo(b.points[2].x, b.points[2].y);
+			graphics.moveTo(b.points[1].x - this.so, b.points[1].y);
+			graphics.lineTo(b.points[2].x - this.so, b.points[2].y);
 			
-			graphics.moveTo(b.points[2].x, b.points[2].y);
-			graphics.lineTo(b.points[3].x, b.points[3].y);
+			graphics.moveTo(b.points[2].x - this.so, b.points[2].y);
+			graphics.lineTo(b.points[3].x - this.so, b.points[3].y);
 			
 			//graphics.closePath();
-			graphics.moveTo(b.points[3].x, b.points[3].y);
-			graphics.lineTo(b.points[0].x, b.points[0].y);
+			graphics.moveTo(b.points[3].x - this.so, b.points[3].y);
+			graphics.lineTo(b.points[0].x - this.so, b.points[0].y);
 			graphics.stroke();
 			
 		}
@@ -222,25 +223,24 @@ GameManager.prototype.drawShip = function( graphics ){
 	
 	graphics.beginPath();
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
 	
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
-	
 	
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ), 
+		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
 	graphics.stroke();
 }

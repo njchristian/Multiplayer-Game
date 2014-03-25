@@ -31,19 +31,22 @@ function makeLevelTwoAtIndex( levels, i ){
 	levels[i] = new Level();
 		
 	levels[i].blocks[0] = new Block( new Point( i*sw +sw/5, bw ), new Point( i*sw +sw/5+ bw, bw ), new Point( i*sw +sw/5 + bw, sh/2 - bw ), new Point( i*sw +sw/5, sh/2 - bw ) );
-	levels[i].blocks[1] = new Block( new Point( i*sw +sw/5, sh ), new Point( i*sw +sw/5+ bw, sh ), new Point( i*sw +sw/5 + bw, sh/2 + bw ), new Point( i*sw +sw/5, sh/2 + bw ) );
+	levels[i].blocks[1] = new Block( new Point( i*sw +sw/5, sh-bw ), new Point( i*sw +sw/5+ bw, sh-bw ), new Point( i*sw +sw/5 + bw, sh/2 + bw ), new Point( i*sw +sw/5, sh/2 + bw ) );
 	levels[i].blocks[2] = new Block( new Point( i*sw +4*sw/5, bw ), new Point( i*sw +4*sw/5+ bw, bw ), new Point( i*sw +4*sw/5 + bw, sh/2 - bw ), new Point( i*sw +4*sw/5, sh/2 - bw ) );
-	levels[i].blocks[3] = new Block( new Point( i*sw +4*sw/5, sh ), new Point( i*sw +4*sw/5+ bw, sh ), new Point( i*sw +4*sw/5 + bw, sh/2 + bw ), new Point( i*sw +4*sw/5, sh/2 + bw ) );
+	levels[i].blocks[3] = new Block( new Point( i*sw +4*sw/5, sh-bw ), new Point( i*sw +4*sw/5+ bw, sh-bw ), new Point( i*sw +4*sw/5 + bw, sh/2 + bw ), new Point( i*sw +4*sw/5, sh/2 + bw ) );
 	levels[i].blocks[4] = new Block( new Point( i*sw +sw/5 + bw, sh/2 - bw ), new Point( i*sw +sw/5 + bw, sh/2 - 2*bw ), new Point( i*sw +4*sw/5, sh/2 - 2*bw ), new Point( i*sw +4*sw/5, sh/2 - bw ) );
 	levels[i].blocks[5] = new Block( new Point( i*sw +sw/5 + bw, sh/2 + bw ), new Point( i*sw +sw/5 + bw, sh/2 + 2*bw ), new Point( i*sw +4*sw/5, sh/2 + 2*bw ), new Point( i*sw +4*sw/5, sh/2 + bw ) );
 	
+	makeBoundingBlocks( levels, i, 6 );
 }
 		
 function initializeLevels( levels ){
 		
 	//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
 		
-	makeLevelOneAtIndex( levels, 0 );
+	makeLevelOneAtIndex( levels, 0 );	
+		
+	makeLevelTwoAtIndex( levels, 1 );
 
 	/*
 	levels[2] = new Level();

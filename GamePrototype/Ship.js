@@ -18,14 +18,16 @@ Ship.prototype.update = function(){
 
 	this.xPos+=this.vx;
 	this.yPos+=this.vy;
+	
+	return this.vx;
 
 }
 
 Ship.prototype.thrust = function(){
 
 	//console.log("Thrust");
-	this.vx += Math.cos( this.rotation + PI/2 );
-	this.vy -= Math.sin( this.rotation + PI/2 );
+	this.vx += (Math.cos( this.rotation + PI/2 )*.5);
+	this.vy -= (Math.sin( this.rotation + PI/2 )*.5);
 
 }
 
