@@ -101,7 +101,7 @@ function makeLevelTwo( levels ){
 	makeBoundingBlocks( levels, i, 6 );
 }
 		
-function initializeLevels( levels ){
+function initializeLevels( levels, multi, top ){
 		
 	//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
 		
