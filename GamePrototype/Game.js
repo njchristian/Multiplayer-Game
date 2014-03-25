@@ -46,7 +46,7 @@ Game.prototype.update = function(){
 	//the menu does not need to be updated
 }
 
-var run = function( game ){
+var run = function( ){
 
 	myGame.update();
 	myGame.draw();

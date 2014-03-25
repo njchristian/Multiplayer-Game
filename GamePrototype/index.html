@@ -28,16 +28,20 @@
 		var sw = 1000;
 		var sh = 650;
 		
+		var bw = 40;
+		
+		var shipHeight = 15;
+		
 		var fps = 30;
 		var myGame;
         function init() {
 			
 			
 			//I forgot the format for adding event listeners, so here it is for reference
-			/*
-			document.addEventListener('keydown', handleKeyDown);
-			document.addEventListener('keyup', handleKeyUp);
-			*/
+			
+			document.addEventListener('keydown', gameHandleKeyDown);
+			document.addEventListener('keyup', gameHandleKeyUp);
+			
 			
 			var c = document.getElementById("gameCanvas");
 			

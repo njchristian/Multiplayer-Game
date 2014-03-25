@@ -3,13 +3,14 @@
 function hasCollidedWithShip(ship, block){
 		
 	var shipVertices = new Array();
+	var shipHeight = ship.height;
 			
-	shipVertices[0] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) + PI/2 ), 
-							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) + PI/2 ));
-	shipVertices[1] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) - 2*PI/6 ), 
-							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) - 2*PI/6 ));
-	shipVertices[2] = new Point(ship.x + shipHeight * Math.cos( dToR( ship.rotation) + 8*PI/6 ), 
-							   ship.y - shipHeight * Math.sin( dToR( ship.rotation) + 8*PI/6 ));
+	shipVertices[0] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + PI/2 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation + PI/2 ));
+	shipVertices[1] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation - 2*PI/6 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation - 2*PI/6 ));
+	shipVertices[2] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + 8*PI/6 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation + 8*PI/6 ));
 			
 	var shipLines = new Array();
 	shipLines[0] = new LinearFunction( shipVertices[0], shipVertices[1] );

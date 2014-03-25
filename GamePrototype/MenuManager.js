@@ -19,11 +19,13 @@ MenuManager.prototype.draw = function( graphics ){
 		this.drawHighscores(graphics);
 	}
 
+	this.parentGame.goToGame();
 }
 
 MenuManager.prototype.drawMainMenu = function( graphics ){
 
 	//Draw main menu
+	graphics.fillStyle ="#000000";
 	graphics.fillRect(0,0,sw, sh);
 
 }

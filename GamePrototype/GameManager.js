@@ -10,16 +10,20 @@ function GameManager( gameObject ){
 
 	this.ship = new Ship();
 	
+	this.shipHeight = this.ship.height;
+	
 	//An array of levels
 	this.levelLayout = new Array();
+	initializeLevels( this.levelLayout );
 	
 	this.currentLevel = 0;
 	
 	//length of a level layout
-	this.layoutSize = 3;
+	this.layoutSize = 1;
 	
 	//Array of active blocks for collision detection
 	this.activeBlocks = new Array();
+	this.activeBlocks = this.levelLayout[0].blocks;
 	
 	//Buffer array for challenge mode
 	this.challengeBuffer = new Array();
@@ -40,7 +44,9 @@ function GameManager( gameObject ){
 	
 }
 
-Game.prototype.newGame = function( gm ){
+GameManager.prototype.newGame = function( gm ){
+
+	console.log("New Game");
 
 	this.gameMode = gm;
 	
@@ -51,6 +57,12 @@ Game.prototype.newGame = function( gm ){
 	}
 	
 	//Sets all states to those to start a new game
+	
+	this.ship.xPos = sw/2;
+	this.ship.yPos = sh/2;
+	
+	//document.addEventListener('keydown', gameHandleKeyDown);
+	//document.addEventListener('keyup', gameHandleKeyUp);
 
 }
 
@@ -74,11 +86,12 @@ GameManager.prototype.generateChallengeLevel = function(){
 
 GameManager.prototype.draw = function( graphics ){
 
-	this.drawBackground();
-	this.drawShip();
-	this.drawBlocks();
+	//graphics.clearRect(0,0,sw, sh);
+	this.drawBackground( graphics );
+	this.drawShip( graphics );
+	this.drawBlocks( graphics );
 	
-	if( this.pause ) this.drawPause();
+	if( this.pause ) this.drawPause( graphics );
 
 }
 
@@ -92,7 +105,9 @@ GameManager.prototype.update = function(){
 	
 	}
 
-	if( this.thrust ) this.ship.thrust();
+	if( this.thrust ){
+		this.ship.thrust();
+	}
 	
 	//If one of them, but not both (exclusive OR)
 	if( this.leftTurn ^ this.rightTurn ){
@@ -102,6 +117,8 @@ GameManager.prototype.update = function(){
 			this.ship.rightTurn();
 		}
 	}
+	
+	this.ship.update();
 	
 	//update active blocks
 	/****
@@ -113,8 +130,10 @@ GameManager.prototype.update = function(){
 			
 		if( hasCollidedWithShip(this.ship, this.activeBlocks[i]) ){
 					
+			console.log("Collision");
+			
 			this.ship.xPos = shipHeight;
-			this.ship.yPos = stage.canvas.height/2;
+			this.ship.yPos = sh/2;
 			this.ship.vx = 0;
 			this.ship.vy = 0;
 					
@@ -147,78 +166,86 @@ GameManager.prototype.quitGame = function(){
 
 GameManager.prototype.drawBackground = function( graphics ){
 
-	graphics.fillStyle ="#000000";
+	graphics.clearRect(100,100,100, 100);
+
+	graphics.fillStyle ="black";
 
 	graphics.fillRect(0, 0, sw, sh);
+	
+	//graphics.fillStyle = "green";
+	//graphics.fillRect( 100, 100, 100, 100 );
+	
+	//console.log("Back");
 }
 
 GameManager.prototype.drawBlocks = function( graphics ){
 
-	graphics.fillStyle = "green";
+	graphics.strokeStyle = "green";
 	
-	for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
+	//for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
 	
 		//bounds for the first and last levels
-		if( i < 0 ) i = 0;
-		if( i > this.layoutSize ) i = this.layoutSize;
+		//if( i < 0 ) i = 0;
+		//if( i > this.layoutSize - 1 ) i = this.layoutSize - 1;
 	
-		var currentBlocks = levelLayout.at(i).blocks;
+		var currentBlocks = this.levelLayout[0].blocks;
 	
 		for( blockIndex in currentBlocks ){
 			
 			var b = currentBlocks[blockIndex];
+			graphics.beginPath();
+			
 			graphics.moveTo(b.points[0].x, b.points[0].y);
 			graphics.lineTo(b.points[1].x, b.points[1].y);
-			graphics.stroke();
 			
 			graphics.moveTo(b.points[1].x, b.points[1].y);
 			graphics.lineTo(b.points[2].x, b.points[2].y);
-			graphics.stroke();
 			
 			graphics.moveTo(b.points[2].x, b.points[2].y);
 			graphics.lineTo(b.points[3].x, b.points[3].y);
-			graphics.stroke();
 			
+			//graphics.closePath();
 			graphics.moveTo(b.points[3].x, b.points[3].y);
 			graphics.lineTo(b.points[0].x, b.points[0].y);
 			graphics.stroke();
 			
 		}
 		
-	}
+	//}
 
 }
 
 GameManager.prototype.drawShip = function( graphics ){
 		
-	graphics.fillStyle = "red";
+	graphics.lineWidth = 1;
+	graphics.strokeStyle = "red";
+	
+	graphics.beginPath();
+	graphics.moveTo(
+		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
+	graphics.lineTo(
+		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
 	
 	graphics.moveTo(
-		ship.x + shipHeight * Math.cos( PI/2 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( PI/2 + ship.rotation ));
+		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
 	graphics.lineTo(
-		ship.x + shipHeight * Math.cos( -2*PI/6 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( -2*PI/6 + ship.rotation ));
+		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
+	
+	
+	graphics.moveTo(
+		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
+	graphics.lineTo(
+		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ), 
+		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
 	graphics.stroke();
-	
-	graphics.moveTo(
-		ship.x + shipHeight * Math.cos( -2*PI/6 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( -2*PI/6 + ship.rotation ));
-	graphics.lineTo(
-		ship.x + shipHeight * Math.cos( 8*PI/6 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( 8*PI/6 + ship.rotation ));
-	graphics.stroke();
-	
-	graphics.moveTo(
-		ship.x + shipHeight * Math.cos( 8*PI/6 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( 8*PI/6 + ship.rotation ));
-	graphics.lineTo(
-		ship.x + shipHeight * Math.cos( PI/2 + ship.rotation ), 
-		ship.y - shipHeight * Math.sin( PI/2 + ship.rotation ));
-			
 }
 
-GameManager.prototype.drawPause = function(){
+GameManager.prototype.drawPause = function( graphics ){
 
 	//draw the pause menu
 
@@ -226,20 +253,20 @@ GameManager.prototype.drawPause = function(){
 
 function gameHandleKeyDown(e){
 		
-	if( this.pause ) return;	
+	if( myGame.gameManager.pause ) return;	
 		
 	if (!e) { var e = window.event; }
 		
 	switch (e.keyCode){
 	
 	case KEYCODE_LEFT:
-		this.leftTurn = true;
+		myGame.gameManager.leftTurn = true;
 		break;
 	case KEYCODE_RIGHT:
-		this.rightTurn = true;
+		myGame.gameManager.rightTurn = true;
 		break;
 	case KEYCODE_UP:
-		this.thrust = true;
+		myGame.gameManager.thrust = true;
 		break;
 		
 	}
@@ -247,20 +274,20 @@ function gameHandleKeyDown(e){
 
 function gameHandleKeyUp(e){
 		
-	if( this.pause ) return;
+	if( myGame.gameManager.pause ) return;
 		
 	if (!e) { var e = window.event; }
 		
 	switch (e.keyCode){
 			
 	case KEYCODE_LEFT:
-		this.leftTurn = false;
+		myGame.gameManager.leftTurn = false;
 		break;
 	case KEYCODE_RIGHT:
-		this.rightTurn = false;
+		myGame.gameManager.rightTurn = false;
 		break;
 	case KEYCODE_UP:
-		this.thrust = false;
+		myGame.gameManager.thrust = false;
 		break;
 			
 	}

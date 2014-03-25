@@ -16,29 +16,28 @@ function Ship(){
 
 Ship.prototype.update = function(){
 
-	xPos+=vx;
-	yPos+=vy;
-	
-	rotation+=rotationSpeed;
+	this.xPos+=this.vx;
+	this.yPos+=this.vy;
 
 }
 
 Ship.prototype.thrust = function(){
 
-	vx -= Math.cos( ship.rotation + PI/2 );
-	vy -= Math.sin( ship.rotation + PI/2 );
+	//console.log("Thrust");
+	this.vx += Math.cos( this.rotation + PI/2 );
+	this.vy -= Math.sin( this.rotation + PI/2 );
 
 }
 
 Ship.prototype.leftTurn = function(){
 
-	rotation-=TURNSPEED;
+	this.rotation+=this.TURNSPEED;
 
 }
 
 Ship.prototype.rightTurn = function(){
 
-	rotation+=TURNSPEED;
+	this.rotation-=this.TURNSPEED;
 
 }
 
