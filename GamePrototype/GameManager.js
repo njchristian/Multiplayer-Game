@@ -189,7 +189,9 @@ GameManager.prototype.drawBlocks = function( graphics ){
 		//if( i < 0 ) i = 0;
 		//if( i > this.layoutSize - 1 ) i = this.layoutSize - 1;
 	
-		var currentBlocks = this.levelLayout[0].blocks;
+	for( var i = 0; i < 2; ++i){
+	
+		var currentBlocks = this.levelLayout[i].blocks;
 	
 		for( blockIndex in currentBlocks ){
 			
@@ -212,7 +214,7 @@ GameManager.prototype.drawBlocks = function( graphics ){
 			
 		}
 		
-	//}
+	}
 
 }
 
