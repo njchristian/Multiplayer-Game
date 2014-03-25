@@ -1,0 +1,267 @@
+<!--
+This page is a test client for testing the server functions so far.
+It was derived from the chat room example.
+-->
+
+<style>
+body {
+  font-family: sans-serif;
+}
+
+#status {
+  font-size: 14pt;
+  color: gray;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#status2 {
+  font-size: 14pt;
+  color: red;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#board {
+  width: 800px;
+  height: 50px;
+  border: 1px solid gray;
+  padding: 3px;
+}
+
+#board div {
+  margin-top: 5px;
+}
+
+#msg {
+  width: 740px;
+  margin-right: 10px;
+}
+
+#send {
+  width: 50px;
+}
+
+#login_section, #main_section {
+  display: none;
+}
+
+.user_name {
+  font-size: 10pt;
+  font-weight: bold;
+  color: blue;
+}
+
+.says {
+  font-size: 10pt;
+  color: gray;
+}
+
+.msg {
+  font-size: 12pt;
+  font-family: serif;
+}
+
+.notification {
+  color: green;
+}
+
+.spmes {
+	color: yellow;
+}
+
+.mpmes {
+	color: red;
+}
+</style>
+
+<!--
+jQuery is a JavaScript library that provides many handy tools, e.g. for
+manipulating HTML elements, handling events, etc.
+-->
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+
+<!--
+socket.io.js will be provided by the node.js server that you will run.
+-->
+<script src="/socket.io/socket.io.js"></script>
+
+<div id="warning">
+  JavaScript is required to run this app.
+</div>
+
+<div id="login_section">
+  <div id="status">Connecting to the game server ...</div>
+  Your name:
+  <input id="name" type="text"></input>
+  <input id="login" type="button" value="Log In" disabled="true"></input>
+</div>
+
+<div id="main_section">
+  <div id="status2">Select your mode:</div>
+  <div>
+  <input id="singlePlayerTimeTrial" type="button" value="Single Player: Time Trial"></input>
+  </div>
+  <div>
+  <input id="singlePlayerChallenge" type="button" value="Single Player: Challenge"></input>
+  </div>
+  <div>
+  <input id="multiPlayerRace" type="button" value="MultiPlayer: Race"></input>
+  </div>
+  <div>
+  <input id="multiPlayerChallenge" type="button" value="MultiPlayer: Challenge"></input>
+  </div>
+  <input id="highScores" type="button" value="High Scores"></input>
+</div>
+
+<script>
+  // $(document) returns a jQuery object representing the whole document (page).
+  // $(document).ready(fn) tells jQuery to call function 'fn' after the whole
+  // document is loaded.
+  $(document).ready(function() {
+    // Hide the warning section and show the login section.
+    $('#warning').css('display', 'none');
+    $('#login_section').css('display', 'block');
+
+    // Initialize socket.io.
+    // document.location.host returns the host of the current page.
+    var socket = io.connect('http://' + document.location.host);
+	
+	var name;
+
+    // If a welcome message is received, it means the chat room is available.
+    // The Log In button will be then enabled.
+    socket.on(
+      'welcome',
+      function(message) {
+        $('#status').text(message);
+        $('#login').attr('disabled', false);
+      });
+
+    // If a login_ok message is received, proceed to the chat section.
+    socket.on(
+      'login_ok',
+      function() {
+        $('#login_section').css('display', 'none');
+        $('#main_section').css('display', 'block');
+        $('#status').text('Logged In.');
+      });
+
+    // If a login_failed message is received, stay in the login section but
+    // display an error message.
+    socket.on(
+      'login_failed',
+      function() {
+        $('#status').text('Failed to log in!');
+      });
+
+    // If a notification is received, display it.
+    socket.on(
+      'notification',
+      function(message) {
+        if (message) {
+          // Print Notification
+          $('#status2').text(message);
+        }
+      });
+	  
+	  // handle singleplayer time trial message  
+	socket.on(
+		'sp_tt_msg',
+		function(message) {
+			if (message) {
+				$('#status2').text(message);
+			}
+		});  
+	  
+	// handle singleplayer challenge message  
+	socket.on(
+		'sp_ch_msg',
+		function(message) {
+			if (message) {
+				$('#status2').text(message);
+			}
+		});    
+	  
+	// handle multiplayer race message  
+	socket.on(
+		'mp_race_msg',
+		function(message) {
+			if (message) {
+				$('#status2').text(message);
+			}
+		});  
+	  
+	// handle multiplayer challenge message  
+	socket.on(
+		'mp_ch_msg',
+		function(message) {
+			if (message) {
+				$('#status2').text(message);
+			}
+        }); 
+
+	// handle high scores from server
+	socket.on(
+		'highScoresResponse',
+		function(message) {
+			if (message) {
+				$('#status2').text(message);
+			}
+		});	
+		
+	// display errors received from the server
+	socket.on(
+		'error',
+		function(message) {
+			if (message) {
+				$('#status2').text('Error: ' + message);
+			}
+		});
+
+    // When the Log In button is clicked, the provided function will be called,
+    // which sends a login message to the server.
+    $('#login').click(function() {
+      name = $('#name').val();
+      if (name) {
+        name = name.trim();
+        if (name.length > 0) {
+          socket.emit('login', { user_name: name });
+        }
+      }
+      // Clear the input field.
+      $('#name').val('');
+    });
+
+    // When Enter is pressed in the name field, it should be treated as clicking
+    // on the Log In button.
+    $('#name').keyup(function(event) {
+      if (event.keyCode == 13) {
+        $('#login').click();
+      }
+    });
+
+    // When the user clicks a button, the corresponding function will be called,
+    // which sends their game mode choice to the server.
+    $('#singlePlayerTimeTrial').click(function() {
+		socket.emit('sp_tt', { user_name: name });
+    });
+	
+	$('#singlePlayerChallenge').click(function() {
+		socket.emit('sp_ch', { user_name: name });
+	});
+	
+	$('#multiPlayerRace').click(function() {
+		socket.emit('mp_race', { user_name: name });
+	});
+
+	$('#multiPlayerChallenge').click(function() {
+		socket.emit('mp_ch', { user_name: name });
+	});
+	$('#highScores').click(function() {
+		socket.emit('highScoresRequest');
+	});
+	
+  });
+</script>
+
