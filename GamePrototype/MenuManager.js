@@ -6,6 +6,9 @@ function MenuManager( gameObject ){
 
 	this.currentScreen = MAIN_MENU;
 	this.parentGame = gameObject;
+	
+	//The main menu is an array of text objects
+	this.mainMenu = new Array();
 
 }
 
@@ -19,14 +22,37 @@ MenuManager.prototype.draw = function( graphics ){
 		this.drawHighscores(graphics);
 	}
 
-	this.parentGame.goToGame();
+	//this.parentGame.goToGame();
 }
 
 MenuManager.prototype.drawMainMenu = function( graphics ){
-
+	
 	//Draw main menu
 	graphics.fillStyle ="#000000";
 	graphics.fillRect(0,0,sw, sh);
+	
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "140px Courier";
+	
+	graphics.strokeText("MAIN MENU",sw/2,75);
+	
+	graphics.font = "80px Courier";
+	
+	graphics.strokeText("SINGLE PLAYER", sw/2, 200);
+	
+	graphics.strokeText("MULTIPLAYER", sw/2, 425);
+	
+	graphics.font = "80px Courier";
+	
+	graphics.fillText("TIME TRIAL", sw/2, 275);
+	
+	graphics.fillText("CHALLENGE", sw/2, 345);
+	
+	//graphics.font = "100px 
 
 }
 
