@@ -14,6 +14,7 @@
 	<script src="ImplicitFunction.js"></script>
 	<script src="MenuManager.js"></script>
 	<script src="GameManager.js"></script>
+	<script src="CanvasText.js"></script>
     <script>
 	
 		//From here need to make equivalent rect shape objects for the blocks, which will allow scrolling
@@ -30,6 +31,8 @@
 		
 		var bw = 40;
 		
+		var gameLength = 0;
+		
 		var shipHeight = 15;
 		
 		var fps = 30;
@@ -42,6 +45,7 @@
 			document.addEventListener('keydown', gameHandleKeyDown);
 			document.addEventListener('keyup', gameHandleKeyUp);
 			
+			document.addEventListener('click', menuHandleClick);
 			
 			var c = document.getElementById("gameCanvas");
 			

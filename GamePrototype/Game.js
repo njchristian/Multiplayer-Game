@@ -5,8 +5,9 @@ function Game( g ){
 	
 	this.isOnMenu = true;
 	
-	this.menuManager = new MenuManager( this );
 	this.gameManager = new GameManager( this );
+	this.menuManager = new MenuManager( this, g );
+	
 	
 }
 
@@ -31,10 +32,10 @@ Game.prototype.returnToMenu = function(){
 
 }
 
-Game.prototype.goToGame = function(){
+function goToGame( gm ){
 
-	this.isOnMenu = false;
-	this.gameManager.newGame();
+	myGame.isOnMenu = false;
+	myGame.gameManager.newGame( gm );
 
 }
 

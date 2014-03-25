@@ -122,10 +122,16 @@ GameManager.prototype.update = function(){
 	this.so += sv;
 	
 	//update active blocks
-	/****
 	
-	****/
-	//
+	if( this.ship.xPos > (this.currentLevel + 1) * sw ){
+		this.currentLevel++;
+	}
+	
+	if( this.ship.xPos < (this.currentLevel * sw ) ){
+		this.currentLevel--;
+	}
+	
+	console.log(this.currentLevel);
 	
 	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
@@ -189,7 +195,10 @@ GameManager.prototype.drawBlocks = function( graphics ){
 		//if( i < 0 ) i = 0;
 		//if( i > this.layoutSize - 1 ) i = this.layoutSize - 1;
 	
-	for( var i = 0; i < 2; ++i){
+	for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
+	
+		if( i < 0 ) i = 0;
+		if( i > 4 ) break;
 	
 		var currentBlocks = this.levelLayout[i].blocks;
 	

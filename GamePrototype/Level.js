@@ -13,23 +13,42 @@ function makeBoundingBlocks( levels, i, j ){
 
 }
 
-function makeLevelOneAtIndex( levels, i ){
+function makeStart( levels ){
+
+	levels[0] = new Level();
+	
+	makeBoundingBlocks( levels, 0, 0 ); 
+
+}
+
+function makeEnd( levels ){
+
+	levels[levels.length] = new Level();
+	
+	makeBoundingBlocks( levels, levels.length - 1, 0 ); 
+
+}
+
+function makeLevelOne( levels ){
 		
-	levels[i] = new Level();
+	levels[levels.length] = new Level();
 		
+	var i = levels.length - 1;
 	levels[i].blocks[0] = new Block( new Point( i*sw + sw/4, sh - bw ), new Point( i*sw + sw/4, sh/4 ), new Point( i*sw + sw/4 + bw, sh/4 ), new Point( i*sw + sw/4 + bw, sh - bw ) );
 	levels[i].blocks[1] = new Block( new Point( i*sw + sw/4 + bw, sh/4 ), new Point( i*sw + sw/2 + bw, sh/4 ), new Point( i*sw + sw/2 + bw, sh/4 + bw ), new Point( i*sw + sw/4 + bw, sh/4 + bw ) );
 	levels[i].blocks[2] = new Block( new Point( i*sw + 3*sw/4, bw ), new Point( i*sw + 3*sw/4, 3*sh/4 ), new Point( i*sw + 3*sw/4 + bw, 3*sh/4 ), new Point( i*sw + 3*sw/4 + bw, bw ) );
 	levels[i].blocks[3] = new Block( new Point( i*sw + 3*sw/4, 3*sh/4 - bw ), new Point( i*sw + 3*sw/4, 3*sh/4 ), new Point( i*sw + sw/2 - bw , 3*sh/4 ), new Point( i*sw + sw/2 - bw, 3*sh/4 - bw ) );
 		
-	makeBoundingBlocks( levels, i, 4 );	
+	makeBoundingBlocks( levels, levels.length - 1, 4 );	
 	
 }
 		
-function makeLevelTwoAtIndex( levels, i ){
+function makeLevelTwo( levels ){
 		
-	levels[i] = new Level();
+	levels[levels.length] = new Level();
 		
+	var i = levels.length - 1;
+	
 	levels[i].blocks[0] = new Block( new Point( i*sw +sw/5, bw ), new Point( i*sw +sw/5+ bw, bw ), new Point( i*sw +sw/5 + bw, sh/2 - bw ), new Point( i*sw +sw/5, sh/2 - bw ) );
 	levels[i].blocks[1] = new Block( new Point( i*sw +sw/5, sh-bw ), new Point( i*sw +sw/5+ bw, sh-bw ), new Point( i*sw +sw/5 + bw, sh/2 + bw ), new Point( i*sw +sw/5, sh/2 + bw ) );
 	levels[i].blocks[2] = new Block( new Point( i*sw +4*sw/5, bw ), new Point( i*sw +4*sw/5+ bw, bw ), new Point( i*sw +4*sw/5 + bw, sh/2 - bw ), new Point( i*sw +4*sw/5, sh/2 - bw ) );
@@ -44,10 +63,14 @@ function initializeLevels( levels ){
 		
 	//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
 		
-	makeLevelOneAtIndex( levels, 0 );	
+	makeStart( levels );
 		
-	makeLevelTwoAtIndex( levels, 1 );
-
+	makeLevelTwo( levels );
+	
+	makeLevelOne( levels );
+	
+	makeEnd( levels );
+	
 	/*
 	levels[2] = new Level();
 		
