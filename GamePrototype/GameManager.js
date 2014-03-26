@@ -138,9 +138,9 @@ GameManager.prototype.update = function(){
 	
 	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] ) ){
+		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] , this.isMulti()) ){
 					
-			//console.log("Collision");
+			console.log("Collision");
 			
 			var respawnPoint = this.currentLevel * sw;
 			var respawnOffset = this.ship.xPos - respawnPoint;
@@ -148,7 +148,7 @@ GameManager.prototype.update = function(){
 			this.so-=respawnOffset;
 			
 			this.ship.xPos = respawnPoint;
-			this.ship.yPos = sh/2;
+			this.ship.yPos = sh/4;
 			this.ship.vx = 0;
 			this.ship.vy = 0;
 					
@@ -157,6 +157,10 @@ GameManager.prototype.update = function(){
 			
 	}
 
+}
+
+GameManager.prototype.isMulti = function(){
+	return ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE );
 }
 
 GameManager.prototype.resumeGame = function(){

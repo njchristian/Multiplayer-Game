@@ -117,6 +117,8 @@ function toHighscores(){
 
 function menuHandleClick(event){
 	
+	if( !myGame.isOnMenu ) return;
+	
 	switch (myGame.menuManager.currentScreen){
 	
 	case MAIN_MENU:
