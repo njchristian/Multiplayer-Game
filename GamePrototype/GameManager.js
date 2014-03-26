@@ -13,7 +13,8 @@ function GameManager( gameObject ){
 	
 	//An array of levels
 	this.levelLayout = new Array();
-	initializeLevels( this.levelLayout );
+	
+	this.opponentLevelLayout = new Array();
 	
 	this.currentLevel = 0;
 	
@@ -51,7 +52,9 @@ GameManager.prototype.newGame = function( gm ){
 	if( this.gameMode == TIME_TRIAL ){
 		this.generateLevelLayout( this.levelLayout, false, false );
 	} else if( this.gameMode == MULTI_RACE ){
+		
 		this.generateLevelLayout( this.levelLayout, true, true );
+
 	}else{
 		this.initChallengeBuffer();
 	}
@@ -59,16 +62,16 @@ GameManager.prototype.newGame = function( gm ){
 	//Sets all states to those to start a new game
 	
 	this.ship.xPos = sw/2;
-	this.ship.yPos = sh/2;
+	this.ship.yPos = sh/4;
 	
 	//document.addEventListener('keydown', gameHandleKeyDown);
 	//document.addEventListener('keyup', gameHandleKeyUp);
 
 }
 
-GameManager.prototype.generateLevelLayout = function(){
+GameManager.prototype.generateLevelLayout = function( levels, multi, top ){
 
-	//A function to clear the current level layout, and use the level generation functions to fill it with new levels
+	initializeLevels( this.levelLayout, multi, top );
 
 }
 
@@ -135,9 +138,9 @@ GameManager.prototype.update = function(){
 	
 	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] ) ){
+		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] , this.isMulti()) ){
 					
-			//console.log("Collision");
+			console.log("Collision");
 			
 			var respawnPoint = this.currentLevel * sw;
 			var respawnOffset = this.ship.xPos - respawnPoint;
@@ -145,7 +148,7 @@ GameManager.prototype.update = function(){
 			this.so-=respawnOffset;
 			
 			this.ship.xPos = respawnPoint;
-			this.ship.yPos = sh/2;
+			this.ship.yPos = sh/4;
 			this.ship.vx = 0;
 			this.ship.vy = 0;
 					
@@ -154,6 +157,10 @@ GameManager.prototype.update = function(){
 			
 	}
 
+}
+
+GameManager.prototype.isMulti = function(){
+	return ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE );
 }
 
 GameManager.prototype.resumeGame = function(){
@@ -203,7 +210,7 @@ GameManager.prototype.drawBlocks = function( graphics ){
 	for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
 	
 		if( i < 0 ) i = 0;
-		if( i > 4 ) break;
+		if( i >= this.levelLayout.size ) break;
 	
 		var currentBlocks = this.levelLayout[i].blocks;
 	
@@ -237,27 +244,29 @@ GameManager.prototype.drawShip = function( graphics ){
 	graphics.lineWidth = 1;
 	graphics.strokeStyle = "red";
 	
+	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
+	
 	graphics.beginPath();
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( PI/2 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( -2*PI/6 + this.ship.rotation ));
 	
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( -2*PI/6 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( -2*PI/6 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( -2*PI/6 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( 8*PI/6 + this.ship.rotation ));
 	
 	graphics.moveTo(
-		this.ship.xPos + this.shipHeight * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( 8*PI/6 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( 8*PI/6 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( 8*PI/6 + this.ship.rotation ));
 	graphics.lineTo(
-		this.ship.xPos + this.shipHeight * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
-		this.ship.yPos - this.shipHeight * Math.sin( PI/2 + this.ship.rotation ));
+		this.ship.xPos + height * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
+		this.ship.yPos - height * Math.sin( PI/2 + this.ship.rotation ));
 	graphics.stroke();
 }
 

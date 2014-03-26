@@ -1,9 +1,11 @@
 
 
-function hasCollidedWithShip(ship, block){
+function hasCollidedWithShip(ship, block, multi){
 		
 	var shipVertices = new Array();
-	var shipHeight = ship.height;
+	var shipHeight = (multi) ? ship.height * .5 : ship.height;
+	
+	console.log(shipHeight);
 			
 	shipVertices[0] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + PI/2 ), 
 							    ship.yPos - shipHeight * Math.sin( ship.rotation + PI/2 ));

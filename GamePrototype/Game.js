@@ -14,7 +14,7 @@ function Game( g ){
 Game.prototype.start = function(){
 
 	this.isOnMenu = true;
-	this.menuManager.toMainMenu();
+	toMainMenu();
 	setInterval( run, 1000/fps );
 	
 }
