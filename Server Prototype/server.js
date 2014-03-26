@@ -55,6 +55,9 @@ app.listen(10001);
 
 var players = [];
 
+var waitingOnRace = []; // stores players waiting for multiplayer race mode
+var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
+
 // Handles HTTP requests.
 function handler(request, response) {
   // This will read the file 'index.html', and call the function (the 2nd
@@ -74,10 +77,7 @@ function handler(request, response) {
     });
 }
 
-// Tells socket.io to listen to an event called 'connection'.
-// This is a built-in event that is triggered when a client connects to the
-// server. At that time, the function (the 2nd argument) will be called with an
-// object representing the client.
+// What to do with a new client
 io.sockets.on(
   'connection',
   function(client) {
@@ -232,8 +232,8 @@ io.sockets.on(
 	// update
 	client.on(
 		'update',
-		function() {
-			// action goes here
+		function(updateObject) {
+			client.broadcast.emit('newUpdate', updateObject);
 	});	
 
   });

@@ -111,7 +111,10 @@ socket.io.js will be provided by the node.js server that you will run.
   <div>
   <input id="multiPlayerChallenge" type="button" value="MultiPlayer: Challenge"></input>
   </div>
+  <div>
   <input id="highScores" type="button" value="High Scores"></input>
+  </div>
+  <input id="updateButton" type="button" value="Update Test"></input>
 </div>
 
 <script>
@@ -210,6 +213,15 @@ socket.io.js will be provided by the node.js server that you will run.
 			}
 		});	
 		
+	// get update object from other player
+	socket.on(
+		'newUpdate',
+		function(update) {
+			if (update) {
+				$('#status2').text(update.info);
+			}
+	});	
+		
 	// display errors received from the server
 	socket.on(
 		'error',
@@ -258,8 +270,13 @@ socket.io.js will be provided by the node.js server that you will run.
 	$('#multiPlayerChallenge').click(function() {
 		socket.emit('mp_ch', { user_name: name });
 	});
+	
 	$('#highScores').click(function() {
 		socket.emit('highScoresRequest');
+	});
+	
+	$('#updateButton').click(function() {
+		socket.emit('update', { info: 'Your opponent is ' + name });
 	});
 	
   });
