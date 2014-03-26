@@ -99,7 +99,7 @@ io.sockets.on(
           // client.broadcast.emits() will send to all clients except the
           // current client. See socket.io FAQ for more examples.
           client.broadcast.emit('notification',
-                                message.user_name + ' joined the game.');
+                                message.user_name + ' joined the game.'); // might wanna remove this
 			players[players.length] = new Player(message.user_name);
 			for ( var i = 0; i < players.length; ++i) {
 				console.log(players[i].userName);
@@ -173,19 +173,35 @@ io.sockets.on(
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
 				var playerIndex = -1;
+				// find player
 				for (var i = 0; i < players.length; ++i) {
 					if (players[i].userName == msg.user_name) {
 						playerIndex = i;
 						break;
 					}
 				}
+				// make sure player was found
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
+				// set player's gamemode choice and send confirmation message
 				players[playerIndex].setGameMode(2);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_race_msg', 'You have selected MultiPlayer Race!' );
+				
+				// check to see if there is an opponent waiting
+				// if there is not then set this client as waiting
+				if (waitingOnRace.length == 0) {
+					waitingOnRace[0] = msg.user_name;
+					client.emit('waitForRace', 'Waiting for other player.');
+				}
+				// if there is an opponent waiting, signal that client that another
+				// player has been found
+				else {
+					client.emit('opponentForRace', 'Opponent found, get ready to race.');
+					client.broadcast.emit('opponentForRace', 'Opponent found, get ready to race.');
+				}
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging

@@ -22,6 +22,13 @@ body {
   margin-bottom: 12px;
 }
 
+#status3 {
+	font-size: 14pt;
+	color: blue;
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
 #board {
   width: 800px;
   height: 50px;
@@ -99,6 +106,7 @@ socket.io.js will be provided by the node.js server that you will run.
 
 <div id="main_section">
   <div id="status2">Select your mode:</div>
+  <div id="status3">Additional info:</div>
   <div>
   <input id="singlePlayerTimeTrial" type="button" value="Single Player: Time Trial"></input>
   </div>
@@ -193,7 +201,24 @@ socket.io.js will be provided by the node.js server that you will run.
 			if (message) {
 				$('#status2').text(message);
 			}
-		});  
+		}); 
+
+	// handle multiplayer race wait message
+	socket.on(
+		'waitForRace',
+		function(message) {
+			if (message) {
+				$('#status3').text(message);
+			}
+		});
+		
+	socket.on(
+		'opponentForRace',
+		function(message) {
+			if (message) {
+				$('#status3').text(message);
+			}
+		});
 	  
 	// handle multiplayer challenge message  
 	socket.on(
@@ -203,6 +228,7 @@ socket.io.js will be provided by the node.js server that you will run.
 				$('#status2').text(message);
 			}
         }); 
+			
 
 	// handle high scores from server
 	socket.on(
