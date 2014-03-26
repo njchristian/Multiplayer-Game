@@ -18,23 +18,24 @@ function MenuManager( gameObject, g ){
 MenuManager.prototype.createMainMenu = function( g ){
 
 	var width;
-	g.font = "140px Courier";
-	this.mainMenu[0] = new CanvasText("MAIN MENU", sw/2, 75, g.measureText("MAIN MENU").width, 140, false, null, null );
-	
-	g.font = "80px Courier";
-	this.mainMenu[1] = new CanvasText( "SINGLE PLAYER", sw/2, 200, g.measureText( "SINGLE PLAYER" ).width, 80, false, null, null );
-	this.mainMenu[2] = new CanvasText( "MULTIPLAYER", sw/2, 425, g.measureText( "MULTIPLAYER" ).width, 80, false, null, null );
-	
+
 	g.font = "60px Courier";
-	this.mainMenu[3] = new CanvasText( "TIME TRIAL", sw/2, 275, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
-	this.mainMenu[4] = new CanvasText( "CHALLENGE", sw/2, 345, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
+	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, 235, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
+	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, 305, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
 	
-	//this.mainMenu[5] = new CanvasText( "TIME TRIAL", sw/2, 275, g.measureText( "TIME TRIAL" ).width, 60 );
-	//this.mainMenu[6] = new CanvasText( "TIME TRIAL", sw/2, 275, g.measureText( "TIME TRIAL" ).width, 60 );
+	this.mainMenu[2] = new CanvasText( "TIME TRIAL", sw/2, 460, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_RACE );
+	this.mainMenu[3] = new CanvasText( "TIME TRIAL", sw/2, 530, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_CHALLENGE);
+	
+	g.font = "65px Courier";
+	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
+	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
 
 }
 
 MenuManager.prototype.draw = function( graphics ){
+
+	graphics.fillStyle ="#000000";
+	graphics.fillRect(0,0,sw, sh);
 
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
@@ -50,8 +51,7 @@ MenuManager.prototype.draw = function( graphics ){
 MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//Draw main menu
-	graphics.fillStyle ="#000000";
-	graphics.fillRect(0,0,sw, sh);
+	
 	
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="green";
@@ -64,19 +64,24 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.font = "80px Courier";
 	
-	graphics.strokeText("SINGLE PLAYER", sw/2, 200);
+	graphics.strokeText("SINGLE PLAYER", sw/2, 160);
 	
-	graphics.strokeText("MULTIPLAYER", sw/2, 425);
+	graphics.strokeText("MULTIPLAYER", sw/2, 385);
 	
 	graphics.font = "60px Courier";
 	
-	graphics.fillText("TIME TRIAL", sw/2, 275);
+	graphics.fillText("TIME TRIAL", sw/2, 235);
 	
-	graphics.fillText("CHALLENGE", sw/2, 345);
+	graphics.fillText("CHALLENGE", sw/2, 305);
 	
-	graphics.fillText("ONLINE RACE", sw/2, 500);
+	graphics.fillText("ONLINE RACE", sw/2, 460);
 	
-	graphics.fillText("ONLINE CHALLENGE", sw/2, 570);
+	graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	
+	graphics.font = "65px Courier";
+	
+	graphics.fillText("INSTRUCTIONS", sw/4, 600);
+	graphics.fillText("HIGHSCORES", 3*sw/4, 600);
 
 }
 
@@ -92,19 +97,19 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 
 }
 
-MenuManager.prototype.toMainMenu = function(){
+function toMainMenu(){
 
 	this.currentScreen = MAIN_MENU;
 
 }
 
-MenuManager.prototype.toInstructions = function(){
+function toInstructions(){
 
 	this.currentScreen = INSTRUCTIONS;
 
 }
 
-MenuManager.prototype.toHighscores = function(){
+function toHighscores(){
 
 	this.currentScreen = HIGHSCORES;
 
