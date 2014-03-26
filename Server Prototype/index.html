@@ -228,7 +228,23 @@ socket.io.js will be provided by the node.js server that you will run.
 				$('#status2').text(message);
 			}
         }); 
-			
+	
+	// handle multiplayer challenge wait message
+	socket.on(
+		'waitForChallenge',
+		function(message) {
+			if (message) {
+				$('#status3').text(message);
+			}
+		});
+		
+	socket.on(
+		'opponentForChallenge',
+		function(message) {
+			if (message) {
+				$('#status3').text(message);
+			}
+		});	
 
 	// handle high scores from server
 	socket.on(

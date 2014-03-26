@@ -3,6 +3,7 @@
 /*
 	TODO:
 	-make TODO list...
+	if client is waiting for MP game and changed their mind, need to remove them from that queue
 */
 // ---------------need to make into modules if possible------------------------	
 
@@ -82,11 +83,10 @@ io.sockets.on(
   'connection',
   function(client) {
 	
-    // Send a welcome message first.
+    // Welcome message.
     client.emit('welcome', 'Welcome to the game!');
 
-    // Listen to an event called 'login'. The client should emit this event when
-    // it wants to log in to the game.
+    // Handle client login - might wanna make the login stuff better in the future
     client.on(
       'login',
       function(message) {
@@ -217,19 +217,36 @@ io.sockets.on(
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
 				var playerIndex = -1;
+				
+				// find player
 				for (var i = 0; i < players.length; ++i) {
 					if (players[i].userName == msg.user_name) {
 						playerIndex = i;
 						break;
 					}
 				}
+				// make sure player exists
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
+				// set game mode and send confirmation message
 				players[playerIndex].setGameMode(3);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_ch_msg', 'You have selected MultiPlayer Challenge!' );
+				
+				// check to see if there is an opponent waiting
+				// if there is not then set this client as waiting
+				if (waitingOnChallenge.length == 0) {
+					waitingOnChallenge[0] = msg.user_name;
+					client.emit('waitForChallenge', 'Waiting for other player.');
+				}
+				// if there is an opponent waiting, signal that client that another
+				// player has been found
+				else {
+					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
+					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
+				}
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
@@ -245,7 +262,8 @@ io.sockets.on(
 			client.emit('highScoresResponse', 'High Score Placeholder');
 	});		
 	
-	// update
+	// update - right now it just broadcasts the update to other client
+	// only works for a single multiplayer game at the moment
 	client.on(
 		'update',
 		function(updateObject) {
