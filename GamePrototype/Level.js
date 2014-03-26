@@ -192,8 +192,8 @@ function makeLevelFour ( levels, multi, top ){
 	
 	var i = levels.length - 1;
 	
-	levels[i].blocks[0] = new Block( new Point( i*sw, base + lbw), new Point( i*sw + 1, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
-	levels[i].blocks[1] = new Block( new Point( i*sw, base + 2*lsh/5), new Point( i*sw, base + 2*lsh/5+1), new Point( i*sw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
+	levels[i].blocks[0] = new Block( new Point( i*sw + bw, base + 2*lbw), new Point( i*sw + bw, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
+	levels[i].blocks[1] = new Block( new Point( i*sw + 4*sw/5, base + lsh-2*lbw), new Point( i*sw + bw, base + 2*lsh/5), new Point( i*sw + bw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
 
 	makeBoundingBlocks ( levels, multi, top);
 }
@@ -233,10 +233,10 @@ function initializeLevels( levels, multi, top, opLevels){
 	makeStart( levels, multi, top );
 	if( multi ) makeStart( opLevels, multi, !top );
 		
-	makeLevelTwo( levels, multi, top );
-	if( multi ) makeLevelTwo( opLevels, multi, !top );
+	makeLevelFour( levels, multi, top );
+	if( multi ) makeLevelThree( opLevels, multi, !top );
 	
-	makeLevelOne( levels, multi, top );
+	makeLevelFour( levels, multi, top );
 	if( multi ) makeLevelOne( opLevels, multi, !top );
 	
 	makeEnd( levels, multi, top );
