@@ -41,6 +41,10 @@ function GameManager( gameObject ){
 	//Identify a variable for game mode.
 	this.gameMode = 0;
 	
+	this.opShip = new Ship();
+	this.opSO = 0;
+	this.opLevel = 0;
+	
 }
 
 GameManager.prototype.newGame = function( gm ){
@@ -53,7 +57,7 @@ GameManager.prototype.newGame = function( gm ){
 		this.generateLevelLayout( this.levelLayout, false, false );
 	} else if( this.gameMode == MULTI_RACE ){
 		
-		this.generateLevelLayout( this.levelLayout, true, true );
+		this.generateLevelLayout( this.levelLayout, true, true, this.opponentLevelLayout );
 
 	}else{
 		this.initChallengeBuffer();
@@ -64,14 +68,17 @@ GameManager.prototype.newGame = function( gm ){
 	this.ship.xPos = sw/2;
 	this.ship.yPos = sh/4;
 	
+	this.opShip.xPos = sw/2;
+	this.opShip.yPos = 3*sh/4;
+	
 	//document.addEventListener('keydown', gameHandleKeyDown);
 	//document.addEventListener('keyup', gameHandleKeyUp);
 
 }
 
-GameManager.prototype.generateLevelLayout = function( levels, multi, top ){
+GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLevels ){
 
-	initializeLevels( this.levelLayout, multi, top );
+	initializeLevels( this.levelLayout, multi, top, opLevels );
 
 }
 
@@ -94,6 +101,11 @@ GameManager.prototype.draw = function( graphics ){
 	this.drawShip( graphics );
 	this.drawBlocks( graphics );
 	
+	if( this.isMulti() ){
+		this.drawOpShip( graphics );
+		this.drawOpBlocks(graphics);
+	}
+	
 	if( this.pause ) this.drawPause( graphics );
 
 }
@@ -101,6 +113,18 @@ GameManager.prototype.draw = function( graphics ){
 GameManager.prototype.update = function(){
 
 	if( this.pause ) return;
+	
+	/*
+	this.opSO += 2;
+	
+	if( this.opShip.xPos > (this.opLevel + 1) * sw ){
+		this.opLevel++;
+	}
+	
+	if( this.opShip.xPos < (this.opLevel * sw ) ){
+		this.opLevel--;
+	}
+	*/
 	
 	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
 	
@@ -139,15 +163,21 @@ GameManager.prototype.update = function(){
 	for( i in this.levelLayout[this.currentLevel].blocks ){
 			
 		if( hasCollidedWithShip(this.ship, this.levelLayout[this.currentLevel].blocks[i] , this.isMulti()) ){
-					
+		//if( false ){			
 			console.log("Collision");
 			
 			var respawnPoint = this.currentLevel * sw;
+			
+			if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
+			
 			var respawnOffset = this.ship.xPos - respawnPoint;
+			
+			if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
 			
 			this.so-=respawnOffset;
 			
 			this.ship.xPos = respawnPoint;
+			
 			this.ship.yPos = sh/4;
 			this.ship.vx = 0;
 			this.ship.vy = 0;
@@ -201,12 +231,6 @@ GameManager.prototype.drawBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
 	
-	//for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
-	
-		//bounds for the first and last levels
-		//if( i < 0 ) i = 0;
-		//if( i > this.layoutSize - 1 ) i = this.layoutSize - 1;
-	
 	for( var i = this.currentLevel - 1; i <= this.currentLevel + 1; ++i){
 	
 		if( i < 0 ) i = 0;
@@ -231,6 +255,42 @@ GameManager.prototype.drawBlocks = function( graphics ){
 			//graphics.closePath();
 			graphics.moveTo(b.points[3].x - this.so, b.points[3].y);
 			graphics.lineTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.stroke();
+			
+		}
+		
+	}
+
+}
+
+GameManager.prototype.drawOpBlocks = function( graphics ){
+
+	graphics.strokeStyle = "green";
+	
+	for( var i = this.opLevel - 1; i <= this.opLevel + 1; ++i){
+	
+		if( i < 0 ) i = 0;
+		if( i >= this.levelLayout.size ) break;
+	
+		var currentBlocks = this.opponentLevelLayout[i].blocks;
+	
+		for( blockIndex in currentBlocks ){
+			
+			var b = currentBlocks[blockIndex];
+			graphics.beginPath();
+			
+			graphics.moveTo(b.points[0].x - this.opSO, b.points[0].y);
+			graphics.lineTo(b.points[1].x - this.opSO, b.points[1].y);
+			
+			graphics.moveTo(b.points[1].x - this.opSO, b.points[1].y);
+			graphics.lineTo(b.points[2].x - this.opSO, b.points[2].y);
+			
+			graphics.moveTo(b.points[2].x - this.opSO, b.points[2].y);
+			graphics.lineTo(b.points[3].x - this.opSO, b.points[3].y);
+			
+			//graphics.closePath();
+			graphics.moveTo(b.points[3].x - this.opSO, b.points[3].y);
+			graphics.lineTo(b.points[0].x - this.opSO, b.points[0].y);
 			graphics.stroke();
 			
 		}
@@ -267,6 +327,37 @@ GameManager.prototype.drawShip = function( graphics ){
 	graphics.lineTo(
 		this.ship.xPos + height * Math.cos( PI/2 + this.ship.rotation ) - this.so, 
 		this.ship.yPos - height * Math.sin( PI/2 + this.ship.rotation ));
+	graphics.stroke();
+}
+
+GameManager.prototype.drawOpShip = function( graphics ){
+		
+	graphics.lineWidth = 1;
+	graphics.strokeStyle = "red";
+	
+	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
+	
+	graphics.beginPath();
+	graphics.moveTo(
+		this.opShip.xPos + height * Math.cos( PI/2 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( PI/2 + this.opShip.rotation ));
+	graphics.lineTo(
+		this.opShip.xPos + height * Math.cos( -2*PI/6 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( -2*PI/6 + this.opShip.rotation ));
+	
+	graphics.moveTo(
+		this.opShip.xPos + height * Math.cos( -2*PI/6 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( -2*PI/6 + this.opShip.rotation ));
+	graphics.lineTo(
+		this.opShip.xPos + height * Math.cos( 8*PI/6 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( 8*PI/6 + this.opShip.rotation ));
+	
+	graphics.moveTo(
+		this.opShip.xPos + height * Math.cos( 8*PI/6 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( 8*PI/6 + this.opShip.rotation ));
+	graphics.lineTo(
+		this.opShip.xPos + height * Math.cos( PI/2 + this.opShip.rotation ) - this.opSO, 
+		this.opShip.yPos - height * Math.sin( PI/2 + this.opShip.rotation ));
 	graphics.stroke();
 }
 
