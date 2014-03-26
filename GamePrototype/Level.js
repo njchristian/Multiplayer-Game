@@ -145,6 +145,86 @@ function makeLevelTwo( levels, multi, top ){
 	
 	makeBoundingBlocks( levels, multi, top );
 }
+
+function makeLevelThree ( levels, multi, top ){
+	
+	levels[levels.length] = new Level();
+	
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	var i = levels.length - 1;
+	
+	levels[i].blocks[0] = new Block( new Point( i*sw + sw/5, base + lsh-lbw ), new Point( i*sw + sw/5, base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw , base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw, base + lsh-lbw) );
+	levels[i].blocks[1] = new Block( new Point( i*sw + 4*sw/5 - 2*lbw, base + lbw), new Point (i*sw + 4*sw/5 - 2*lbw, base + lsh-3*lbw ), new Point ( i*sw + 4*sw/5, base + lsh-3*lbw), new Point ( i*sw + 4*sw/5, base + lbw) );
+	
+	makeBoundingBlocks ( levels, multi, top);
+}
+
+function makeLevelFour ( levels, multi, top ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	levels[levels.length] = new Level();
+	
+	var i = levels.length - 1;
+	
+	levels[i].blocks[0] = new Block( new Point( i*sw, base + lbw), new Point( i*sw + 1, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
+	levels[i].blocks[1] = new Block( new Point( i*sw, base + 2*lsh/5), new Point( i*sw, base + 2*lsh/5+1), new Point( i*sw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
+
+	makeBoundingBlocks ( levels, multi, top);
+}
+
+function makeLevelFive ( levels, multi, top ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	levels[levels.length] = new Level();
+	
+	var i = levels.length - 1;
+
+	levels[i].blocks[0] = new Block( new Point( i*sw + 3*sw/4, base + lsh-lbw), new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh - lbw) );
+	levels[i].blocks[1] = new Block( new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4 + lbw), new Point( i*sw + 3*sw/4, base + lsh/4 + lbw) );
+	levels[i].blocks[2] = new Block( new Point( i*sw + sw/4, base + lbw), new Point( i*sw + sw/4, base + 3*lsh/4), new Point( i*sw + sw/4 + lbw, base + 3*lsh/4), new Point( i*sw + sw/4 + lbw, base + lbw) );
+	levels[i].blocks[3] = new Block( new Point( i*sw + sw/4 + lbw, base + 3*lsh/4), new Point( i*sw + sw/2 + lbw, base + 3*lsh/4), new Point( i*sw + sw/2 + lbw, base + 3*lsh/4 - lbw), new Point( i*sw + sw/4 + lbw, base + 3*lsh/4 - lbw) );
+	
+	makeBoundingBlocks ( levels, multi, top );
+}
 		
 function initializeLevels( levels, multi, top, opLevels){
 		
