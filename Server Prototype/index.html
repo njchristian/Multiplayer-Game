@@ -15,7 +15,6 @@
 	<script src="MenuManager.js"></script>
 	<script src="GameManager.js"></script>
 	<script src="CanvasText.js"></script>
-	<script src="socket.io.js"></script>
     <script>
 	
 		//From here need to make equivalent rect shape objects for the blocks, which will allow scrolling
@@ -47,6 +46,7 @@
 			document.addEventListener('keyup', gameHandleKeyUp);
 			
 			document.addEventListener('click', menuHandleClick);
+			document.addEventListener('mousemove', menuHandleScroll);
 			
 			var c = document.getElementById("gameCanvas");
 			
