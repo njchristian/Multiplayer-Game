@@ -5,7 +5,7 @@ function Game( g ){
 	
 	this.isOnMenu = true;
 	
-	this.gameManager = new GameManager( this );
+	this.gameManager = new GameManager( this, g );
 	this.menuManager = new MenuManager( this, g );
 	
 	

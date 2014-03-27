@@ -4,11 +4,11 @@ var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
 
-function GameManager( gameObject ){
+function GameManager( gameObject, g ){
 
 	this.parentGame = gameObject;
 
-	this.gravityCoefficient = 0;
+	this.gravityCoefficient = .3;
 	
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
@@ -48,8 +48,17 @@ function GameManager( gameObject ){
 	this.gameMode = 0;
 	
 	this.opShip = new Ship();
+	
+	//opponent screen offset
 	this.opSO = 0;
 	this.opLevel = 0;
+	
+	g.font = "65px Courier";
+	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
+	this.rtmScroll = false;
+	
+	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
+	this.reScroll = false
 	
 }
 
@@ -60,6 +69,8 @@ GameManager.prototype.newGame = function( gm ){
 	this.gameMode = gm;
 	
 	//Sets all states to those to start a new game
+	
+	this.pause = false;
 	
 	//Flags for ship movement
 	this.thrust = false;
@@ -498,13 +509,43 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 
 GameManager.prototype.drawPause = function( graphics ){
 
-	//draw the pause menu
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = "100px Courier";
+	
+	graphics.strokeText("PAUSED", sw/2, sh/2 - 100);
+	
+	graphics.fillStyle = "green";
+	graphics.font = "65px Courier";
+	
+	if( this.rtmScroll ){
+		graphics.strokeText("MAIN MENU", sw/2, sh/2 );
+	}else{
+		graphics.fillText("MAIN MENU", sw/2, sh/2 );
+	}
+	
+	if( this.reScroll ){
+		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
+	}else{
+		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+	}
 
 }
 
 function gameHandleKeyDown(e){
 		
-	if( myGame.gameManager.pause || myGame.isOnMenu ) return;	
+	if( myGame.isOnMenu ) return;	
 		
 	if (!e) { var e = window.event; }
 		
@@ -519,7 +560,16 @@ function gameHandleKeyDown(e){
 	case KEYCODE_UP:
 		myGame.gameManager.thrust = true;
 		break;
-		
+	case KEYCODE_P:
+	
+		if( !myGame.gameManager.isMulti() ){
+			myGame.gameManager.pause = !myGame.gameManager.pause;
+			myGame.gameManager.leftTurn = false;
+			myGame.gameManager.rightTurn = false;
+			myGame.gameManager.thrust = false;
+		}
+		break;
+	
 	}
 }
 
@@ -545,8 +595,32 @@ function gameHandleKeyUp(e){
 	
 }
 
+GameManager.prototype.handleUpdate = function ( update ){
+
+	var u = JSON.parse(update);
+	this.opShip.xPos = u.xPos;
+	this.opShip.yPos = u.yPos;
+	
+	this.opShip.rotation = u.rotation;
+	
+	this.opSO = u.screenOffset;
+	
+
+}
+
 function gameHandleClick(e){
 
 
 
 }
+
+function goToMenu(){
+	myGame.returnToMenu();
+}
+
+function restart(){
+
+	myGame.gameManager.newGame( myGame.gameManager.gameMode );
+
+}
+

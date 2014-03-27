@@ -319,6 +319,9 @@ function initializeLevels( levels, multi, top, opLevels){
 	
 	makeEnd( levels, multi, top, false );
 	if( multi ) makeEnd( opLevels, multi, !top, false );
+	
+	levels[levels.length] = new Level();
+	if( multi ) opLevels[opLevels.length] = new Level();
 
 		
 }
