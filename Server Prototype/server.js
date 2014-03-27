@@ -48,6 +48,10 @@ var app = require('http').createServer(handler);
 // The socket.io WebSocket server, running with the node.js server.
 var io = require('socket.io').listen(app);
 
+var path = require("path")
+
+var url = require("url")
+
 // Allows access to local file system.
 var fs = require('fs')
 
@@ -64,7 +68,30 @@ function handler(request, response) {
   // This will read the file 'index.html', and call the function (the 2nd
   // argument) to process the content of the file.
   // __dirname is a preset variable pointing to the folder of this file.
-  fs.readFile(
+   // var url_request = url.parse(request.url).pathname;      
+    // var tmp  = url_request.lastIndexOf(".");
+    // var extension  = url_request.substring((tmp + 1));
+	
+	// file_path = url_request.replace("/", "");
+  
+  // fs.readFile(
+    // __dirname + '/index.html',
+    // function(err, content) {
+      // if (err) {
+        // // If an error happened when loading 'index.html', return a 500 error.
+        // response.writeHead(500);
+        // return response.end('Error loading ' + file_path);
+      // }
+      // // If no error happened, return the content of 'index.html'
+	  // if (extension === 'js') {
+			// response.writeHead(200, {'Content-Type': 'text/javascript'});
+	  // }
+	  // else {
+		// response.writeHead(200, {'Content-Type': 'text/html'});
+	  // }
+      // response.end(content);
+    // });
+	 fs.readFile(
     __dirname + '/index.html',
     function(err, content) {
       if (err) {
