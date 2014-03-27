@@ -127,8 +127,6 @@ io.sockets.on(
     // Welcome message.
     client.emit('welcome', 'Welcome to the game!');
 
-   // client.emit('test', { name : 'bob', age : 10 } );
-
     // Handle client login - might wanna make the login stuff better in the future
     client.on(
       'login',
