@@ -23,8 +23,8 @@ MenuManager.prototype.createMainMenu = function( g ){
 	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, 235, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
 	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, 305, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
 	
-	this.mainMenu[2] = new CanvasText( "TIME TRIAL", sw/2, 460, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_RACE );
-	this.mainMenu[3] = new CanvasText( "TIME TRIAL", sw/2, 530, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_CHALLENGE);
+	this.mainMenu[2] = new CanvasText( "ONLINE RACE", sw/2, 460, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE );
+	this.mainMenu[3] = new CanvasText( "ONLINE CHALLENGE", sw/2, 530, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE);
 	
 	g.font = "65px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
@@ -70,18 +70,44 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.font = "60px Courier";
 	
-	graphics.fillText("TIME TRIAL", sw/2, 235);
+	if( this.mainMenu[0].mouseOn ){
+		graphics.strokeText("TIME TRIAL", sw/2, 235);
+	}else{
+		graphics.fillText("TIME TRIAL", sw/2, 235);
+	}
 	
-	graphics.fillText("CHALLENGE", sw/2, 305);
+	if( this.mainMenu[1].mouseOn ){
+		graphics.strokeText("CHALLENGE", sw/2, 305);
+	}else{
+		graphics.fillText("CHALLENGE", sw/2, 305);
+	}
 	
-	graphics.fillText("ONLINE RACE", sw/2, 460);
+	if( this.mainMenu[2].mouseOn ){
+		graphics.strokeText("ONLINE RACE", sw/2, 460);
+	}else{
+		graphics.fillText("ONLINE RACE", sw/2, 460);
+	}
 	
-	graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	if( this.mainMenu[3].mouseOn ){
+		graphics.strokeText("ONLINE CHALLENGE", sw/2, 530);
+	}else{
+		graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	}
 	
 	graphics.font = "65px Courier";
 	
-	graphics.fillText("INSTRUCTIONS", sw/4, 600);
-	graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	if( this.mainMenu[4].mouseOn ){
+		graphics.strokeText("INSTRUCTIONS", sw/4, 600);
+	}else{
+		graphics.fillText("INSTRUCTIONS", sw/4, 600);
+	}
+	
+	if( this.mainMenu[5].mouseOn ){
+		graphics.strokeText("HIGHSCORES", 3*sw/4, 600);
+	}else{
+		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	}
+	
 
 }
 
@@ -133,6 +159,34 @@ function menuHandleClick(event){
 			
 			}
 		
+		}
+	
+	}
+
+}
+
+function menuHandleScroll( event ){
+
+	//console.log( "Scroll" );
+
+	if( !myGame.isOnMenu ) return;
+	
+	switch (myGame.menuManager.currentScreen){
+	
+	case MAIN_MENU:
+	
+		for( textElement in myGame.menuManager.mainMenu ){
+		
+			var text = myGame.menuManager.mainMenu[textElement];
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.mouseOn = true;
+			
+			}else{
+				text.mouseOn = false;
+			}
+			
 		}
 	
 	}
