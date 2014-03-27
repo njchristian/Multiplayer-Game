@@ -56,7 +56,7 @@ var url = require("url")
 var fs = require('fs')
 
 // Listen on a high port.
-app.listen(10001);
+app.listen(10268);
 
 // var fs = require('fs'),
 //     http = require('http'),
@@ -127,7 +127,7 @@ io.sockets.on(
     // Welcome message.
     client.emit('welcome', 'Welcome to the game!');
 
-    client.emit('test', { name : 'bob', age : 10 } );
+   // client.emit('test', { name : 'bob', age : 10 } );
 
     // Handle client login - might wanna make the login stuff better in the future
     client.on(
@@ -147,6 +147,7 @@ io.sockets.on(
           // current client. See socket.io FAQ for more examples.
           client.broadcast.emit('notification',
                                 message.user_name + ' joined the game.'); // might wanna remove this
+			console.log(message.user_name + ' joined the game.');					
 			players[players.length] = new Player(message.user_name);
 			for ( var i = 0; i < players.length; ++i) {
 				console.log(players[i].userName);
@@ -234,6 +235,7 @@ io.sockets.on(
 				}
 				// set player's gamemode choice and send confirmation message
 				players[playerIndex].setGameMode(2);
+				console.log(msg.user_name + ' wants to race.');
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_race_msg', 'You have selected MultiPlayer Race!' );
 				
