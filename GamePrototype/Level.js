@@ -22,7 +22,7 @@ function makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ){
 	var lbw = multi ? .5 * bw : bw;
 	var lsh = multi ? .5 * sh : sh;
 
-	var len = levels[levels.length - 1].blocks.length;
+	
 	
 	var i;
 	var t;
@@ -33,7 +33,10 @@ function makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	
+	var len = levels[t].blocks.length;
+	//console.log(t);
+	
 	levels[t].blocks[len] = new Block( new Point( sw * i, base + 0 ), new Point( sw * (i+1), base + 0 ), new Point( sw * (i+1), base + lbw ), new Point( sw * i, base + lbw ) );
 	levels[t].blocks[len+1] = new Block( new Point( sw * i, base + lsh ), new Point( sw * (i+1), base + lsh ), new Point( sw * (i+1), base + lsh-lbw ), new Point( sw * i, base + lsh-lbw ) );
 
@@ -90,7 +93,7 @@ function makeEnd( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( (i+1) * sw , base+lbw ), new Point( (i+1) * sw, base+lsh - lbw ), 
 		new Point( (i+1) * sw - lbw, base+lsh - lbw ), new Point( (i+1) * sw - lbw, base+lbw ) );
 	
@@ -126,7 +129,7 @@ function makeLevelOne( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw + sw/4, base + lsh - lbw ), new Point( i*sw + sw/4, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh - lbw ) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 + lbw ), new Point( i*sw + sw/4 + lbw, base + lsh/4 + lbw ) );
 	levels[t].blocks[2] = new Block( new Point( i*sw + 3*sw/4, base + lbw ), new Point( i*sw + 3*sw/4, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + lbw ) );
@@ -164,7 +167,7 @@ function makeLevelTwo( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw +sw/5, base+lbw ), new Point( i*sw +sw/5+ lbw, base+lbw ), 
 		new Point( i*sw +sw/5 + lbw, base+lsh/2 - lbw ), new Point( i*sw +sw/5, base+lsh/2 - lbw ) );
 	levels[t].blocks[1] = new Block( new Point( i*sw +sw/5, base+lsh-lbw ), new Point( i*sw +sw/5+ lbw, base+lsh-lbw ), 
@@ -209,7 +212,7 @@ function makeLevelThree ( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw + sw/5, base + lsh-lbw ), new Point( i*sw + sw/5, base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw , base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw, base + lsh-lbw) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5 - 2*lbw, base + lbw), new Point (i*sw + 4*sw/5 - 2*lbw, base + lsh-3*lbw ), new Point ( i*sw + 4*sw/5, base + lsh-3*lbw), new Point ( i*sw + 4*sw/5, base + lbw) );
 	
@@ -244,7 +247,7 @@ function makeLevelFour ( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw + bw, base + 2*lbw), new Point( i*sw + bw, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
 	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5, base + lsh-2*lbw), new Point( i*sw + bw, base + 2*lsh/5), new Point( i*sw + bw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
 
@@ -280,7 +283,7 @@ function makeLevelFive ( levels, multi, top, isChallenge, index, swOffset ){
 		i = t;
 	}
 
-	console.log(t);
+	//console.log(t);
 	
 	levels[t].blocks[0] = new Block( new Point( i*sw + 3*sw/4, base + lsh-lbw), new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh - lbw) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4 + lbw), new Point( i*sw + 3*sw/4, base + lsh/4 + lbw) );

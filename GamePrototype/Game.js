@@ -27,8 +27,9 @@ Game.prototype.end = function(){
 
 Game.prototype.returnToMenu = function(){
 
-	this.menuManager.toMainMenu();
 	this.isOnMenu = true;
+	this.menuManager.toMainMenu();
+	
 
 }
 

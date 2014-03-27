@@ -99,19 +99,19 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 
 function toMainMenu(){
 
-	this.currentScreen = MAIN_MENU;
+	myGame.menuManager.currentScreen = MAIN_MENU;
 
 }
 
 function toInstructions(){
 
-	this.currentScreen = INSTRUCTIONS;
+	myGame.menuManager.currentScreen = INSTRUCTIONS;
 
 }
 
 function toHighscores(){
 
-	this.currentScreen = HIGHSCORES;
+	myGame.menuManager.currentScreen = HIGHSCORES;
 
 }
 

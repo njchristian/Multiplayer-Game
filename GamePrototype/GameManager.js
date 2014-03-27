@@ -19,11 +19,13 @@ function GameManager( gameObject ){
 	this.currentLevel = 0;
 	
 	//length of a level layout
-	this.layoutSize = 1;
+	this.layoutSize = 7;
 	
 	//Buffer array for challenge mode
 	this.challengeBuffer = new Array();
 	this.challengeTotalLevels = 0;
+	this.challengeSV = 4;
+	this.challengeShipOffset = 0;
 	
 	//Scroll offset
 	this.so = 0;
@@ -54,6 +56,39 @@ GameManager.prototype.newGame = function( gm ){
 
 	this.gameMode = gm;
 	
+	//Sets all states to those to start a new game
+	
+	//Flags for ship movement
+	this.thrust = false;
+	this.leftTurn = false;
+	this.rightTurn = false;
+	
+	this.ship.xPos = sw/2;
+	this.ship.yPos = sh/4;
+	this.ship.vx = 0;
+	this.ship.vy = 0;
+	
+	this.opShip.xPos = sw/2;
+	this.opShip.yPos = 3*sh/4;
+	this.opShip.vx = 0;
+	this.opShip.vy = 0;
+	
+	this.so = 0;
+	this.currentLevel = 0;
+	this.challengeTotalLevels = 0;
+	
+	this.levelLayout = new Array();
+	this.challengeBuffer = new Array();
+	
+	this.levelGenerator();
+	
+	//document.addEventListener('keydown', gameHandleKeyDown);
+	//document.addEventListener('keyup', gameHandleKeyUp);
+
+}
+
+GameManager.prototype.levelGenerator = function(){
+
 	if( this.gameMode == TIME_TRIAL ){
 		this.generateLevelLayout( this.levelLayout, false, false );
 	} else if( this.gameMode == MULTI_RACE ){
@@ -65,17 +100,6 @@ GameManager.prototype.newGame = function( gm ){
 	}else{
 	
 	}
-	
-	//Sets all states to those to start a new game
-	
-	this.ship.xPos = sw/2;
-	this.ship.yPos = sh/4;
-	
-	this.opShip.xPos = sw/2;
-	this.opShip.yPos = 3*sh/4;
-	
-	//document.addEventListener('keydown', gameHandleKeyDown);
-	//document.addEventListener('keyup', gameHandleKeyUp);
 
 }
 
@@ -145,7 +169,12 @@ GameManager.prototype.update = function(){
 	//scroll velocity is linked to the x-velocity of the ship
 	var sv = this.ship.update();
 	
-	this.so += sv;
+	if( this.isChallenge() ){
+		this.so += this.challengeSV;
+		//this.challengeShipOffset += sv;
+	}else{
+		this.so += sv;
+	}
 	
 	//update active blocks
 	
@@ -156,8 +185,9 @@ GameManager.prototype.update = function(){
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
 			makeChallengeLevel( this.challengeBuffer, false, false, this.currentLevel - 1, levelVar + 3 );
-			//console.log( this.currentLevel );
+			//
 			this.currentLevel = (this.currentLevel + 1)%4;
+			console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
 		}
@@ -178,27 +208,41 @@ GameManager.prototype.update = function(){
 		//if( false ){			
 			console.log("Collision");
 			
-			var respawnPoint = this.currentLevel * sw;
-			
-			if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
-			
-			var respawnOffset = this.ship.xPos - respawnPoint;
-			
-			if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
-			
-			this.so-=respawnOffset;
-			
-			this.ship.xPos = respawnPoint;
-			
-			this.ship.yPos = sh/4;
-			this.ship.vx = 0;
-			this.ship.vy = 0;
-					
+			this.onDeath();		
+				
 			break;
 		}
 			
 	}
 
+}
+
+GameManager.prototype.onDeath = function(){
+
+	if( this.isChallenge() ){
+
+		this.parentGame.returnToMenu();
+	
+	}else{
+	
+		var respawnPoint = this.currentLevel * sw;
+			
+		if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
+			
+		var respawnOffset = this.ship.xPos - respawnPoint;
+			
+		if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
+			
+		this.so-=respawnOffset;
+			
+		this.ship.xPos = respawnPoint;
+			
+		this.ship.yPos = sh/4;
+		this.ship.vx = 0;
+		this.ship.vy = 0;
+		
+	}
+		
 }
 
 GameManager.prototype.isMulti = function(){
@@ -268,11 +312,13 @@ GameManager.prototype.drawBlocks = function( graphics ){
 		
 		if( this.isChallenge() ){
 			index = (startIndex + i)%4;
+			if( index < 0 ) index = 3;
 		}else{
 			index = startIndex + i;
+			if( index < 0 ) index = 0;
 		}
 	
-		if( index < 0 ) index = 0;
+		
 		if( index >= drawArray.size ) break;
 	
 		var currentBlocks = drawArray[index].blocks;
@@ -343,7 +389,16 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	graphics.lineWidth = 1;
 	graphics.strokeStyle = "red";
 	
-	var offset = isOp ? this.opSO : this.so;
+	var offset;
+	
+	if( this.isChallenge() ){
+		//offset = this.challengeShipOffset + this.so;
+		offset = this.so;
+	}else{
+		offset = isOp ? this.opSO : this.so;
+	}
+
+	//console.log("Offset: " + offset);
 	
 	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
 	
@@ -379,7 +434,7 @@ GameManager.prototype.drawPause = function( graphics ){
 
 function gameHandleKeyDown(e){
 		
-	if( myGame.gameManager.pause ) return;	
+	if( myGame.gameManager.pause || myGame.isOnMenu ) return;	
 		
 	if (!e) { var e = window.event; }
 		
@@ -400,7 +455,7 @@ function gameHandleKeyDown(e){
 
 function gameHandleKeyUp(e){
 		
-	if( myGame.gameManager.pause ) return;
+	if( myGame.gameManager.pause || myGame.isOnMenu ) return;
 		
 	if (!e) { var e = window.event; }
 		
