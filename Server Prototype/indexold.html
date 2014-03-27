@@ -1,0 +1,1591 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+body {
+  font-family: sans-serif;
+}
+
+#status {
+  font-size: 14pt;
+  color: gray;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#status2 {
+  font-size: 14pt;
+  color: red;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#status3 {
+	font-size: 14pt;
+	color: blue;
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
+#board {
+  width: 800px;
+  height: 50px;
+  border: 1px solid gray;
+  padding: 3px;
+}
+
+#board div {
+  margin-top: 5px;
+}
+
+#msg {
+  width: 740px;
+  margin-right: 10px;
+}
+
+#send {
+  width: 50px;
+}
+
+#login_section, #main_section {
+  display: none;
+}
+
+.user_name {
+  font-size: 10pt;
+  font-weight: bold;
+  color: blue;
+}
+
+.says {
+  font-size: 10pt;
+  color: gray;
+}
+
+.msg {
+  font-size: 12pt;
+  font-family: serif;
+}
+
+.notification {
+  color: green;
+}
+
+.spmes {
+	color: yellow;
+}
+
+.mpmes {
+	color: red;
+}
+</style>
+
+	<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	
+	<div id="login_section">
+  <div id="status">Connecting to the game server ...</div>
+  Your name:
+  <input id="name" type="text"></input>
+  <input id="login" type="button" value="Log In" disabled="true"></input>
+	</div>
+	
+    <script>
+	
+		//From here need to make equivalent rect shape objects for the blocks, which will allow scrolling
+		
+		var KEYCODE_UP = 38; 	//usefull keycode
+		var KEYCODE_LEFT = 37; 	//usefull keycode
+		var KEYCODE_RIGHT = 39; 	//usefull keycode
+		var KEYCODE_DOWN = 40; 	//usefull keycode
+		var PI = Math.PI;
+		
+		//I dunno how to get this from the canvas - I'll keep looking
+		var sw = 1000;
+		var sh = 650;
+		
+		var bw = 40;
+		
+		var gameLength = 0;
+		
+		var shipHeight = 15;
+		
+		var fps = 30;
+		var myGame;
+		
+		// Block.js ------------------------------------------------------------------------------------
+		
+		
+function Block(p1, p2, p3, p4){
+	
+	this.points = new Array();
+	this.points[0] = p1;
+	this.points[1] = p2;
+	this.points[2] = p3;
+	this.points[3] = p4;
+		
+	this.lines = new Array();
+	this.lines[0] = new LinearFunction(p1, p2);
+	this.lines[1] = new LinearFunction(p2, p3);
+	this.lines[2] = new LinearFunction(p3, p4);
+	this.lines[3] = new LinearFunction(p4, p1);
+		
+	this.zeroIsLower = p1.y < p3.y;
+	this.oneIsLower  = p2.y < p4.y;
+		
+}
+		
+		// CanvasText.js------------------------------------
+		
+		
+
+function CanvasText( text, x, y, width, height, c, cb, arg1, arg2, arg3 ){
+
+	this.clickable = c;
+	
+	this.callback = cb;
+	
+	this.argument = arg1;
+	
+	this.socket = arg2;
+	this.name = arg3;
+
+	this.text = text;
+	this.xPos = x;
+	this.yPos = y;
+	
+	this.width = width;
+	this.height = height;
+	
+	this.clicked = function( x, y ){
+	
+		return this.clickable && x >= this.xPos - this.width/2 && x <= this.xPos + this.width/2 && y >= this.yPos - this.height/2 && y <= this.yPos + this.height/2;
+		
+	}
+
+}
+		
+		// CollisionDetector.js --------------------------------------------------------------------
+		
+		
+
+function hasCollidedWithShip(ship, block, multi){
+		
+	var shipVertices = new Array();
+	var shipHeight = (multi) ? ship.height * .5 : ship.height;
+	
+	//console.log(shipHeight);
+			
+	shipVertices[0] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + PI/2 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation + PI/2 ));
+	shipVertices[1] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation - 2*PI/6 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation - 2*PI/6 ));
+	shipVertices[2] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + 8*PI/6 ), 
+							    ship.yPos - shipHeight * Math.sin( ship.rotation + 8*PI/6 ));
+			
+	var shipLines = new Array();
+	shipLines[0] = new LinearFunction( shipVertices[0], shipVertices[1] );
+	shipLines[1] = new LinearFunction( shipVertices[1], shipVertices[2] );
+	shipLines[2] = new LinearFunction( shipVertices[2], shipVertices[0] );
+			
+	var blockLines = new Array();
+	blockLines[0] = block.lines[0];
+	blockLines[1] = block.lines[1];
+	blockLines[2] = block.lines[2];
+	blockLines[3] = block.lines[3];
+	
+	//Intersection between shipLines and blockLines
+			
+	for( var i = 0; i < 3; i++){
+			
+		for( var j = 0; j < 4; j++ ){
+			
+			if(blockLines[j].isVertical){
+						
+				//for vertical lines, the variable b describes the constant x value
+				//So the intersection is just the ship lines function executed at the x value
+				var intersection = new Point( blockLines[j].b, shipLines[i].m * blockLines[j].b + shipLines[i].b);
+						
+				if( intersection.y >= Math.min( block.points[j].y, block.points[(j+1)%4].y ) && 
+					intersection.y <  Math.max( block.points[j].y, block.points[(j+1)%4].y ) && 
+					intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && 
+					intersection.x <  Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+								
+						return true;
+				}
+					
+
+			}else{
+			
+				var intersection = intersect( shipLines[i], blockLines[j] );
+			
+				if( intersection.x >= Math.min( block.points[j].x, block.points[(j+1)%4].x ) && 
+					intersection.x <  Math.max( block.points[j].x, block.points[(j+1)%4].x ) && 
+					intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && 
+					intersection.x <  Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+							
+					return true;
+				}
+					
+			}
+				
+		}
+	
+	}
+			
+	//Else we've been through all points and no intersection
+	return false;
+}
+		
+		// Game.js -----------------------------------------------------------------
+		
+		
+function Game( g, s, n ){
+
+	this.graphics = g;
+	
+	var socket = s;
+	
+	this.name = n;
+	
+	<!-- this.socket = io.connect("http://localhost:10001"); -->
+	//this.socket = io.connect("http://localhost:8000");
+
+	/*this.userName = 'tester';
+
+	this.socket.on('welcome', function(data)
+		{
+			console.log('got welcome message', data );
+		}
+	);
+	this.socket.on('test', function(data)
+		{
+			console.log('got test');
+			console.log(data);
+		}
+	);
+	this.socket.on('notification', function(data)
+		{
+			console.log('notification');
+			console.log(data);
+		}
+	);
+
+	var message = { user_name : this.userName };
+	this.socket.emit( 'login', message );
+	*/
+	
+	this.isOnMenu = true;
+	
+	this.gameManager = new GameManager( this, socket );
+	this.menuManager = new MenuManager( this, g, socket, this.name );
+	
+	
+}
+
+Game.prototype.start = function(){
+
+	this.isOnMenu = true;
+	toMainMenu();
+	setInterval( run, 1000/fps );
+	
+}
+
+Game.prototype.end = function(){
+
+	clearInterval( this.run );
+
+}
+
+Game.prototype.returnToMenu = function(){
+
+	this.menuManager.toMainMenu();
+	this.isOnMenu = true;
+
+}
+
+
+
+function goToGame( gm, socket, name ){
+	
+	// race
+	if (gm == 3) {
+		socket.emit('mp_race', { user_name: name });
+		
+		// handle multiplayer race wait message
+	socket.on(
+		'waitForRace',
+		function(message) {
+			if (message) {
+				console.log('waiting for opponent');
+			}
+		});
+		
+		socket.on(
+		'opponentForRace',
+		function(message) {
+			if (message) {
+				myGame.isOnMenu = false;
+				myGame.gameManager.newGame( gm );
+			}
+		});
+	}
+	// challenge
+	else if (gm == 4) {
+		socket.emit('mp_ch', { user_name: name });
+		
+		// handle multiplayer race wait message
+	socket.on(
+		'waitForRace',
+		function(message) {
+			if (message) {
+				console.log('waiting for opponent');
+			}
+		});
+		
+		socket.on(
+		'opponentForRace',
+		function(message) {
+			if (message) {
+				myGame.isOnMenu = false;
+				myGame.gameManager.newGame( gm );
+			}
+		});
+	}
+	// single player
+	else {
+
+		myGame.isOnMenu = false;
+		myGame.gameManager.newGame( gm );
+	
+	}
+}
+
+Game.prototype.update = function(){
+
+	if( !this.isOnMenu ){
+		this.gameManager.update();
+	}
+	//the menu does not need to be updated
+}
+
+var run = function( ){
+
+	myGame.update();
+	myGame.draw();
+
+}
+
+Game.prototype.draw = function(){
+
+	if( this.isOnMenu ){
+		this.menuManager.draw( this.graphics );
+	}else{
+		this.gameManager.draw( this.graphics );
+	}
+
+}
+
+
+// GameManager.js ------------------------------------------------------------------
+
+
+var TIME_TRIAL = 1;
+var SINGLE_CHALLENGE = 2;
+var MULTI_RACE = 3;
+var MULTI_CHALLENGE = 4;
+
+function GameManager( gameObject, websocket ){
+
+	this.parentGame = gameObject;
+	
+	this.socket = websocket;
+
+	this.ship = new Ship();
+	this.shipHeight = this.ship.height;
+	
+	//An array of levels
+	this.levelLayout = new Array();
+	
+	this.opponentLevelLayout = new Array();
+	
+	this.currentLevel = 0;
+	
+	//length of a level layout
+	this.layoutSize = 1;
+	
+	//Buffer array for challenge mode
+	this.challengeBuffer = new Array();
+	this.challengeTotalLevels = 0;
+	
+	//Scroll offset
+	this.so = 0;
+	
+	//Flags for ship movement
+	this.thrust = false;
+	this.leftTurn = false;
+	this.rightTurn = false;
+	
+	//Flag for death - use later during animations
+	this.dead = false;
+	
+	//Flag for pause menu
+	this.pause = false;
+	
+	//Identify a variable for game mode.
+	this.gameMode = 0;
+	
+	this.opShip = new Ship();
+	this.opSO = 0;
+	this.opLevel = 0;
+	
+}
+
+GameManager.prototype.newGame = function( gm ){
+
+
+	console.log("New Game");
+
+	this.gameMode = gm;
+	
+	if( this.gameMode == TIME_TRIAL ){
+		this.generateLevelLayout( this.levelLayout, false, false );
+	} else if( this.gameMode == MULTI_RACE ){
+		
+		this.generateLevelLayout( this.levelLayout, true, true, this.opponentLevelLayout );
+
+	}else if( this.gameMode == SINGLE_CHALLENGE){
+		this.initChallengeBuffer();
+	}else{
+	
+	}
+	
+	//Sets all states to those to start a new game
+	
+	this.ship.xPos = sw/2;
+	this.ship.yPos = sh/4;
+	
+	this.opShip.xPos = sw/2;
+	this.opShip.yPos = 3*sh/4;
+	
+	//document.addEventListener('keydown', gameHandleKeyDown);
+	//document.addEventListener('keyup', gameHandleKeyUp);
+
+}
+
+GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLevels ){
+
+	initializeLevels( this.levelLayout, multi, top, opLevels );
+
+}
+
+GameManager.prototype.initChallengeBuffer = function(){
+
+	//initialize the challenge level buffer
+	initChallengeBuffer( this.challengeBuffer, false, false );
+		
+}
+
+GameManager.prototype.generateChallengeLevel = function(){
+
+	//Create a new challenge level in the challenge buffer
+
+}
+
+GameManager.prototype.draw = function( graphics ){
+
+	//graphics.clearRect(0,0,sw, sh);
+	this.drawBackground( graphics );
+	this.drawShip( graphics, this.ship, false );
+	this.drawBlocks( graphics );
+	
+	if( this.isMulti() ){
+		this.drawShip( graphics, this.opShip, true );
+		this.drawOpBlocks(graphics);
+	}
+	
+	if( this.pause ) this.drawPause( graphics );
+
+}
+/*
+GameManager.prototype.handleUpdate = function( update ){
+
+
+	var u = JSON.parse( update );
+	this.opShip.xPos = u.xPos;
+	this.opShip.yPos = u.yPos;
+	this.opShip.rotation = u.rotation;
+	
+	this.opSO = u.screenOffset;
+
+} */
+
+GameManager.prototype.update = function(){
+
+	if( this.pause ) return;
+	
+	if( this.isMulti() ){
+		// send own update
+		this.socket.emit('update', { xPosition: this.ship.xPos, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so } );
+	
+		// get update object from other player
+		this.socket.on(
+			'newUpdate',
+			function(update) {
+				if (update) {
+					//console.log('update x position is: ' + update.xPosition );
+						//var u = JSON.parse( update );
+						myGame.gameManager.opShip.xPos = update.xPosition;
+						myGame.gameManager.opShip.yPos = update.yPosition + sh/2;
+						myGame.gameManager.opShip.rotation = update.rotation;
+						
+						myGame.gameManager.opSO = update.screenOffset;
+				}
+		});	
+		
+	}
+	
+	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
+	
+		//check if we need to add a new level
+	
+	}
+
+	if( this.thrust ){
+		this.ship.thrust( this.isMulti() );
+	}
+	
+	//If one of them, but not both (exclusive OR)
+	if( this.leftTurn ^ this.rightTurn ){
+		if( this.leftTurn ){
+			this.ship.leftTurn();
+		}else{
+			this.ship.rightTurn();
+		}
+	}
+	
+	//scroll velocity is linked to the x-velocity of the ship
+	var sv = this.ship.update();
+	
+	this.so += sv;
+	
+	//update active blocks
+	
+	var levelVar = this.isChallenge() ? this.challengeTotalLevels : this.currentLevel;
+	
+	if( this.ship.xPos > (levelVar + 1) * sw ){
+		
+		if( this.isChallenge() ){
+			this.challengeTotalLevels++;
+			makeChallengeLevel( this.challengeBuffer, false, false, this.currentLevel - 1, levelVar + 3 );
+			//console.log( this.currentLevel );
+			this.currentLevel = (this.currentLevel + 1)%4;
+		}else{
+			this.currentLevel++;
+		}
+		
+	}
+	
+	if( this.ship.xPos < (this.currentLevel * sw ) ){
+		this.currentLevel--;
+	}
+	
+	//Same change as in Draw function to change to challenge mode
+	
+	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
+	
+	for( i in collisionArray[this.currentLevel].blocks ){
+			
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
+		//if( false ){			
+			console.log("Collision");
+			
+			var respawnPoint = this.currentLevel * sw;
+			
+			if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
+			
+			var respawnOffset = this.ship.xPos - respawnPoint;
+			
+			if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
+			
+<<<<<<< HEAD
+			this.so-=respawnOffset;
+=======
+			document.addEventListener('click', menuHandleClick);
+			document.addEventListener('mousemove', menuHandleScroll);
+>>>>>>> b20a02dc826c329c7ce777745b864f17734aa9b1
+			
+			this.ship.xPos = respawnPoint;
+			
+			this.ship.yPos = sh/4;
+			this.ship.vx = 0;
+			this.ship.vy = 0;
+					
+			break;
+		}
+			
+	}
+
+}
+
+GameManager.prototype.isMulti = function(){
+	return this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE;
+}
+
+GameManager.prototype.isChallenge = function(){
+	return this.gameMode == MULTI_CHALLENGE || this.gameMode == SINGLE_CHALLENGE;
+}
+
+GameManager.prototype.resumeGame = function(){
+
+	this.pause = false;
+
+}
+
+GameManager.prototype.pauseGame = function(){
+
+	this.pause = true;
+
+}
+
+GameManager.prototype.quitGame = function(){
+
+	//Clear game state
+	
+	this.parentGame.isOnMenu = true;
+
+}
+
+GameManager.prototype.drawBackground = function( graphics ){
+
+	graphics.clearRect(100,100,100, 100);
+
+	graphics.fillStyle ="black";
+
+	graphics.fillRect(0, 0, sw, sh);
+	
+	//graphics.fillStyle = "green";
+	//graphics.fillRect( 100, 100, 100, 100 );
+	
+	//console.log("Back");
+}
+
+GameManager.prototype.drawBlocks = function( graphics ){
+
+	graphics.strokeStyle = "green";
+	
+	var drawArray;
+	var startIndex;
+	var endIndex;
+	
+	if( this.isChallenge() ){
+		drawArray = this.challengeBuffer;
+		startIndex = this.currentLevel - 1;
+		if( startIndex == -1 ) startIndex == 3;
+		endIndex = (this.currentLevel + 1) % 4;
+	}else{
+		drawArray = this.levelLayout;
+		startIndex = (this.currentLevel - 1);
+		endIndex = (this.currentLevel + 1);
+	}
+	
+	for( var i = 0; i < 3; ++i){
+	
+		var index;
+		
+		if( this.isChallenge() ){
+			index = (startIndex + i)%4;
+		}else{
+			index = startIndex + i;
+		}
+	
+		if( index < 0 ) index = 0;
+		if( index >= drawArray.size ) break;
+	
+		var currentBlocks = drawArray[index].blocks;
+	
+		for( blockIndex in currentBlocks ){
+			
+			var b = currentBlocks[blockIndex];
+			graphics.beginPath();
+			
+			graphics.moveTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.lineTo(b.points[1].x - this.so, b.points[1].y);
+			
+			graphics.moveTo(b.points[1].x - this.so, b.points[1].y);
+			graphics.lineTo(b.points[2].x - this.so, b.points[2].y);
+			
+			graphics.moveTo(b.points[2].x - this.so, b.points[2].y);
+			graphics.lineTo(b.points[3].x - this.so, b.points[3].y);
+			
+			//graphics.closePath();
+			graphics.moveTo(b.points[3].x - this.so, b.points[3].y);
+			graphics.lineTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.stroke();
+			
+		}
+		
+	}
+
+}
+
+GameManager.prototype.drawOpBlocks = function( graphics ){
+
+	graphics.strokeStyle = "green";
+	
+	for( var i = this.opLevel - 1; i <= this.opLevel + 1; ++i){
+	
+		if( i < 0 ) i = 0;
+		if( i >= this.levelLayout.size ) break;
+	
+		var currentBlocks = this.opponentLevelLayout[i].blocks;
+	
+		for( blockIndex in currentBlocks ){
+			
+			var b = currentBlocks[blockIndex];
+			graphics.beginPath();
+			
+			graphics.moveTo(b.points[0].x - this.opSO, b.points[0].y);
+			graphics.lineTo(b.points[1].x - this.opSO, b.points[1].y);
+			
+			graphics.moveTo(b.points[1].x - this.opSO, b.points[1].y);
+			graphics.lineTo(b.points[2].x - this.opSO, b.points[2].y);
+			
+			graphics.moveTo(b.points[2].x - this.opSO, b.points[2].y);
+			graphics.lineTo(b.points[3].x - this.opSO, b.points[3].y);
+			
+			//graphics.closePath();
+			graphics.moveTo(b.points[3].x - this.opSO, b.points[3].y);
+			graphics.lineTo(b.points[0].x - this.opSO, b.points[0].y);
+			graphics.stroke();
+			
+		}
+		
+	}
+
+}
+
+GameManager.prototype.drawShip = function( graphics, ship, isOp ){
+		
+	graphics.lineWidth = 1;
+	graphics.strokeStyle = "red";
+	
+	var offset = isOp ? this.opSO : this.so;
+	
+	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
+	
+	graphics.beginPath();
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( PI/2 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( -2*PI/6 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( -2*PI/6 + ship.rotation ));
+	
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( -2*PI/6 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( -2*PI/6 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( 8*PI/6 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( 8*PI/6 + ship.rotation ));
+	
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( 8*PI/6 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( 8*PI/6 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( PI/2 + ship.rotation ) - offset, 
+		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	graphics.stroke();
+}
+
+GameManager.prototype.drawPause = function( graphics ){
+
+	//draw the pause menu
+
+}
+
+function gameHandleKeyDown(e){
+		
+	if( myGame.gameManager.pause ) return;	
+		
+	if (!e) { var e = window.event; }
+		
+	switch (e.keyCode){
+	
+	case KEYCODE_LEFT:
+		myGame.gameManager.leftTurn = true;
+		break;
+	case KEYCODE_RIGHT:
+		myGame.gameManager.rightTurn = true;
+		break;
+	case KEYCODE_UP:
+		myGame.gameManager.thrust = true;
+		break;
+		
+	}
+}
+
+function gameHandleKeyUp(e){
+		
+	if( myGame.gameManager.pause ) return;
+		
+	if (!e) { var e = window.event; }
+		
+	switch (e.keyCode){
+			
+	case KEYCODE_LEFT:
+		myGame.gameManager.leftTurn = false;
+		break;
+	case KEYCODE_RIGHT:
+		myGame.gameManager.rightTurn = false;
+		break;
+	case KEYCODE_UP:
+		myGame.gameManager.thrust = false;
+		break;
+			
+	}
+	
+}
+
+function gameHandleClick(e){
+
+
+
+}
+
+// ImplicitFunction.js -------------------------------------------------
+
+function evaluateIm( p ){
+	return this.c * p.x + this.d * p.y + this.e;
+}
+		
+function ImplicitFunction( p1, p2 ){
+		
+	this.c = p1.y - p2.y;
+	this.d = p2.x - p1.x;
+	var m = (p1.y - p2.y) / (p1.x - p2.x);
+	var b = p1.y - m * p1.x;
+	this.e = b * (p1.x - p2.x);
+		
+	this.eval = evaluateIm;
+		
+}
+
+// Level.js --------------------------------------------------------------
+
+var levelFactory = new Array();
+
+function Level(){
+		
+	this.blocks = new Array();
+		
+}
+
+function makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+
+	var lbw = multi ? .5 * bw : bw;
+	var lsh = multi ? .5 * sh : sh;
+
+	var len = levels[levels.length - 1].blocks.length;
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[len] = new Block( new Point( sw * i, base + 0 ), new Point( sw * (i+1), base + 0 ), new Point( sw * (i+1), base + lbw ), new Point( sw * i, base + lbw ) );
+	levels[t].blocks[len+1] = new Block( new Point( sw * i, base + lsh ), new Point( sw * (i+1), base + lsh ), new Point( sw * (i+1), base + lsh-lbw ), new Point( sw * i, base + lsh-lbw ) );
+
+}
+
+function makeStart( levels, multi, top ){
+
+	levels[0] = new Level();
+	
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;
+	var lsh = multi ? .5 * sh : sh;
+	
+	levels[0].blocks[0] = new Block( new Point( 0,base+lbw ), new Point( 0, base+lsh - lbw ), new Point( lbw, base+lsh - lbw ), new Point( lbw, base+lbw ) );
+	
+	makeBoundingBlocks( levels, multi, top, false, 0, 0 ); 
+
+}
+
+function makeEnd( levels, multi, top, isChallenge, index, swOffset ){
+
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;
+	var lsh = multi ? .5 * sh : sh;
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[0] = new Block( new Point( (i+1) * sw , base+lbw ), new Point( (i+1) * sw, base+lsh - lbw ), 
+		new Point( (i+1) * sw - lbw, base+lsh - lbw ), new Point( (i+1) * sw - lbw, base+lbw ) );
+	
+	makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ); 
+
+}
+
+levelFactory[0] = makeLevelOne;
+function makeLevelOne( levels, multi, top, isChallenge, index, swOffset ){
+		
+	if( !isChallenge ) levels[levels.length] = new Level();
+		
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;
+	var lsh = multi ? (.5 * sh) : sh;
+		
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[0] = new Block( new Point( i*sw + sw/4, base + lsh - lbw ), new Point( i*sw + sw/4, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh - lbw ) );
+	levels[t].blocks[1] = new Block( new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 + lbw ), new Point( i*sw + sw/4 + lbw, base + lsh/4 + lbw ) );
+	levels[t].blocks[2] = new Block( new Point( i*sw + 3*sw/4, base + lbw ), new Point( i*sw + 3*sw/4, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + lbw ) );
+	levels[t].blocks[3] = new Block( new Point( i*sw + 3*sw/4, base + 3*lsh/4 - lbw ), new Point( i*sw + 3*sw/4, base + 3*lsh/4 ), new Point( i*sw + sw/2 - lbw , base + 3*lsh/4 ), new Point( i*sw + sw/2 - lbw, base + 3*lsh/4 - lbw ) );
+		
+	makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset );	
+	
+}
+		
+levelFactory[1] = makeLevelTwo;
+function makeLevelTwo( levels, multi, top, isChallenge, index, swOffset ){
+		
+	if( !isChallenge ) levels[levels.length] = new Level();
+		
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+		
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[0] = new Block( new Point( i*sw +sw/5, base+lbw ), new Point( i*sw +sw/5+ lbw, base+lbw ), 
+		new Point( i*sw +sw/5 + lbw, base+lsh/2 - lbw ), new Point( i*sw +sw/5, base+lsh/2 - lbw ) );
+	levels[t].blocks[1] = new Block( new Point( i*sw +sw/5, base+lsh-lbw ), new Point( i*sw +sw/5+ lbw, base+lsh-lbw ), 
+		new Point( i*sw +sw/5 + lbw, base+lsh/2 + lbw ), new Point( i*sw +sw/5, base+lsh/2 + lbw ) );
+	levels[t].blocks[2] = new Block( new Point( i*sw +4*sw/5, base+lbw ), new Point( i*sw +4*sw/5+ lbw, base+lbw ), 
+		new Point( i*sw +4*sw/5 + lbw, base+lsh/2 - lbw ), new Point( i*sw +4*sw/5, base+lsh/2 - lbw ) );
+	levels[t].blocks[3] = new Block( new Point( i*sw +4*sw/5, base+lsh-lbw ), new Point( i*sw +4*sw/5+ lbw, base+lsh-lbw ), 
+		new Point( i*sw +4*sw/5 + lbw, base+lsh/2 + lbw ), new Point( i*sw +4*sw/5, base+lsh/2 + lbw ) );
+	levels[t].blocks[4] = new Block( new Point( i*sw +sw/5 + lbw, base+lsh/2 - lbw ), new Point( i*sw +sw/5 + lbw, base+lsh/2 - 2*lbw ), 
+		new Point( i*sw +4*sw/5, base+lsh/2 - 2*lbw ), new Point( i*sw +4*sw/5, base+lsh/2 - lbw ) );
+	levels[t].blocks[5] = new Block( new Point( i*sw +sw/5 + lbw, base+lsh/2 + lbw ), new Point( i*sw +sw/5 + lbw, base+lsh/2 + 2*lbw ), 
+		new Point( i*sw +4*sw/5, base+lsh/2 + 2*lbw ), new Point( i*sw +4*sw/5, base+lsh/2 + lbw ) );
+	
+	makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset );
+}
+
+levelFactory[2] = makeLevelThree;
+function makeLevelThree ( levels, multi, top, isChallenge, index, swOffset ){
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[0] = new Block( new Point( i*sw + sw/5, base + lsh-lbw ), new Point( i*sw + sw/5, base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw , base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw, base + lsh-lbw) );
+	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5 - 2*lbw, base + lbw), new Point (i*sw + 4*sw/5 - 2*lbw, base + lsh-3*lbw ), new Point ( i*sw + 4*sw/5, base + lsh-3*lbw), new Point ( i*sw + 4*sw/5, base + lbw) );
+	
+	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset );
+}
+
+levelFactory[3] = makeLevelFour;
+function makeLevelFour ( levels, multi, top, isChallenge, index, swOffset ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	console.log(t);
+	levels[t].blocks[0] = new Block( new Point( i*sw + bw, base + 2*lbw), new Point( i*sw + bw, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
+	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5, base + lsh-2*lbw), new Point( i*sw + bw, base + 2*lsh/5), new Point( i*sw + bw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
+
+	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset);
+}
+
+levelFactory[4] = makeLevelFive;
+function makeLevelFive ( levels, multi, top, isChallenge, index, swOffset ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+
+	console.log(t);
+	
+	levels[t].blocks[0] = new Block( new Point( i*sw + 3*sw/4, base + lsh-lbw), new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh - lbw) );
+	levels[t].blocks[1] = new Block( new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4 + lbw), new Point( i*sw + 3*sw/4, base + lsh/4 + lbw) );
+	levels[t].blocks[2] = new Block( new Point( i*sw + sw/4, base + lbw), new Point( i*sw + sw/4, base + 3*lsh/4), new Point( i*sw + sw/4 + lbw, base + 3*lsh/4), new Point( i*sw + sw/4 + lbw, base + lbw) );
+	levels[t].blocks[3] = new Block( new Point( i*sw + sw/4 + lbw, base + 3*lsh/4), new Point( i*sw + sw/2 + lbw, base + 3*lsh/4), new Point( i*sw + sw/2 + lbw, base + 3*lsh/4 - lbw), new Point( i*sw + sw/4 + lbw, base + 3*lsh/4 - lbw) );
+	
+	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset );
+}
+		
+function initializeLevels( levels, multi, top, opLevels){
+		
+	//This is where we need to go through and hardcode levels in - each one takes maybe 5 minutes to do.
+		
+	makeStart( levels, multi, top );
+	if( multi ) makeStart( opLevels, multi, !top, false );
+		
+	makeLevelOne( levels, multi, top, false );
+	if( multi ) makeLevelOne( opLevels, multi, !top, false );
+	
+	makeLevelTwo( levels, multi, top, false );
+	if( multi ) makeLevelTwo( opLevels, multi, !top, false );
+	
+	makeLevelThree( levels, multi, top, false );
+	if( multi ) makeLevelThree( opLevels, multi, !top, false );
+	
+	makeLevelFour( levels, multi, top, false );
+	if( multi ) makeLevelFour( opLevels, multi, !top, false );
+	
+	makeLevelFive( levels, multi, top, false );
+	if( multi ) makeLevelFive( opLevels, multi, !top, false );
+	
+	makeEnd( levels, multi, top, false );
+	if( multi ) makeEnd( opLevels, multi, !top, false );
+
+		
+}
+
+function initChallengeBuffer( challengeBuffer, multi, top ){
+
+	
+
+	makeStart( challengeBuffer, multi, top );
+	for(var i = 1; i < 4; ++i){
+		challengeBuffer[i] = new Level();
+	}
+	makeLevelOne( challengeBuffer, multi, top, true, 1, 1 );
+	
+	makeLevelTwo( challengeBuffer, multi, top, true, 2, 2 );
+	
+	makeLevelThree( challengeBuffer, multi, top, true, 3, 3 );
+
+}
+
+function makeChallengeLevel( challengeBuffer, multi, top, index, swOffset ){
+
+	if( index == -1 ) index = 3;
+	levelFactory[ index % 5 ](challengeBuffer, multi, top, true, index, swOffset);
+
+
+}
+
+// LinearFunction.js --------------------------------------------------------------
+
+
+//Intersect two linear functions
+function intersect(l1, l2){
+		
+	var x = (l2.b - l1.b)/(l1.m - l2.m);
+	var result = new Point( x, (l1.m * x + l1.b) );
+	return result;
+}
+
+function LinearFunction( p1, p2 ){
+		
+	if( p2.x == p1.x ){
+		this.isVertical = true;
+		this.b = p1.x;
+		this.m = 0;
+	}else{
+		this.isVertical = false;
+		this.m = (p2.y - p1.y)/(p2.x - p1.x);
+		this.b = p1.y - this.m * p1.x;
+				
+	}
+		
+}
+
+// MenuManager.js ----------------------------------------------------------------
+
+var MAIN_MENU = 1;
+var INSTRUCTIONS = 2;
+var HIGHSCORES = 3;
+
+//Pass the parent game object, and a graphics object to measure text with
+function MenuManager( gameObject, g, websocket, n ){
+
+	this.currentScreen = MAIN_MENU;
+	this.parentGame = gameObject;
+	
+	this.socket = websocket;
+	
+	this.name = n;
+	
+	//The main menu is an array of text objects
+	this.mainMenu = new Array();
+	
+	this.createMainMenu( g );
+
+}
+
+MenuManager.prototype.createMainMenu = function( g ){
+
+	var width;
+
+	g.font = "60px Courier";
+	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, 235, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
+	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, 305, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
+	
+	this.mainMenu[2] = new CanvasText( "TIME TRIAL", sw/2, 460, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_RACE, this.socket, this.name );
+	this.mainMenu[3] = new CanvasText( "TIME TRIAL", sw/2, 530, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, MULTI_CHALLENGE, this.socket, this.name );
+	
+	g.font = "65px Courier";
+	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
+	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+
+}
+
+MenuManager.prototype.draw = function( graphics ){
+
+	graphics.fillStyle ="#000000";
+	graphics.fillRect(0,0,sw, sh);
+
+	if( this.currentScreen == MAIN_MENU ){
+		this.drawMainMenu(graphics);
+	}else if( this.currentScreen == INSTRUCTIONS ){
+		this.drawInstructions(graphics);
+	}else if( this.currentScreen == HIGHSCORES ){
+		this.drawHighscores(graphics);
+	}
+
+	//this.parentGame.goToGame();
+}
+
+MenuManager.prototype.drawMainMenu = function( graphics ){
+	
+	//Draw main menu
+	
+	
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "140px Courier";
+	
+	graphics.strokeText("MAIN MENU",sw/2,75);
+	
+	graphics.font = "80px Courier";
+	
+	graphics.strokeText("SINGLE PLAYER", sw/2, 160);
+	
+	graphics.strokeText("MULTIPLAYER", sw/2, 385);
+	
+	graphics.font = "60px Courier";
+	
+	graphics.fillText("TIME TRIAL", sw/2, 235);
+	
+	graphics.fillText("CHALLENGE", sw/2, 305);
+	
+	graphics.fillText("ONLINE RACE", sw/2, 460);
+	
+	graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	
+	graphics.font = "65px Courier";
+	
+	graphics.fillText("INSTRUCTIONS", sw/4, 600);
+	graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+
+}
+
+MenuManager.prototype.drawInstructions = function( graphics ){
+
+	//Draw instructions
+
+}
+
+MenuManager.prototype.drawHighscores = function( graphics ){
+
+	//Draw highscores
+
+}
+
+function toMainMenu(){
+
+	this.currentScreen = MAIN_MENU;
+
+}
+
+function toInstructions(){
+
+	this.currentScreen = INSTRUCTIONS;
+
+}
+
+function toHighscores(){
+
+	this.currentScreen = HIGHSCORES;
+
+}
+
+function menuHandleClick(event){
+	
+	if( !myGame.isOnMenu ) return;
+	
+	switch (myGame.menuManager.currentScreen){
+	
+	case MAIN_MENU:
+	
+		for( textElement in myGame.menuManager.mainMenu ){
+		
+			var text = myGame.menuManager.mainMenu[textElement];
+		
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( text.argument, text.socket, text.name );
+			
+			}
+		
+		}
+	
+	}
+
+}
+
+
+// Point.js -------------------------------------------------------
+
+
+function Point(x, y){
+	this.x = x;
+	this.y = y;
+}
+
+// Ship.js ----------------------------------------------------------
+
+
+
+function Ship(){
+
+	this.TURNSPEED = .1;
+
+	this.xPos = 0;
+	this.yPos = 0; 
+	this.rotation = 0;
+	this.height = 15;
+
+	this.vx = 0;
+	this.vy = 0;
+	
+}
+
+Ship.prototype.update = function(){
+
+	this.xPos+=this.vx;
+	this.yPos+=this.vy;
+	
+	return this.vx;
+
+}
+
+Ship.prototype.thrust = function( isMulti ){
+
+	var multiMulti = isMulti ? .5 : 1;
+	//console.log("Thrust");
+	this.vx += (Math.cos( this.rotation + PI/2 )*.5);
+	this.vy -= (Math.sin( this.rotation + PI/2 )*.5) * multiMulti;
+
+}
+
+Ship.prototype.leftTurn = function(){
+
+	this.rotation+=this.TURNSPEED;
+
+}
+
+Ship.prototype.rightTurn = function(){
+
+	this.rotation-=this.TURNSPEED;
+
+}
+
+// UPDATE
+
+
+function Update(){
+
+	this.xPos;
+	this.yPos;
+	
+	this.rotation;
+	
+	this.screenOffset;
+
+}
+
+
+// more index.html--------------------------------------------------------------
+
+		function dToR(degrees){
+			return degrees/360 * 2*PI;
+		}
+		
+       /* function init() {
+			
+			$(document).ready(function() {
+			// Hide the warning section and show the login section.
+			$('#warning').css('display', 'none');
+			$('#login_section').css('display', 'block');
+
+			// Initialize socket.io.
+			// document.location.host returns the host of the current page.
+			var socket = io.connect('http://' + document.location.host);
+			
+			var name;
+			
+			socket.on(
+				'login_ok',
+				  function() {
+					$('#login_section').css('display', 'none');
+					
+					//I forgot the format for adding event listeners, so here it is for reference
+			
+					document.addEventListener('keydown', gameHandleKeyDown);
+					document.addEventListener('keyup', gameHandleKeyUp);
+					
+					document.addEventListener('click', menuHandleClick);
+					
+					var c = document.getElementById("gameCanvas");
+					
+					var graphics = c.getContext("2d");
+					
+					myGame = new Game( graphics );
+					
+					console.log('init check');
+					
+					myGame.start();
+				  });
+			
+			$('#login').click(function() {
+			  name = $('#name').val();
+			  if (name) {
+				name = name.trim();
+				if (name.length > 0) {
+				  socket.emit('login', { user_name: name });
+				}
+			  }
+			  // Clear the input field.
+			  $('#name').val('');
+			});
+			
+		}*/
+		
+		
+		
+		
+		
+    </script>
+</head>
+<!-- <body onLoad="init();"> -->
+<body>
+    <canvas id="gameCanvas" width="1000" height="650">
+        alternate content
+    </canvas>
+	<script>
+	$(document).ready(function() {
+			// Hide the warning section and show the login section.
+			
+			$('#login_section').css('display', 'block');
+
+			// Initialize socket.io.
+			// document.location.host returns the host of the current page.
+			var socket = io.connect('http://' + document.location.host);
+			
+			var name;
+			
+			socket.on(
+			  'welcome',
+			  function(message) {
+				$('#status').text(message);
+				$('#login').attr('disabled', false);
+			  });
+			
+			socket.on(
+				'login_ok',
+				  function() {
+					$('#login_section').css('display', 'none');
+					
+					//I forgot the format for adding event listeners, so here it is for reference
+			
+					document.addEventListener('keydown', gameHandleKeyDown);
+					document.addEventListener('keyup', gameHandleKeyUp);
+					
+					document.addEventListener('click', menuHandleClick);
+					
+					var c = document.getElementById("gameCanvas");
+					
+					var graphics = c.getContext("2d");
+					
+					myGame = new Game( graphics, socket, name );
+					
+					console.log('init check');
+					
+					myGame.start();
+				  });
+			
+			$('#login').click(function() {
+			  name = $('#name').val();
+			  if (name) {
+				name = name.trim();
+				if (name.length > 0) {
+				  socket.emit('login', { user_name: name });
+				}
+			  }
+			  // Clear the input field.
+			  $('#name').val('');
+			});
+	 });		
+	</script>
+</body>
+</html>
