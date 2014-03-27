@@ -95,7 +95,7 @@ GameManager.prototype.levelGenerator = function(){
 		
 		this.generateLevelLayout( this.levelLayout, true, true, this.opponentLevelLayout );
 
-	}else if( this.gameMode == SINGLE_CHALLENGE){
+	}else if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE){
 		this.initChallengeBuffer();
 	}else{
 	
@@ -111,8 +111,10 @@ GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLeve
 
 GameManager.prototype.initChallengeBuffer = function(){
 
+	var multi = this.isMulti();
+
 	//initialize the challenge level buffer
-	initChallengeBuffer( this.challengeBuffer, false, false );
+	initChallengeBuffer( this.challengeBuffer, multi, multi );
 		
 }
 
@@ -306,6 +308,8 @@ GameManager.prototype.drawBlocks = function( graphics ){
 		endIndex = (this.currentLevel + 1);
 	}
 	
+	var so = this.so;
+	
 	for( var i = 0; i < 3; ++i){
 	
 		var index;
@@ -328,18 +332,18 @@ GameManager.prototype.drawBlocks = function( graphics ){
 			var b = currentBlocks[blockIndex];
 			graphics.beginPath();
 			
-			graphics.moveTo(b.points[0].x - this.so, b.points[0].y);
-			graphics.lineTo(b.points[1].x - this.so, b.points[1].y);
+			graphics.moveTo(b.points[0].x - so, b.points[0].y);
+			graphics.lineTo(b.points[1].x - so, b.points[1].y);
 			
-			graphics.moveTo(b.points[1].x - this.so, b.points[1].y);
-			graphics.lineTo(b.points[2].x - this.so, b.points[2].y);
+			graphics.moveTo(b.points[1].x - so, b.points[1].y);
+			graphics.lineTo(b.points[2].x - so, b.points[2].y);
 			
-			graphics.moveTo(b.points[2].x - this.so, b.points[2].y);
-			graphics.lineTo(b.points[3].x - this.so, b.points[3].y);
+			graphics.moveTo(b.points[2].x - so, b.points[2].y);
+			graphics.lineTo(b.points[3].x - so, b.points[3].y);
 			
 			//graphics.closePath();
-			graphics.moveTo(b.points[3].x - this.so, b.points[3].y);
-			graphics.lineTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.moveTo(b.points[3].x - so, b.points[3].y);
+			graphics.lineTo(b.points[0].x - so, b.points[0].y);
 			graphics.stroke();
 			
 		}
@@ -352,30 +356,65 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
 	
-	for( var i = this.opLevel - 1; i <= this.opLevel + 1; ++i){
+	var drawArray;
+	var startIndex;
+	var endIndex;
 	
-		if( i < 0 ) i = 0;
-		if( i >= this.levelLayout.size ) break;
+	if( this.isChallenge() ){
+		drawArray = this.challengeBuffer;
+		startIndex = this.currentLevel - 1;
+		if( startIndex == -1 ) startIndex == 3;
+		endIndex = (this.currentLevel + 1) % 4;
+	}else{
+		drawArray = this.opponentLevelLayout;
+		startIndex = (this.opLevel - 1);
+		endIndex = (this.opLevel + 1);
+	}
 	
-		var currentBlocks = this.opponentLevelLayout[i].blocks;
+	var so;
+	var co;
+	if( this.isChallenge() ){
+		so = this.so;
+		co = sh/2;
+	}else{
+		so = this.opSO;
+		co = 0;
+	}
+	
+	for( var i = 0; i < 3; ++i){
+	
+		var index;
+		
+		if( this.isChallenge() ){
+			index = (startIndex + i)%4;
+			if( index < 0 ) index = 3;
+		}else{
+			index = startIndex + i;
+			if( index < 0 ) index = 0;
+		}
+	
+		
+		if( index >= drawArray.size ) break;
+	
+		var currentBlocks = drawArray[index].blocks;
 	
 		for( blockIndex in currentBlocks ){
 			
 			var b = currentBlocks[blockIndex];
 			graphics.beginPath();
 			
-			graphics.moveTo(b.points[0].x - this.opSO, b.points[0].y);
-			graphics.lineTo(b.points[1].x - this.opSO, b.points[1].y);
+			graphics.moveTo(b.points[0].x - so, b.points[0].y + co);
+			graphics.lineTo(b.points[1].x - so, b.points[1].y + co);
 			
-			graphics.moveTo(b.points[1].x - this.opSO, b.points[1].y);
-			graphics.lineTo(b.points[2].x - this.opSO, b.points[2].y);
+			graphics.moveTo(b.points[1].x - so, b.points[1].y + co);
+			graphics.lineTo(b.points[2].x - so, b.points[2].y + co);
 			
-			graphics.moveTo(b.points[2].x - this.opSO, b.points[2].y);
-			graphics.lineTo(b.points[3].x - this.opSO, b.points[3].y);
+			graphics.moveTo(b.points[2].x - so, b.points[2].y + co);
+			graphics.lineTo(b.points[3].x - so, b.points[3].y + co);
 			
 			//graphics.closePath();
-			graphics.moveTo(b.points[3].x - this.opSO, b.points[3].y);
-			graphics.lineTo(b.points[0].x - this.opSO, b.points[0].y);
+			graphics.moveTo(b.points[3].x - so, b.points[3].y + co);
+			graphics.lineTo(b.points[0].x - so, b.points[0].y + co);
 			graphics.stroke();
 			
 		}
