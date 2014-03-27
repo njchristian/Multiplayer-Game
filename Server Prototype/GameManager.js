@@ -502,6 +502,18 @@ GameManager.prototype.drawPause = function( graphics ){
 
 }
 
+GameManager.prototype.handleUpdate = function( update ){
+
+	var u = JSON.parse( update );
+	this.opShip.xPos = u.xPos;
+	this.opShip.yPos = u.yPos;
+	this.opShip.rotation = u.rotation;
+	
+	this.opSO = u.screenOffset;
+
+
+}
+
 function gameHandleKeyDown(e){
 		
 	if( myGame.gameManager.pause || myGame.isOnMenu ) return;	
