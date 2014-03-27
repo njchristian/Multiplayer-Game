@@ -3,9 +3,30 @@ function Game( g ){
 
 	this.graphics = g;
 	
-	this.socket = io.connect('http://' + document.location.host);
-	
+	this.socket = io.connect("http://localhost:10001");
+
 	this.userName = 'tester';
+
+	this.socket.on('welcome', function(data)
+		{
+			console.log('got welcome message', data );
+		}
+	);
+	this.socket.on('test', function(data)
+		{
+			console.log('got test');
+			console.log(data);
+		}
+	);
+	this.socket.on('notification', function(data)
+		{
+			console.log('notification');
+			console.log(data);
+		}
+	);
+
+	var message = { user_name : this.userName };
+	this.socket.emit( 'login', message );
 	
 	this.isOnMenu = true;
 	

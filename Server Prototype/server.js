@@ -109,14 +109,20 @@ function handler(request, response) {
 io.sockets.on(
   'connection',
   function(client) {
-	
+
     // Welcome message.
     client.emit('welcome', 'Welcome to the game!');
+
+    client.emit('test', { name : 'bob', age : 10 } );
 
     // Handle client login - might wanna make the login stuff better in the future
     client.on(
       'login',
       function(message) {
+
+      	console.log('got login' );
+      	console.log(message.user_name);
+
         // This function extracts the user name from the login message, stores
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
