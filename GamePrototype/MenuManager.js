@@ -108,7 +108,24 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
 	}
 	
-
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, 7*sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, 7*sh/8 );
+	graphics.stroke();
+	
+	
 }
 
 MenuManager.prototype.drawInstructions = function( graphics ){

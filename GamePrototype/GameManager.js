@@ -202,8 +202,8 @@ GameManager.prototype.update = function(){
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		//if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
-		if( false ){			
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
+		//if( false ){			
 			console.log("Collision");
 			
 			this.onDeath();		
