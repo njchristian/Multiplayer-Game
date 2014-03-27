@@ -91,6 +91,7 @@ function handler(request, response) {
 	  // }
       // response.end(content);
     // });
+
 	 fs.readFile(
     __dirname + '/index.html',
     function(err, content) {
