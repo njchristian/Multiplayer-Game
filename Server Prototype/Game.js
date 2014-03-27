@@ -1,12 +1,17 @@
 
-function Game( g ){
+
+function Game( g, s, n ){
 
 	this.graphics = g;
 	
-	this.socket = io.connect("http://localhost:10001");
+	var socket = s;
+	
+	this.name = n;
+	
+	<!-- this.socket = io.connect("http://localhost:10001"); -->
 	//this.socket = io.connect("http://localhost:8000");
 
-	this.userName = 'tester';
+	/*this.userName = 'tester';
 
 	this.socket.on('welcome', function(data)
 		{
@@ -28,11 +33,12 @@ function Game( g ){
 
 	var message = { user_name : this.userName };
 	this.socket.emit( 'login', message );
+	*/
 	
 	this.isOnMenu = true;
 	
-	this.gameManager = new GameManager( this );
-	this.menuManager = new MenuManager( this, g );
+	this.gameManager = new GameManager( this, socket );
+	this.menuManager = new MenuManager( this, g, socket, this.name );
 	
 	
 }
@@ -53,16 +59,66 @@ Game.prototype.end = function(){
 
 Game.prototype.returnToMenu = function(){
 
+	this.menuManager.toMainMenu();
 	this.isOnMenu = true;
-	toMainMenu();
 
 }
 
-function goToGame( gm ){
 
-	myGame.isOnMenu = false;
-	myGame.gameManager.newGame( gm );
 
+function goToGame( gm, socket, name ){
+	
+	// race
+	if (gm == 3) {
+		socket.emit('mp_race', { user_name: name });
+		
+		// handle multiplayer race wait message
+	socket.on(
+		'waitForRace',
+		function(message) {
+			if (message) {
+				console.log('waiting for opponent');
+			}
+		});
+		
+		socket.on(
+		'opponentForRace',
+		function(message) {
+			if (message) {
+				myGame.isOnMenu = false;
+				myGame.gameManager.newGame( gm );
+			}
+		});
+	}
+	// challenge
+	else if (gm == 4) {
+		socket.emit('mp_ch', { user_name: name });
+		
+		// handle multiplayer race wait message
+	socket.on(
+		'waitForRace',
+		function(message) {
+			if (message) {
+				console.log('waiting for opponent');
+			}
+		});
+		
+		socket.on(
+		'opponentForRace',
+		function(message) {
+			if (message) {
+				myGame.isOnMenu = false;
+				myGame.gameManager.newGame( gm );
+			}
+		});
+	}
+	// single player
+	else {
+
+		myGame.isOnMenu = false;
+		myGame.gameManager.newGame( gm );
+	
+	}
 }
 
 Game.prototype.update = function(){
@@ -89,4 +145,3 @@ Game.prototype.draw = function(){
 	}
 
 }
-

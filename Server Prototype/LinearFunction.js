@@ -1,4 +1,5 @@
 
+
 //Intersect two linear functions
 function intersect(l1, l2){
 		

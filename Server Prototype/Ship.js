@@ -44,4 +44,16 @@ Ship.prototype.rightTurn = function(){
 
 }
 
+// UPDATE
 
+
+function Update(){
+
+	this.xPos;
+	this.yPos;
+	
+	this.rotation;
+	
+	this.screenOffset;
+
+}
