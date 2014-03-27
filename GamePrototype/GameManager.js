@@ -8,8 +8,11 @@ function GameManager( gameObject ){
 
 	this.parentGame = gameObject;
 
+	this.gravityCoefficient = 0;
+	
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
+	this.shipThrustHeight = this.shipHeight * Math.cos( PI/6 ) / Math.cos( PI/12 );
 	
 	//An array of levels
 	this.levelLayout = new Array();
@@ -67,11 +70,13 @@ GameManager.prototype.newGame = function( gm ){
 	this.ship.yPos = sh/4;
 	this.ship.vx = 0;
 	this.ship.vy = 0;
+	this.ship.rotation = 0;
 	
 	this.opShip.xPos = sw/2;
 	this.opShip.yPos = 3*sh/4;
 	this.opShip.vx = 0;
 	this.opShip.vy = 0;
+	this.opShip.rotation = 0;
 	
 	this.so = 0;
 	this.currentLevel = 0;
@@ -158,6 +163,8 @@ GameManager.prototype.update = function(){
 		}
 	}
 	
+	this.ship.vy+=this.gravityCoefficient;
+	
 	//scroll velocity is linked to the x-velocity of the ship
 	var sv = this.ship.update();
 	
@@ -182,7 +189,7 @@ GameManager.prototype.update = function(){
 		
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
-			makeChallengeLevel( this.challengeBuffer, false, false, this.currentLevel - 1, levelVar + 3 );
+			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
 			//console.log( "Now in level: " + this.currentLevel );
@@ -202,7 +209,7 @@ GameManager.prototype.update = function(){
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
 		//if( false ){			
 			console.log("Collision");
 			
@@ -441,7 +448,9 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 
 	//console.log("Offset: " + offset);
 	
-	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
+	var height = this.isMulti() ? this.shipHeight * .5 : this.shipHeight;
+	var tHeight= this.isMulti() ? this.shipThrustHeight * .5 : this.shipThrustHeight;
+	var tc = 5;
 	
 	graphics.beginPath();
 	graphics.moveTo(
@@ -464,6 +473,26 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	graphics.lineTo(
 		ship.xPos + height * Math.cos( PI/2 + ship.rotation ) - offset, 
 		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	//graphics.stroke();
+	
+	if( this.thrust && !isOp ){
+	
+		graphics.moveTo(
+			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( -5*PI/12 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		
+		graphics.moveTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
+		
+		
+	}
 	graphics.stroke();
 }
 

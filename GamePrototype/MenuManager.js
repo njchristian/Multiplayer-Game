@@ -10,14 +10,17 @@ function MenuManager( gameObject, g ){
 	
 	//The main menu is an array of text objects
 	this.mainMenu = new Array();
-	
 	this.createMainMenu( g );
+	
+	this.instructionMenu = new Array();
+	this.createInstructionMenu( g );
+	
+	this.highscoreMenu = new Array();
+	this.createHighscoreMenu( g );
 
 }
 
 MenuManager.prototype.createMainMenu = function( g ){
-
-	var width;
 
 	g.font = "60px Courier";
 	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, 235, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
@@ -29,6 +32,20 @@ MenuManager.prototype.createMainMenu = function( g ){
 	g.font = "65px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+
+}
+
+MenuManager.prototype.createInstructionMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
+
+}
+
+MenuManager.prototype.createHighscoreMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
 
 }
 
@@ -108,6 +125,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
 	}
 	
+	graphics.beginPath();
 	
 	graphics.moveTo( 3*sw/4, sh/2 );
 	graphics.lineTo( sw, sh/8 );
@@ -131,13 +149,46 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 MenuManager.prototype.drawInstructions = function( graphics ){
 
 	//Draw instructions
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("INSTRUCTIONS",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.instructionMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
 
 }
 
 MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
-
+	//Draw instructions
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("HIGHSCORES",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.highscoreMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
+	
 }
 
 function toMainMenu(){
@@ -162,22 +213,37 @@ function menuHandleClick(event){
 	
 	if( !myGame.isOnMenu ) return;
 	
+	var menu;
+	
 	switch (myGame.menuManager.currentScreen){
 	
 	case MAIN_MENU:
+		menu = myGame.menuManager.mainMenu;
+		break;
+		
+	case INSTRUCTIONS:
+		menu = myGame.menuManager.instructionMenu;
+		break;
 	
-		for( textElement in myGame.menuManager.mainMenu ){
+	case HIGHSCORES:
+		menu = myGame.menuManager.highscoreMenu;
+		break;
 		
-			var text = myGame.menuManager.mainMenu[textElement];
+	default:
+		return;
+	
+	}
+	
+	for( textElement in menu ){
 		
-			if( text.clicked( event.clientX, event.clientY ) ){
+		var text = menu[textElement];
+		
+		if( text.clicked( event.clientX, event.clientY ) ){
 			
-				text.callback( text.argument );
+			text.callback( text.argument );
 			
-			}
-		
 		}
-	
+		
 	}
 
 }
@@ -188,24 +254,39 @@ function menuHandleScroll( event ){
 
 	if( !myGame.isOnMenu ) return;
 	
+	var menu;
+	
 	switch (myGame.menuManager.currentScreen){
 	
 	case MAIN_MENU:
-	
-		for( textElement in myGame.menuManager.mainMenu ){
+		menu = myGame.menuManager.mainMenu;
+		break;
 		
-			var text = myGame.menuManager.mainMenu[textElement];
-			
-			if( text.clicked( event.clientX, event.clientY ) ){
-			
-				text.mouseOn = true;
-			
-			}else{
-				text.mouseOn = false;
-			}
-			
-		}
+	case INSTRUCTIONS:
+		menu = myGame.menuManager.instructionMenu;
+		break;
+		
+	case HIGHSCORES:
+		menu = myGame.menuManager.highscoreMenu;
+		break;
+		
+	default:
+		return;
 	
+	}
+	
+	for( textElement in menu ){
+		
+		var text = menu[textElement];
+			
+		if( text.clicked( event.clientX, event.clientY ) ){
+			
+			text.mouseOn = true;
+			
+		}else{
+			text.mouseOn = false;
+		}
+			
 	}
 
 }
