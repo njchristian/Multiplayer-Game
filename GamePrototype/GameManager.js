@@ -143,18 +143,8 @@ GameManager.prototype.draw = function( graphics ){
 GameManager.prototype.update = function(){
 
 	if( this.pause ) return;
-	
-	if( this.isMulti() ){
 
-	
-	}
-	
-	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
-	
-		//check if we need to add a new level
-	
-	}
-
+	//Thrust calculations need to know if its multi-player or not to scale
 	if( this.thrust ){
 		this.ship.thrust( this.isMulti() );
 	}
@@ -176,6 +166,12 @@ GameManager.prototype.update = function(){
 		//this.challengeShipOffset += sv;
 	}else{
 		this.so += sv;
+		//console.log(this.levelLayout.size);
+		if( this.ship.xPos > (this.levelLayout.length - .5) * sw ){
+			
+			this.onWin();
+		}
+		
 	}
 	
 	//update active blocks
@@ -189,7 +185,7 @@ GameManager.prototype.update = function(){
 			makeChallengeLevel( this.challengeBuffer, false, false, this.currentLevel - 1, levelVar + 3 );
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
-			console.log( "Now in level: " + this.currentLevel );
+			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
 		}
@@ -206,8 +202,8 @@ GameManager.prototype.update = function(){
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
-		//if( false ){			
+		//if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
+		if( false ){			
 			console.log("Collision");
 			
 			this.onDeath();		
@@ -245,6 +241,12 @@ GameManager.prototype.onDeath = function(){
 		
 	}
 		
+}
+
+GameManager.prototype.onWin = function(){
+
+	this.parentGame.returnToMenu();
+
 }
 
 GameManager.prototype.isMulti = function(){
