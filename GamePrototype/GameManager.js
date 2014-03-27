@@ -8,7 +8,7 @@ function GameManager( gameObject, g ){
 
 	this.parentGame = gameObject;
 
-	this.gravityCoefficient = .3;
+	this.gravityCoefficient = 0;
 	
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
@@ -185,7 +185,7 @@ GameManager.prototype.update = function(){
 	}else{
 		this.so += sv;
 		//console.log(this.levelLayout.size);
-		if( this.ship.xPos > (this.levelLayout.length - .5) * sw ){
+		if( this.ship.xPos > (this.levelLayout.length - 1.5) * sw ){
 			
 			this.onWin();
 		}
