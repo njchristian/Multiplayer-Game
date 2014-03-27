@@ -58,6 +58,20 @@ var fs = require('fs')
 // Listen on a high port.
 app.listen(10001);
 
+// var fs = require('fs'),
+//     http = require('http'),
+//     sio = require('socket.io');
+
+// var server = http.createServer(function(req, res) {
+//   res.writeHead(200, { 'Content-type': 'text/html'});
+//   res.end(fs.readFileSync('./index.html'));
+// });
+// server.listen(80, function() {
+//   console.log('Server listening at http://localhost:8000/');
+// });
+// // Attach the socket.io server
+// io = sio.listen(server);
+
 var players = [];
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
@@ -91,7 +105,6 @@ function handler(request, response) {
 	  // }
       // response.end(content);
     // });
-
 	 fs.readFile(
     __dirname + '/index.html',
     function(err, content) {

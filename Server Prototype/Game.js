@@ -4,6 +4,7 @@ function Game( g ){
 	this.graphics = g;
 	
 	this.socket = io.connect("http://localhost:10001");
+	//this.socket = io.connect("http://localhost:8000");
 
 	this.userName = 'tester';
 
