@@ -4,6 +4,7 @@
 <html>
 <head>
 
+	<script src="http://cdn.socket.io/stable/socket.io.js"></script>
 	<script src="Ship.js"></script>
 	<script src="Block.js"></script>
 	<script src="Point.js"></script>
@@ -23,6 +24,7 @@
 		var KEYCODE_LEFT = 37; 	//usefull keycode
 		var KEYCODE_RIGHT = 39; 	//usefull keycode
 		var KEYCODE_DOWN = 40; 	//usefull keycode
+		var KEYCODE_P = 80;
 		var PI = Math.PI;
 		
 		//I dunno how to get this from the canvas - I'll keep looking
@@ -38,7 +40,6 @@
 		var fps = 30;
 		var myGame;
         function init() {
-			
 			
 			//I forgot the format for adding event listeners, so here it is for reference
 			

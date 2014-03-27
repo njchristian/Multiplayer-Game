@@ -211,36 +211,58 @@ function toHighscores(){
 
 function menuHandleClick(event){
 	
-	if( !myGame.isOnMenu ) return;
+	if( myGame.isOnMenu ){
 	
-	var menu;
+		var menu;
 	
-	switch (myGame.menuManager.currentScreen){
+		switch (myGame.menuManager.currentScreen){
 	
-	case MAIN_MENU:
-		menu = myGame.menuManager.mainMenu;
-		break;
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
 		
-	case INSTRUCTIONS:
-		menu = myGame.menuManager.instructionMenu;
-		break;
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
 	
-	case HIGHSCORES:
-		menu = myGame.menuManager.highscoreMenu;
-		break;
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
 		
-	default:
-		return;
+		default:
+			return;
 	
-	}
+		}
 	
-	for( textElement in menu ){
+		for( textElement in menu ){
 		
-		var text = menu[textElement];
+			var text = menu[textElement];
 		
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( text.argument );
+			
+			}
+		
+		}
+	
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( );
+			
+			}
+		}
+		
+		text = myGame.gameManager.reText;
+			
 		if( text.clicked( event.clientX, event.clientY ) ){
 			
-			text.callback( text.argument );
+			text.callback();
 			
 		}
 		
@@ -252,42 +274,72 @@ function menuHandleScroll( event ){
 
 	//console.log( "Scroll" );
 
-	if( !myGame.isOnMenu ) return;
+	if( myGame.isOnMenu ){
 	
-	var menu;
+		var menu;
 	
-	switch (myGame.menuManager.currentScreen){
+		switch (myGame.menuManager.currentScreen){
 	
-	case MAIN_MENU:
-		menu = myGame.menuManager.mainMenu;
-		break;
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
 		
-	case INSTRUCTIONS:
-		menu = myGame.menuManager.instructionMenu;
-		break;
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
 		
-	case HIGHSCORES:
-		menu = myGame.menuManager.highscoreMenu;
-		break;
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
 		
-	default:
-		return;
+		default:
+			return;
 	
-	}
-	
-	for( textElement in menu ){
-		
-		var text = menu[textElement];
-			
-		if( text.clicked( event.clientX, event.clientY ) ){
-			
-			text.mouseOn = true;
-			
-		}else{
-			text.mouseOn = false;
 		}
+	
+		for( textElement in menu ){
+		
+			var text = menu[textElement];
 			
-	}
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.mouseOn = true;
+			
+			}else{
+				text.mouseOn = false;
+			}
+			
+		}
+		
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.rtmScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.rtmScroll = false;
+			
+			}
+			
+			text = myGame.gameManager.reText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.reScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.reScroll = false;
+			
+			}
+		}
+		
+	}	
 
 }
 
