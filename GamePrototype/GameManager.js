@@ -38,6 +38,9 @@ function GameManager( gameObject, g ){
 	this.leftTurn = false;
 	this.rightTurn = false;
 	
+	this.thrustC = 0;
+	this.thrustRate = 4;
+	
 	//Flag for death - use later during animations
 	this.dead = false;
 	
@@ -162,6 +165,7 @@ GameManager.prototype.update = function(){
 
 	//Thrust calculations need to know if its multi-player or not to scale
 	if( this.thrust ){
+		this.thrustC = (this.thrustC + 1)%4;
 		this.ship.thrust( this.isMulti() );
 	}
 	
@@ -461,7 +465,14 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	
 	var height = this.isMulti() ? this.shipHeight * .5 : this.shipHeight;
 	var tHeight= this.isMulti() ? this.shipThrustHeight * .5 : this.shipThrustHeight;
-	var tc = 5;
+	
+	var tc;
+	if( this.thrustC < 2 ){
+		tc = 5;
+	}else{
+		tc = 3;
+	}
+	
 	
 	graphics.beginPath();
 	graphics.moveTo(
