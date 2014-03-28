@@ -3,9 +3,10 @@
 /*
 	TODO:
 	-make TODO list...
-	if client is waiting for MP game and changed their mind, need to remove them from that queue
-	maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
+	-if client is waiting for MP game and changed their mind, need to remove them from that queue
+	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
+	-maybe add a function to find the playerIndex
 */
 // ---------------need to make into modules if possible------------------------	
 
@@ -29,16 +30,28 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 	// So if there are less than 5 scores, just store it
 	if (this.highScores.length < 5) {
 		this.highScores[this.highScores.length] = score;
+		// sort in descending order
+		this.highScore.sort(function(a, b) {return b-a});
 	}
 	// else there are already 5 scores, so we need to remove the lowest
+	// else {
+		// var indexOfLowest = 0;
+		// for ( var i = 1; i < this.highScores.length; ++i ) {
+			// if ( this.highScores[i] < this.highScores[indexOfLowest] ) {
+				// indexOfLowest = i;
+			// }
+		// }
+		// this.highScores[indexOfLowest] = score;
+	// }
 	else {
-		var indexOfLowest = 0;
-		for ( var i = 1; i < this.highScores.length; ++i ) {
-			if ( this.highScores[i] < this.highScores[indexOfLowest] ) {
-				indexOfLowest = i;
-			}
+		// assume it is sorted in descending order, therefore the lowest score is the last one
+		if (score > this.highScores[this.highScores.length - 1]) {
+			// replace the lowest score with the new score
+			this.highScores[this.highScores.length - 1] = score;
+			// sort in descending order
+			this.highScore.sort(function(a, b) {return b-a});
 		}
-		this.highScores[indexOfLowest] = score;
+		// else the new score isn't as high as any of the saved high scores
 	}
 }
 	
@@ -314,6 +327,34 @@ io.sockets.on(
 		function() {
 			client.emit('highScoresResponse', 'High Score Placeholder');
 	});		
+	
+	// new high score
+	client.on(
+		'newHighScore',
+		// highScoreObject should contain the user name (userName) and 
+		// a new high score (highScore);
+		function(highScoreObject) {
+			if (highScoreObject) {
+				var playerIndex = -1;
+				// find player
+				for (var i = 0; i < players.length; ++i) {
+					if (players[i].userName == highScoreObject.userName) {
+						playerIndex = i;
+						break;
+					}
+				}
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				players[playerIndex].addHighScore(highScoreObject.highScore);
+			}
+			else {
+				console.log('error setting new high score');
+			}
+	});	
 	
 	// update - right now it just broadcasts the update to other client
 	// only works for a single multiplayer game at the moment
