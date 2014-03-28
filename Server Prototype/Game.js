@@ -37,7 +37,7 @@ function Game( g, s, n ){
 	
 	this.isOnMenu = true;
 	
-	this.gameManager = new GameManager( this, socket );
+	this.gameManager = new GameManager( this, g, socket );
 	this.menuManager = new MenuManager( this, g, socket, this.name );
 	
 	
