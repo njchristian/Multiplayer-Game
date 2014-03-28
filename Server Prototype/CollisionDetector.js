@@ -1,6 +1,6 @@
-		
 
-function hasCollidedWithShip(ship, block, multi){
+
+function hasCollidedWithShip(ship, block, multi, isChallenge, so){
 		
 	var shipVertices = new Array();
 	var shipHeight = (multi) ? ship.height * .5 : ship.height;
@@ -24,6 +24,18 @@ function hasCollidedWithShip(ship, block, multi){
 	blockLines[1] = block.lines[1];
 	blockLines[2] = block.lines[2];
 	blockLines[3] = block.lines[3];
+	
+	if( isChallenge ){
+	
+		for( var i = 0; i < 3; ++i ){
+		
+			if( shipVertices[i].x < so || shipVertices[i].x > so + sw ){
+				return true;
+			}
+		
+		}
+	
+	}
 	
 	//Intersection between shipLines and blockLines
 			

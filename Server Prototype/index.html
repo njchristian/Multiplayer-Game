@@ -141,7 +141,6 @@ function Block(p1, p2, p3, p4){
 		// CanvasText.js------------------------------------
 		
 		
-
 function CanvasText( text, x, y, width, height, c, cb, arg1, arg2, arg3 ){
 
 	this.clickable = c;
@@ -165,14 +164,16 @@ function CanvasText( text, x, y, width, height, c, cb, arg1, arg2, arg3 ){
 		return this.clickable && x >= this.xPos - this.width/2 && x <= this.xPos + this.width/2 && y >= this.yPos - this.height/2 && y <= this.yPos + this.height/2;
 		
 	}
+	
+	this.mouseOn = false;
 
 }
 		
 		// CollisionDetector.js --------------------------------------------------------------------
 		
-		
 
-function hasCollidedWithShip(ship, block, multi){
+
+function hasCollidedWithShip(ship, block, multi, isChallenge, so){
 		
 	var shipVertices = new Array();
 	var shipHeight = (multi) ? ship.height * .5 : ship.height;
@@ -196,6 +197,18 @@ function hasCollidedWithShip(ship, block, multi){
 	blockLines[1] = block.lines[1];
 	blockLines[2] = block.lines[2];
 	blockLines[3] = block.lines[3];
+	
+	if( isChallenge ){
+	
+		for( var i = 0; i < 3; ++i ){
+		
+			if( shipVertices[i].x < so || shipVertices[i].x > so + sw ){
+				return true;
+			}
+		
+		}
+	
+	}
 	
 	//Intersection between shipLines and blockLines
 			
@@ -243,6 +256,8 @@ function hasCollidedWithShip(ship, block, multi){
 		// Game.js -----------------------------------------------------------------
 		
 		
+
+
 function Game( g, s, n ){
 
 	this.graphics = g;
@@ -333,7 +348,7 @@ function goToGame( gm, socket, name ){
 			}
 		});
 	}
-	// challenge
+	// challenge --------------------------needs finishing TODO
 	else if (gm == 4) {
 		socket.emit('mp_ch', { user_name: name });
 		
@@ -398,14 +413,17 @@ var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
 
-function GameManager( gameObject, websocket ){
+function GameManager( gameObject, g, websocket ){
 
 	this.parentGame = gameObject;
+	
+	this.gravityCoefficient = 0;
 	
 	this.socket = websocket;
 
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
+	this.shipThrustHeight = this.shipHeight * Math.cos( PI/6 ) / Math.cos( PI/12 );
 	
 	//An array of levels
 	this.levelLayout = new Array();
@@ -415,11 +433,13 @@ function GameManager( gameObject, websocket ){
 	this.currentLevel = 0;
 	
 	//length of a level layout
-	this.layoutSize = 1;
+	this.layoutSize = 7;
 	
 	//Buffer array for challenge mode
 	this.challengeBuffer = new Array();
 	this.challengeTotalLevels = 0;
+	this.challengeSV = 4;
+	this.challengeShipOffset = 0;
 	
 	//Scroll offset
 	this.so = 0;
@@ -439,40 +459,74 @@ function GameManager( gameObject, websocket ){
 	this.gameMode = 0;
 	
 	this.opShip = new Ship();
+	
+	//opponent screen offset
 	this.opSO = 0;
 	this.opLevel = 0;
+	
+	g.font = "65px Courier";
+	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
+	this.rtmScroll = false;
+	
+	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
+	this.reScroll = false
 	
 }
 
 GameManager.prototype.newGame = function( gm ){
 
-
 	console.log("New Game");
 
 	this.gameMode = gm;
 	
+	//Sets all states to those to start a new game
+	
+	this.pause = false;
+	
+	//Flags for ship movement
+	this.thrust = false;
+	this.leftTurn = false;
+	this.rightTurn = false;
+	
+	this.ship.xPos = sw/2;
+	this.ship.yPos = sh/4;
+	this.ship.vx = 0;
+	this.ship.vy = 0;
+	this.ship.rotation = 0;
+	
+	this.opShip.xPos = sw/2;
+	this.opShip.yPos = 3*sh/4;
+	this.opShip.vx = 0;
+	this.opShip.vy = 0;
+	this.opShip.rotation = 0;
+	
+	this.so = 0;
+	this.currentLevel = 0;
+	this.challengeTotalLevels = 0;
+	
+	this.levelLayout = new Array();
+	this.challengeBuffer = new Array();
+	
+	this.levelGenerator();
+	
+	//document.addEventListener('keydown', gameHandleKeyDown);
+	//document.addEventListener('keyup', gameHandleKeyUp);
+
+}
+
+GameManager.prototype.levelGenerator = function(){
+
 	if( this.gameMode == TIME_TRIAL ){
 		this.generateLevelLayout( this.levelLayout, false, false );
 	} else if( this.gameMode == MULTI_RACE ){
 		
 		this.generateLevelLayout( this.levelLayout, true, true, this.opponentLevelLayout );
 
-	}else if( this.gameMode == SINGLE_CHALLENGE){
+	}else if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE){
 		this.initChallengeBuffer();
 	}else{
 	
 	}
-	
-	//Sets all states to those to start a new game
-	
-	this.ship.xPos = sw/2;
-	this.ship.yPos = sh/4;
-	
-	this.opShip.xPos = sw/2;
-	this.opShip.yPos = 3*sh/4;
-	
-	//document.addEventListener('keydown', gameHandleKeyDown);
-	//document.addEventListener('keyup', gameHandleKeyUp);
 
 }
 
@@ -484,8 +538,10 @@ GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLeve
 
 GameManager.prototype.initChallengeBuffer = function(){
 
+	var multi = this.isMulti();
+
 	//initialize the challenge level buffer
-	initChallengeBuffer( this.challengeBuffer, false, false );
+	initChallengeBuffer( this.challengeBuffer, multi, multi );
 		
 }
 
@@ -567,10 +623,23 @@ GameManager.prototype.update = function(){
 		}
 	}
 	
+	this.ship.vy+=this.gravityCoefficient;
+	
 	//scroll velocity is linked to the x-velocity of the ship
 	var sv = this.ship.update();
 	
-	this.so += sv;
+	if( this.isChallenge() ){
+		this.so += this.challengeSV;
+		//this.challengeShipOffset += sv;
+	}else{
+		this.so += sv;
+		//console.log(this.levelLayout.size);
+		if( this.ship.xPos > (this.levelLayout.length - 1.5) * sw ){
+			
+			this.onWin();
+		}
+		
+	}
 	
 	//update active blocks
 	
@@ -580,9 +649,10 @@ GameManager.prototype.update = function(){
 		
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
-			makeChallengeLevel( this.challengeBuffer, false, false, this.currentLevel - 1, levelVar + 3 );
-			//console.log( this.currentLevel );
+			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
+			//
 			this.currentLevel = (this.currentLevel + 1)%4;
+			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
 		}
@@ -599,31 +669,50 @@ GameManager.prototype.update = function(){
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti()) ){
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
 		//if( false ){			
 			console.log("Collision");
 			
-			var respawnPoint = this.currentLevel * sw;
-			
-			if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
-			
-			var respawnOffset = this.ship.xPos - respawnPoint;
-			
-			if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
-			
-
-			this.so-=respawnOffset;
-			
-			this.ship.xPos = respawnPoint;
-			
-			this.ship.yPos = sh/4;
-			this.ship.vx = 0;
-			this.ship.vy = 0;
-					
+			this.onDeath();		
+				
 			break;
 		}
 			
 	}
+
+}
+
+GameManager.prototype.onDeath = function(){
+
+	if( this.isChallenge() ){
+
+		this.parentGame.returnToMenu();
+	
+	}else{
+	
+		var respawnPoint = this.currentLevel * sw;
+			
+		if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
+			
+		var respawnOffset = this.ship.xPos - respawnPoint;
+			
+		if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
+			
+		this.so-=respawnOffset;
+			
+		this.ship.xPos = respawnPoint;
+			
+		this.ship.yPos = sh/4;
+		this.ship.vx = 0;
+		this.ship.vy = 0;
+		
+	}
+		
+}
+
+GameManager.prototype.onWin = function(){
+
+	this.parentGame.returnToMenu();
 
 }
 
@@ -688,17 +777,21 @@ GameManager.prototype.drawBlocks = function( graphics ){
 		endIndex = (this.currentLevel + 1);
 	}
 	
+	var so = this.so;
+	
 	for( var i = 0; i < 3; ++i){
 	
 		var index;
 		
 		if( this.isChallenge() ){
 			index = (startIndex + i)%4;
+			if( index < 0 ) index = 3;
 		}else{
 			index = startIndex + i;
+			if( index < 0 ) index = 0;
 		}
 	
-		if( index < 0 ) index = 0;
+		
 		if( index >= drawArray.size ) break;
 	
 		var currentBlocks = drawArray[index].blocks;
@@ -708,18 +801,18 @@ GameManager.prototype.drawBlocks = function( graphics ){
 			var b = currentBlocks[blockIndex];
 			graphics.beginPath();
 			
-			graphics.moveTo(b.points[0].x - this.so, b.points[0].y);
-			graphics.lineTo(b.points[1].x - this.so, b.points[1].y);
+			graphics.moveTo(b.points[0].x - so, b.points[0].y);
+			graphics.lineTo(b.points[1].x - so, b.points[1].y);
 			
-			graphics.moveTo(b.points[1].x - this.so, b.points[1].y);
-			graphics.lineTo(b.points[2].x - this.so, b.points[2].y);
+			graphics.moveTo(b.points[1].x - so, b.points[1].y);
+			graphics.lineTo(b.points[2].x - so, b.points[2].y);
 			
-			graphics.moveTo(b.points[2].x - this.so, b.points[2].y);
-			graphics.lineTo(b.points[3].x - this.so, b.points[3].y);
+			graphics.moveTo(b.points[2].x - so, b.points[2].y);
+			graphics.lineTo(b.points[3].x - so, b.points[3].y);
 			
 			//graphics.closePath();
-			graphics.moveTo(b.points[3].x - this.so, b.points[3].y);
-			graphics.lineTo(b.points[0].x - this.so, b.points[0].y);
+			graphics.moveTo(b.points[3].x - so, b.points[3].y);
+			graphics.lineTo(b.points[0].x - so, b.points[0].y);
 			graphics.stroke();
 			
 		}
@@ -732,30 +825,65 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
 	
-	for( var i = this.opLevel - 1; i <= this.opLevel + 1; ++i){
+	var drawArray;
+	var startIndex;
+	var endIndex;
 	
-		if( i < 0 ) i = 0;
-		if( i >= this.levelLayout.size ) break;
+	if( this.isChallenge() ){
+		drawArray = this.challengeBuffer;
+		startIndex = this.currentLevel - 1;
+		if( startIndex == -1 ) startIndex == 3;
+		endIndex = (this.currentLevel + 1) % 4;
+	}else{
+		drawArray = this.opponentLevelLayout;
+		startIndex = (this.opLevel - 1);
+		endIndex = (this.opLevel + 1);
+	}
 	
-		var currentBlocks = this.opponentLevelLayout[i].blocks;
+	var so;
+	var co;
+	if( this.isChallenge() ){
+		so = this.so;
+		co = sh/2;
+	}else{
+		so = this.opSO;
+		co = 0;
+	}
+	
+	for( var i = 0; i < 3; ++i){
+	
+		var index;
+		
+		if( this.isChallenge() ){
+			index = (startIndex + i)%4;
+			if( index < 0 ) index = 3;
+		}else{
+			index = startIndex + i;
+			if( index < 0 ) index = 0;
+		}
+	
+		
+		if( index >= drawArray.size ) break;
+	
+		var currentBlocks = drawArray[index].blocks;
 	
 		for( blockIndex in currentBlocks ){
 			
 			var b = currentBlocks[blockIndex];
 			graphics.beginPath();
 			
-			graphics.moveTo(b.points[0].x - this.opSO, b.points[0].y);
-			graphics.lineTo(b.points[1].x - this.opSO, b.points[1].y);
+			graphics.moveTo(b.points[0].x - so, b.points[0].y + co);
+			graphics.lineTo(b.points[1].x - so, b.points[1].y + co);
 			
-			graphics.moveTo(b.points[1].x - this.opSO, b.points[1].y);
-			graphics.lineTo(b.points[2].x - this.opSO, b.points[2].y);
+			graphics.moveTo(b.points[1].x - so, b.points[1].y + co);
+			graphics.lineTo(b.points[2].x - so, b.points[2].y + co);
 			
-			graphics.moveTo(b.points[2].x - this.opSO, b.points[2].y);
-			graphics.lineTo(b.points[3].x - this.opSO, b.points[3].y);
+			graphics.moveTo(b.points[2].x - so, b.points[2].y + co);
+			graphics.lineTo(b.points[3].x - so, b.points[3].y + co);
 			
 			//graphics.closePath();
-			graphics.moveTo(b.points[3].x - this.opSO, b.points[3].y);
-			graphics.lineTo(b.points[0].x - this.opSO, b.points[0].y);
+			graphics.moveTo(b.points[3].x - so, b.points[3].y + co);
+			graphics.lineTo(b.points[0].x - so, b.points[0].y + co);
 			graphics.stroke();
 			
 		}
@@ -769,9 +897,20 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	graphics.lineWidth = 1;
 	graphics.strokeStyle = "red";
 	
-	var offset = isOp ? this.opSO : this.so;
+	var offset;
 	
-	var height = ( this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE ) ? this.shipHeight * .5 : this.shipHeight;
+	if( this.isChallenge() ){
+		//offset = this.challengeShipOffset + this.so;
+		offset = this.so;
+	}else{
+		offset = isOp ? this.opSO : this.so;
+	}
+
+	//console.log("Offset: " + offset);
+	
+	var height = this.isMulti() ? this.shipHeight * .5 : this.shipHeight;
+	var tHeight= this.isMulti() ? this.shipThrustHeight * .5 : this.shipThrustHeight;
+	var tc = 5;
 	
 	graphics.beginPath();
 	graphics.moveTo(
@@ -794,18 +933,70 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	graphics.lineTo(
 		ship.xPos + height * Math.cos( PI/2 + ship.rotation ) - offset, 
 		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	//graphics.stroke();
+	
+	if( this.thrust && !isOp ){
+	
+		graphics.moveTo(
+			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( -5*PI/12 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		
+		graphics.moveTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
+		
+		
+	}
 	graphics.stroke();
 }
 
 GameManager.prototype.drawPause = function( graphics ){
 
 	//draw the pause menu
-
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = "100px Courier";
+	
+	graphics.strokeText("PAUSED", sw/2, sh/2 - 100);
+	
+	graphics.fillStyle = "green";
+	graphics.font = "65px Courier";
+	
+	if( this.rtmScroll ){
+		graphics.strokeText("MAIN MENU", sw/2, sh/2 );
+	}else{
+		graphics.fillText("MAIN MENU", sw/2, sh/2 );
+	}
+	
+	if( this.reScroll ){
+		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
+	}else{
+		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+	}
+	
 }
 
 function gameHandleKeyDown(e){
 		
-	if( myGame.gameManager.pause ) return;	
+	if( myGame.isOnMenu ) return;	
+	//if( myGame.gameManager.pause || myGame.isOnMenu ) return;	
 		
 	if (!e) { var e = window.event; }
 		
@@ -820,13 +1011,22 @@ function gameHandleKeyDown(e){
 	case KEYCODE_UP:
 		myGame.gameManager.thrust = true;
 		break;
-		
+	case KEYCODE_P:
+	
+		if( !myGame.gameManager.isMulti() ){
+			myGame.gameManager.pause = !myGame.gameManager.pause;
+			myGame.gameManager.leftTurn = false;
+			myGame.gameManager.rightTurn = false;
+			myGame.gameManager.thrust = false;
+		}
+		break;
+	
 	}
 }
 
 function gameHandleKeyUp(e){
 		
-	if( myGame.gameManager.pause ) return;
+	if( myGame.gameManager.pause || myGame.isOnMenu ) return;
 		
 	if (!e) { var e = window.event; }
 		
@@ -852,6 +1052,16 @@ function gameHandleClick(e){
 
 }
 
+function goToMenu(){
+	myGame.returnToMenu();
+}
+
+function restart(){
+
+	myGame.gameManager.newGame( myGame.gameManager.gameMode );
+
+}
+
 // ImplicitFunction.js -------------------------------------------------
 
 function evaluateIm( p ){
@@ -873,6 +1083,8 @@ function ImplicitFunction( p1, p2 ){
 // Level.js --------------------------------------------------------------
 
 var levelFactory = new Array();
+var levelFactory = new Array();
+var lastIndex = 0;
 
 function Level(){
 		
@@ -896,7 +1108,7 @@ function makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ){
 	var lbw = multi ? .5 * bw : bw;
 	var lsh = multi ? .5 * sh : sh;
 
-	var len = levels[levels.length - 1].blocks.length;
+	
 	
 	var i;
 	var t;
@@ -907,7 +1119,10 @@ function makeBoundingBlocks( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	
+	var len = levels[t].blocks.length;
+	//console.log(t);
+	
 	levels[t].blocks[len] = new Block( new Point( sw * i, base + 0 ), new Point( sw * (i+1), base + 0 ), new Point( sw * (i+1), base + lbw ), new Point( sw * i, base + lbw ) );
 	levels[t].blocks[len+1] = new Block( new Point( sw * i, base + lsh ), new Point( sw * (i+1), base + lsh ), new Point( sw * (i+1), base + lsh-lbw ), new Point( sw * i, base + lsh-lbw ) );
 
@@ -964,7 +1179,7 @@ function makeEnd( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( (i+1) * sw , base+lbw ), new Point( (i+1) * sw, base+lsh - lbw ), 
 		new Point( (i+1) * sw - lbw, base+lsh - lbw ), new Point( (i+1) * sw - lbw, base+lbw ) );
 	
@@ -1000,7 +1215,7 @@ function makeLevelOne( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw + sw/4, base + lsh - lbw ), new Point( i*sw + sw/4, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/4 + lbw, base + lsh - lbw ) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + sw/4 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 ), new Point( i*sw + sw/2 + lbw, base + lsh/4 + lbw ), new Point( i*sw + sw/4 + lbw, base + lsh/4 + lbw ) );
 	levels[t].blocks[2] = new Block( new Point( i*sw + 3*sw/4, base + lbw ), new Point( i*sw + 3*sw/4, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + 3*lsh/4 ), new Point( i*sw + 3*sw/4 + lbw, base + lbw ) );
@@ -1038,7 +1253,7 @@ function makeLevelTwo( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw +sw/5, base+lbw ), new Point( i*sw +sw/5+ lbw, base+lbw ), 
 		new Point( i*sw +sw/5 + lbw, base+lsh/2 - lbw ), new Point( i*sw +sw/5, base+lsh/2 - lbw ) );
 	levels[t].blocks[1] = new Block( new Point( i*sw +sw/5, base+lsh-lbw ), new Point( i*sw +sw/5+ lbw, base+lsh-lbw ), 
@@ -1083,7 +1298,7 @@ function makeLevelThree ( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
+	//console.log(t);
 	levels[t].blocks[0] = new Block( new Point( i*sw + sw/5, base + lsh-lbw ), new Point( i*sw + sw/5, base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw , base + 3*lbw ), new Point ( i*sw + sw/5 + 2*lbw, base + lsh-lbw) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5 - 2*lbw, base + lbw), new Point (i*sw + 4*sw/5 - 2*lbw, base + lsh-3*lbw ), new Point ( i*sw + 4*sw/5, base + lsh-3*lbw), new Point ( i*sw + 4*sw/5, base + lbw) );
 	
@@ -1118,8 +1333,8 @@ function makeLevelFour ( levels, multi, top, isChallenge, index, swOffset ){
 		t = levels.length - 1;
 		i = t;
 	}
-	console.log(t);
-	levels[t].blocks[0] = new Block( new Point( i*sw + bw, base + 2*lbw), new Point( i*sw + bw, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 7*lsh/10) ); 
+	//console.log(t);
+	levels[t].blocks[0] = new Block( new Point( i*sw + bw, base + 2*lbw), new Point( i*sw + bw, base + lbw), new Point ( i*sw + 4*sw/5, base + lbw), new Point( i*sw + 4*sw/5, base + 3*lsh/5) ); 
 	levels[t].blocks[1] = new Block( new Point( i*sw + 4*sw/5, base + lsh-2*lbw), new Point( i*sw + bw, base + 2*lsh/5), new Point( i*sw + bw, base + lsh-lbw), new Point( i*sw + 4*sw/5, base + lsh-lbw) );
 
 	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset);
@@ -1154,7 +1369,7 @@ function makeLevelFive ( levels, multi, top, isChallenge, index, swOffset ){
 		i = t;
 	}
 
-	console.log(t);
+	//console.log(t);
 	
 	levels[t].blocks[0] = new Block( new Point( i*sw + 3*sw/4, base + lsh-lbw), new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh/4), new Point( i*sw + 3*sw/4 + lbw, base + lsh - lbw) );
 	levels[t].blocks[1] = new Block( new Point( i*sw + 3*sw/4, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4), new Point( i*sw + sw/2 - lbw, base + lsh/4 + lbw), new Point( i*sw + 3*sw/4, base + lsh/4 + lbw) );
@@ -1188,6 +1403,9 @@ function initializeLevels( levels, multi, top, opLevels){
 	
 	makeEnd( levels, multi, top, false );
 	if( multi ) makeEnd( opLevels, multi, !top, false );
+	
+	levels[levels.length] = new Level();
+	if( multi ) opLevels[opLevels.length] = new Level();
 
 		
 }
@@ -1209,12 +1427,18 @@ function initChallengeBuffer( challengeBuffer, multi, top ){
 }
 
 function makeChallengeLevel( challengeBuffer, multi, top, index, swOffset ){
-
+	
+	var rand = Math.floor((Math.random()*5));
+	while ( rand == lastIndex ) {rand = Math.floor((Math.random()*5));}
+	lastIndex = rand;
 	if( index == -1 ) index = 3;
-	levelFactory[ index % 5 ](challengeBuffer, multi, top, true, index, swOffset);
+	console.log(rand);
+	levelFactory[ rand ](challengeBuffer, multi, top, true, index, swOffset);
 
 
 }
+
+
 
 // LinearFunction.js --------------------------------------------------------------
 
@@ -1262,6 +1486,12 @@ function MenuManager( gameObject, g, websocket, n ){
 	this.mainMenu = new Array();
 	
 	this.createMainMenu( g );
+	
+	this.instructionMenu = new Array();
+	this.createInstructionMenu( g );
+	
+	this.highscoreMenu = new Array();
+	this.createHighscoreMenu( g );
 
 }
 
@@ -1279,6 +1509,20 @@ MenuManager.prototype.createMainMenu = function( g ){
 	g.font = "65px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+
+}
+
+MenuManager.prototype.createInstructionMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
+
+}
+
+MenuManager.prototype.createHighscoreMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
 
 }
 
@@ -1302,7 +1546,6 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//Draw main menu
 	
-	
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="green";
 	graphics.textAlign = 'center';
@@ -1320,31 +1563,106 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.font = "60px Courier";
 	
-	graphics.fillText("TIME TRIAL", sw/2, 235);
+	if( this.mainMenu[0].mouseOn ){
+		graphics.strokeText("TIME TRIAL", sw/2, 235);
+	}else{
+		graphics.fillText("TIME TRIAL", sw/2, 235);
+	}
 	
-	graphics.fillText("CHALLENGE", sw/2, 305);
+	if( this.mainMenu[1].mouseOn ){
+		graphics.strokeText("CHALLENGE", sw/2, 305);
+	}else{
+		graphics.fillText("CHALLENGE", sw/2, 305);
+	}
 	
-	graphics.fillText("ONLINE RACE", sw/2, 460);
+	if( this.mainMenu[2].mouseOn ){
+		graphics.strokeText("ONLINE RACE", sw/2, 460);
+	}else{
+		graphics.fillText("ONLINE RACE", sw/2, 460);
+	}
 	
-	graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	if( this.mainMenu[3].mouseOn ){
+		graphics.strokeText("ONLINE CHALLENGE", sw/2, 530);
+	}else{
+		graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	}
 	
 	graphics.font = "65px Courier";
 	
-	graphics.fillText("INSTRUCTIONS", sw/4, 600);
-	graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	if( this.mainMenu[4].mouseOn ){
+		graphics.strokeText("INSTRUCTIONS", sw/4, 600);
+	}else{
+		graphics.fillText("INSTRUCTIONS", sw/4, 600);
+	}
+	
+	if( this.mainMenu[5].mouseOn ){
+		graphics.strokeText("HIGHSCORES", 3*sw/4, 600);
+	}else{
+		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	}
+	
+	graphics.beginPath();
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, 7*sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, 7*sh/8 );
+	graphics.stroke();
 
 }
 
 MenuManager.prototype.drawInstructions = function( graphics ){
 
 	//Draw instructions
-
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("INSTRUCTIONS",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.instructionMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
+	
 }
 
 MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
-
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("HIGHSCORES",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.highscoreMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
+	
 }
 
 function toMainMenu(){
@@ -1365,7 +1683,7 @@ function toHighscores(){
 
 }
 
-function menuHandleClick(event){
+/*function menuHandleClick(event){
 	
 	if( !myGame.isOnMenu ) return;
 	
@@ -1387,7 +1705,143 @@ function menuHandleClick(event){
 	
 	}
 
+}*/
+
+function menuHandleClick(event){
+	
+	if( myGame.isOnMenu ){
+	
+		var menu;
+	
+		switch (myGame.menuManager.currentScreen){
+	
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
+		
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
+	
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
+		
+		default:
+			return;
+	
+		}
+	
+		for( textElement in menu ){
+		
+			var text = menu[textElement];
+		
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( text.argument, text.socket, text.name );
+			
+			}
+		
+		}
+	
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( );
+			
+			}
+		}
+		
+		text = myGame.gameManager.reText;
+			
+		if( text.clicked( event.clientX, event.clientY ) ){
+			
+			text.callback();
+			
+		}
+		
+	}
+
 }
+
+function menuHandleScroll( event ){
+
+	//console.log( "Scroll" );
+
+	if( myGame.isOnMenu ){
+	
+		var menu;
+	
+		switch (myGame.menuManager.currentScreen){
+	
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
+		
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
+		
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
+		
+		default:
+			return;
+	
+		}
+	
+		for( textElement in menu ){
+		
+			var text = menu[textElement];
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.mouseOn = true;
+			
+			}else{
+				text.mouseOn = false;
+			}
+			
+		}
+		
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.rtmScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.rtmScroll = false;
+			
+			}
+			
+			text = myGame.gameManager.reText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.reScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.reScroll = false;
+			
+			}
+		}
+		
+	}	
+
+}
+
+
 
 
 // Point.js -------------------------------------------------------

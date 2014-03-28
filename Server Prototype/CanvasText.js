@@ -21,5 +21,7 @@ function CanvasText( text, x, y, width, height, c, cb, arg1, arg2, arg3 ){
 		return this.clickable && x >= this.xPos - this.width/2 && x <= this.xPos + this.width/2 && y >= this.yPos - this.height/2 && y <= this.yPos + this.height/2;
 		
 	}
+	
+	this.mouseOn = false;
 
 }

@@ -16,6 +16,12 @@ function MenuManager( gameObject, g, websocket, n ){
 	this.mainMenu = new Array();
 	
 	this.createMainMenu( g );
+	
+	this.instructionMenu = new Array();
+	this.createInstructionMenu( g );
+	
+	this.highscoreMenu = new Array();
+	this.createHighscoreMenu( g );
 
 }
 
@@ -33,6 +39,20 @@ MenuManager.prototype.createMainMenu = function( g ){
 	g.font = "65px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+
+}
+
+MenuManager.prototype.createInstructionMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
+
+}
+
+MenuManager.prototype.createHighscoreMenu = function( g ){
+
+	g.font = "65px Courier";
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
 
 }
 
@@ -56,7 +76,6 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//Draw main menu
 	
-	
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="green";
 	graphics.textAlign = 'center';
@@ -74,31 +93,106 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.font = "60px Courier";
 	
-	graphics.fillText("TIME TRIAL", sw/2, 235);
+	if( this.mainMenu[0].mouseOn ){
+		graphics.strokeText("TIME TRIAL", sw/2, 235);
+	}else{
+		graphics.fillText("TIME TRIAL", sw/2, 235);
+	}
 	
-	graphics.fillText("CHALLENGE", sw/2, 305);
+	if( this.mainMenu[1].mouseOn ){
+		graphics.strokeText("CHALLENGE", sw/2, 305);
+	}else{
+		graphics.fillText("CHALLENGE", sw/2, 305);
+	}
 	
-	graphics.fillText("ONLINE RACE", sw/2, 460);
+	if( this.mainMenu[2].mouseOn ){
+		graphics.strokeText("ONLINE RACE", sw/2, 460);
+	}else{
+		graphics.fillText("ONLINE RACE", sw/2, 460);
+	}
 	
-	graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	if( this.mainMenu[3].mouseOn ){
+		graphics.strokeText("ONLINE CHALLENGE", sw/2, 530);
+	}else{
+		graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+	}
 	
 	graphics.font = "65px Courier";
 	
-	graphics.fillText("INSTRUCTIONS", sw/4, 600);
-	graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	if( this.mainMenu[4].mouseOn ){
+		graphics.strokeText("INSTRUCTIONS", sw/4, 600);
+	}else{
+		graphics.fillText("INSTRUCTIONS", sw/4, 600);
+	}
+	
+	if( this.mainMenu[5].mouseOn ){
+		graphics.strokeText("HIGHSCORES", 3*sw/4, 600);
+	}else{
+		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+	}
+	
+	graphics.beginPath();
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.lineTo( sw, 7*sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, sh/8 );
+	graphics.stroke();
+	
+	graphics.moveTo( sw/4, sh/2 );
+	graphics.lineTo( 0, 7*sh/8 );
+	graphics.stroke();
 
 }
 
 MenuManager.prototype.drawInstructions = function( graphics ){
 
 	//Draw instructions
-
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("INSTRUCTIONS",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.instructionMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
+	
 }
 
 MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
-
+	graphics.fillStyle ="green";
+	graphics.strokeStyle ="green";
+	graphics.textAlign = 'center';
+	graphics.textBaseline = 'middle';
+	
+	graphics.font = "120px Courier";
+	
+	graphics.strokeText("HIGHSCORES",sw/2,75);
+	
+	graphics.font = "65px Courier";
+	
+	if( this.highscoreMenu[0].mouseOn ){
+		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+	}else{
+		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+	}
+	
 }
 
 function toMainMenu(){
@@ -119,7 +213,7 @@ function toHighscores(){
 
 }
 
-function menuHandleClick(event){
+/*function menuHandleClick(event){
 	
 	if( !myGame.isOnMenu ) return;
 	
@@ -141,4 +235,139 @@ function menuHandleClick(event){
 	
 	}
 
+}*/
+
+function menuHandleClick(event){
+	
+	if( myGame.isOnMenu ){
+	
+		var menu;
+	
+		switch (myGame.menuManager.currentScreen){
+	
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
+		
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
+	
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
+		
+		default:
+			return;
+	
+		}
+	
+		for( textElement in menu ){
+		
+			var text = menu[textElement];
+		
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( text.argument, text.socket, text.name );
+			
+			}
+		
+		}
+	
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.callback( );
+			
+			}
+		}
+		
+		text = myGame.gameManager.reText;
+			
+		if( text.clicked( event.clientX, event.clientY ) ){
+			
+			text.callback();
+			
+		}
+		
+	}
+
 }
+
+function menuHandleScroll( event ){
+
+	//console.log( "Scroll" );
+
+	if( myGame.isOnMenu ){
+	
+		var menu;
+	
+		switch (myGame.menuManager.currentScreen){
+	
+		case MAIN_MENU:
+			menu = myGame.menuManager.mainMenu;
+			break;
+		
+		case INSTRUCTIONS:
+			menu = myGame.menuManager.instructionMenu;
+			break;
+		
+		case HIGHSCORES:
+			menu = myGame.menuManager.highscoreMenu;
+			break;
+		
+		default:
+			return;
+	
+		}
+	
+		for( textElement in menu ){
+		
+			var text = menu[textElement];
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				text.mouseOn = true;
+			
+			}else{
+				text.mouseOn = false;
+			}
+			
+		}
+		
+	}else{
+	
+		if(myGame.gameManager.pause){
+			var text = myGame.gameManager.rtmText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.rtmScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.rtmScroll = false;
+			
+			}
+			
+			text = myGame.gameManager.reText;
+			
+			if( text.clicked( event.clientX, event.clientY ) ){
+			
+				myGame.gameManager.reScroll = true;
+			
+			}else{
+			
+				myGame.gameManager.reScroll = false;
+			
+			}
+		}
+		
+	}	
+
+}
+

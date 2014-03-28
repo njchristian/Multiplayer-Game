@@ -90,7 +90,7 @@ function goToGame( gm, socket, name ){
 			}
 		});
 	}
-	// challenge
+	// challenge --------------------------needs finishing TODO
 	else if (gm == 4) {
 		socket.emit('mp_ch', { user_name: name });
 		
