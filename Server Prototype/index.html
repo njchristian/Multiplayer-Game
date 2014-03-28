@@ -11,23 +11,9 @@ body {
 
 #status {
   font-size: 14pt;
-  color: gray;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-
-#status2 {
-  font-size: 14pt;
   color: red;
   margin-top: 12px;
   margin-bottom: 12px;
-}
-
-#status3 {
-	font-size: 14pt;
-	color: blue;
-	margin-top: 12px;
-	margin-bottom: 12px;
 }
 
 #board {
@@ -37,50 +23,11 @@ body {
   padding: 3px;
 }
 
-#board div {
-  margin-top: 5px;
-}
-
-#msg {
-  width: 740px;
-  margin-right: 10px;
-}
-
-#send {
-  width: 50px;
-}
-
-#login_section, #main_section {
+#login_section {
   display: none;
 }
 
-.user_name {
-  font-size: 10pt;
-  font-weight: bold;
-  color: blue;
-}
 
-.says {
-  font-size: 10pt;
-  color: gray;
-}
-
-.msg {
-  font-size: 12pt;
-  font-family: serif;
-}
-
-.notification {
-  color: green;
-}
-
-.spmes {
-	color: yellow;
-}
-
-.mpmes {
-	color: red;
-}
 </style>
 
 	<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
@@ -2036,6 +1983,14 @@ function Update(){
 			  // Clear the input field.
 			  $('#name').val('');
 			});
+			
+			// If enter is pressed then it is equivalent to pressing log in
+			$('#name').keyup(function(event) {
+				if (event.keyCode == 13) {
+					$('#login').click();
+				}
+			});
+			
 	 });		
 	</script>
 </body>
