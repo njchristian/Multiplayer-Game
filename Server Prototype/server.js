@@ -4,6 +4,8 @@
 	TODO:
 	-make TODO list...
 	if client is waiting for MP game and changed their mind, need to remove them from that queue
+	maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
+	mode and they are having to wait, therefore they for sure know what they selected
 */
 // ---------------need to make into modules if possible------------------------	
 
@@ -248,6 +250,8 @@ io.sockets.on(
 				else {
 					client.emit('opponentForRace', 'Opponent found, get ready to race.');
 					client.broadcast.emit('opponentForRace', 'Opponent found, get ready to race.');
+					// clear the waiting on race array
+					waitingOnRace.length = 0;
 				}
 			}
 			else {
@@ -293,6 +297,8 @@ io.sockets.on(
 				else {
 					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
 					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
+					// clear the waiting on challenge array
+					waitingOnChallenge.length = 0;
 				}
 			}
 			else {

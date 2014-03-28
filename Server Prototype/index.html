@@ -278,30 +278,30 @@ function goToGame( gm, socket, name ){
 		socket.emit('mp_race', { user_name: name });
 		
 		// handle multiplayer race wait message
-	socket.on(
-		'waitForRace',
-		function(message) {
-			if (message) {
-				console.log('waiting for opponent');
-			}
-		});
-		
 		socket.on(
-		'opponentForRace',
-		function(message) {
-			if (message) {
-				myGame.isOnMenu = false;
-				myGame.gameManager.newGame( gm );
-			}
-		});
+			'waitForRace',
+			function(message) {
+				if (message) {
+					console.log('waiting for opponent');
+				}
+			});
+			
+			socket.on(
+			'opponentForRace',
+			function(message) {
+				if (message) {
+					myGame.isOnMenu = false;
+					myGame.gameManager.newGame( gm );
+				}
+			});
 	}
-	// challenge --------------------------needs finishing TODO
+	// challenge 
 	else if (gm == 4) {
 		socket.emit('mp_ch', { user_name: name });
 		
 		// handle multiplayer race wait message
 	socket.on(
-		'waitForRace',
+		'waitForChallenge',
 		function(message) {
 			if (message) {
 				console.log('waiting for opponent');
@@ -309,7 +309,7 @@ function goToGame( gm, socket, name ){
 		});
 		
 		socket.on(
-		'opponentForRace',
+		'opponentForChallenge',
 		function(message) {
 			if (message) {
 				myGame.isOnMenu = false;
