@@ -7,6 +7,7 @@
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
 	-maybe add a function to find the playerIndex
+	-should scores be stored separately for each game mode?
 */
 // ---------------need to make into modules if possible------------------------	
 
@@ -321,6 +322,7 @@ io.sockets.on(
 			
 	});	
 	
+	// High score stuff
 	// high scores request
 	client.on(
 		'highScoresRequest',
