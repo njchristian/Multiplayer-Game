@@ -48,6 +48,7 @@ body {
 		var KEYCODE_LEFT = 37; 	//usefull keycode
 		var KEYCODE_RIGHT = 39; 	//usefull keycode
 		var KEYCODE_DOWN = 40; 	//usefull keycode
+		var KEYCODE_P = 80;
 		var PI = Math.PI;
 		
 		//I dunno how to get this from the canvas - I'll keep looking
@@ -959,7 +960,6 @@ function gameHandleKeyDown(e){
 		myGame.gameManager.thrust = true;
 		break;
 	case KEYCODE_P:
-	
 		if( !myGame.gameManager.isMulti() ){
 			myGame.gameManager.pause = !myGame.gameManager.pause;
 			myGame.gameManager.leftTurn = false;
