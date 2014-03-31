@@ -59,10 +59,14 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 // ----------------------------------------------------------------------------
 
 // The node.js HTTP server.
-var app = require('http').createServer(handler);
+//var http = require('http');
+var express = require('express');
+var app = express();
+app.use( express.static( __dirname) );
+var server = app.listen(10268);
 
 // The socket.io WebSocket server, running with the node.js server.
-var io = require('socket.io').listen(app);
+var io = require('socket.io').listen(server);
 
 var path = require("path")
 
@@ -71,28 +75,12 @@ var url = require("url")
 // Allows access to local file system.
 var fs = require('fs')
 
-// Listen on a high port.
-app.listen(10268);
-
-// var fs = require('fs'),
-//     http = require('http'),
-//     sio = require('socket.io');
-
-// var server = http.createServer(function(req, res) {
-//   res.writeHead(200, { 'Content-type': 'text/html'});
-//   res.end(fs.readFileSync('./index.html'));
-// });
-// server.listen(80, function() {
-//   console.log('Server listening at http://localhost:8000/');
-// });
-// // Attach the socket.io server
-// io = sio.listen(server);
-
 var players = [];
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
 
+/*
 // Handles HTTP requests.
 function handler(request, response) {
   // This will read the file 'index.html', and call the function (the 2nd
@@ -134,6 +122,7 @@ function handler(request, response) {
       response.end(content);
     });
 }
+*/
 
 // What to do with a new client
 io.sockets.on(
