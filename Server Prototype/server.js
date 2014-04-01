@@ -2,7 +2,6 @@
 
 /*
 	TODO:
-	-make TODO list...
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
 	-should scores be stored separately for each game mode?
@@ -17,8 +16,8 @@ function Player(name) {
 	this.gameMode = 0; // 0 signifies no game mode selected yet
 	this.highScores = [];
 	// potential alternative to highScores
-	this.bestTimes = [];
-	this.bestDistance = [];
+	this.bestTimes = []; // best times from time trial
+	this.bestDistances = []; // furtherest distances from challenge mode
 	this.multiplayerRating = 0;
 }
 
@@ -30,8 +29,8 @@ Player.prototype.setGameMode = function(mode) {
 	this.gameMode = mode;
 }
 
-// could change this to store times
-Player.prototype.addHighScore = function(score) { // probably want to change this to store the scores in order
+
+Player.prototype.addHighScore = function(score) {
 	// Stores the top 5 scores
 	
 	// So if there are less than 5 scores, just store it
@@ -41,15 +40,6 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 		this.highScore.sort(function(a, b) {return b-a});
 	}
 	// else there are already 5 scores, so we need to remove the lowest
-	// else {
-		// var indexOfLowest = 0;
-		// for ( var i = 1; i < this.highScores.length; ++i ) {
-			// if ( this.highScores[i] < this.highScores[indexOfLowest] ) {
-				// indexOfLowest = i;
-			// }
-		// }
-		// this.highScores[indexOfLowest] = score;
-	// }
 	else {
 		// assume it is sorted in descending order, therefore the lowest score is the last one
 		if (score > this.highScores[this.highScores.length - 1]) {
@@ -62,21 +52,63 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 	}
 }
 
-Player.prototype.getHighScores = function() {
-	return this.highScores;
+Player.prototype.addNewTime = function(time) {
+	// Stores the top 5 times
+	
+	// So if there are less than 5 times, just store it
+	if (this.bestTimes.length < 5) {
+		this.bestTimes[this.bestTimes.length] = time;
+		// sort in descending order
+		this.bestTimes.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (time > this.bestTimes[this.bestTimes.length - 1]) {
+			// replace the slowest time with the new time
+			this.bestTimes[this.bestTimes.length - 1] = time;
+			// sort in descending order
+			this.bestTimes.sort(function(a, b) {return b-a});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
 }
 
-Player.prototype.getBestTimes = function() {
-	return this.bestTimes;
+
+Player.prototype.addNewDistance = function(distance) {
+	// Stores the top 5 longest distances in challenge mode
+	
+	// So if there are less than 5 top distances, just store it
+	if (this.bestDistances.length < 5) {
+		this.bestDistances[this.bestDistances.length] = distance;
+		// sort in descending order
+		this.bestDistances.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the smallest 
+		// distance is the last one
+		if (distance > this.bestDistances[this.bestDistances.length - 1]) {
+			// replace the smallest distance with the new distance
+			this.bestDistances[this.bestDistances.length - 1] = distance;
+			// sort in descending order
+			this.bestDistances.sort(function(a, b) {return b-a});
+		}
+		// else the new distance isn't as far as any of the saved distances
+	}
 }
 
-Player.prototype.getBestDistances = function() {
-	return this.bestDistances;
+
+Player.prototype.updateMPRating = function(rating) {
+	if (rating == "win") {
+		this.multiplayerRating += 10;
+	}
+	else if (rating == "loss") {
+		this.multiplayerRating -= 10;
+	}
+	else
+		console.log('updateMPRating was called with something other than win or loss');
 }
 
-Player.prototype.getMPRating = function() {
-	return this.multiplayerRating;
-}
 	
 // ---------------------------------Main---------------------------------------
 
@@ -174,7 +206,9 @@ io.sockets.on(
         client.emit('login_failed');
       });
 
-	// Listen for game mode choice events  
+	// Listen for game mode choice events 
+
+	// SINGLE PLAYER Messages
 	  
 	// single player time trial message
 	client.on(
@@ -228,6 +262,8 @@ io.sockets.on(
 			
 			
 	});		
+	  
+	// MULTI PLAYER Messages  
 	  
 	// multiplayer race message
 	client.on(
@@ -323,15 +359,18 @@ io.sockets.on(
 			
 	});	
 	
-	// High score stuff
-	// high scores request
+	// HIGH SCORE Messages
+	// high scores request - returns the players best times, best distances, 
+	// and MP rating
 	client.on(
 		'highScoresRequest',
 		// the highScoreRequest object should contain the player's userName
 		function(highScoreRequest) {
 			var playerIndex = findPlayerIndex(highScoreRequest.userName);
-			var highScores = players[playerIndex].getHighScores;
-			client.emit('highScoresResponse', { playerScores : highScores } );
+			//var highScores = players[playerIndex].getHighScores();
+			client.emit('highScoresResponse', { playerTimes : players[playerIndex].bestTimes, 
+				playerDistances : players[playerIndex].bestDistances, 
+				playerMPRating : players[playersIndex].multiplayerRating } );
 	});		
 	
 	// new high score
@@ -357,6 +396,79 @@ io.sockets.on(
 			}
 	});	
 	
+	// new time
+	client.on(
+		'newTime',
+		// timeObject should contain the user name (userName) and 
+		// a new time (time);
+		function(timeObject) {
+			if (timeObject) {
+				// find player
+				var playerIndex = findPlayerIndex(timeObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// add the new time
+				players[playerIndex].addNewTime(timeObject.time);
+			}
+			else {
+				console.log('error setting new time'); //debug check
+			}
+	});	
+	
+	// new distance
+	client.on(
+		'newDistance',
+		// distanceObject should contain the user name (userName) and 
+		// a new distance (distance);
+		function(distanceObject) {
+			if (distanceObject) {
+				// find player
+				var playerIndex = findPlayerIndex(distanceObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// add the new distance
+				players[playerIndex].addNewDistance(distanceObject.distance);
+			}
+			else {
+				console.log('error setting new distance'); //debug check
+			}
+	});	
+	
+	client.on(
+		'ratingUpdate',
+		// ratingObject should contain the user name (userName) and the
+		// data for updating the rating (rating). rating should be either
+		// "win" or "loss"
+		function(ratingObject) {
+			if (ratingObject) {
+				// find player
+				var playerIndex = findPlayerIndex(ratingObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// update rating
+				players[playerIndex].updateMPRating(ratingObject.rating);
+			}
+			else {
+				console.log('error updating MP rating');
+			}
+	});	
+	
+	// UPDATE
 	// update - right now it just broadcasts the update to other client
 	// only works for a single multiplayer game at the moment
 	client.on(
@@ -364,6 +476,26 @@ io.sockets.on(
 		function(updateObject) {
 			client.broadcast.emit('newUpdate', updateObject);
 	});	
+	
+	
+	// GAME ENDING Messages 
+	// receive a signal that a client has won their game
+	client.on(
+		'wonGame',
+		// winObject should have the user name of the player that has won
+		// (userName)
+		function(winObject) {
+			client.broadcast.emit('opponentWon', { name : winObject.userName } ); 
+	});
+	
+	// receive a signal that a client has lost their game
+	client.on(
+		'lostGame',
+		// lostObject should have the user name of the player that has lost
+		// (userName)
+		function(lostObject) {
+			client.broadcast.emit('opponentLost', { name : lostObject.userName } ); 
+	});
 
   });
 
