@@ -2,7 +2,6 @@
 
 /*
 	TODO:
-	-make TODO list...
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
 	-should scores be stored separately for each game mode?
@@ -17,8 +16,8 @@ function Player(name) {
 	this.gameMode = 0; // 0 signifies no game mode selected yet
 	this.highScores = [];
 	// potential alternative to highScores
-	this.bestTimes = [];
-	this.bestDistance = [];
+	this.bestTimes = []; // best times from time trial
+	this.bestDistances = []; // furtherest distances from challenge mode
 	this.multiplayerRating = 0;
 }
 
@@ -30,8 +29,8 @@ Player.prototype.setGameMode = function(mode) {
 	this.gameMode = mode;
 }
 
-// could change this to store times
-Player.prototype.addHighScore = function(score) { // probably want to change this to store the scores in order
+
+Player.prototype.addHighScore = function(score) {
 	// Stores the top 5 scores
 	
 	// So if there are less than 5 scores, just store it
@@ -62,21 +61,51 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 	}
 }
 
-Player.prototype.getHighScores = function() {
-	return this.highScores;
+Player.prototype.addNewTime = function(time) {
+	// Stores the top 5 times
+	
+	// So if there are less than 5 times, just store it
+	if (this.bestTimes.length < 5) {
+		this.bestTimes[this.bestTimes.length] = time;
+		// sort in descending order
+		this.bestTimes.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (time > this.bestTimes[this.bestTimes.length - 1]) {
+			// replace the slowest time with the new time
+			this.bestTimes[this.bestTimes.length - 1] = time;
+			// sort in descending order
+			this.bestTimes.sort(function(a, b) {return b-a});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
 }
 
-Player.prototype.getBestTimes = function() {
-	return this.bestTimes;
+
+Player.prototype.addNewDistance = function(distance) {
+	// Stores the top 5 longest distances in challenge mode
+	
+	// So if there are less than 5 top distances, just store it
+	if (this.bestDistances.length < 5) {
+		this.bestDistances[this.bestDistances.length] = distance;
+		// sort in descending order
+		this.bestDistances.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the smallest 
+		// distance is the last one
+		if (distance > this.bestDistances[this.bestDistances.length - 1]) {
+			// replace the smallest distance with the new distance
+			this.bestDistances[this.bestDistances.length - 1] = distance;
+			// sort in descending order
+			this.bestDistances.sort(function(a, b) {return b-a});
+		}
+		// else the new distance isn't as far as any of the saved distances
+	}
 }
 
-Player.prototype.getBestDistances = function() {
-	return this.bestDistances;
-}
-
-Player.prototype.getMPRating = function() {
-	return this.multiplayerRating;
-}
 	
 // ---------------------------------Main---------------------------------------
 
@@ -330,7 +359,7 @@ io.sockets.on(
 		// the highScoreRequest object should contain the player's userName
 		function(highScoreRequest) {
 			var playerIndex = findPlayerIndex(highScoreRequest.userName);
-			var highScores = players[playerIndex].getHighScores;
+			var highScores = players[playerIndex].getHighScores();
 			client.emit('highScoresResponse', { playerScores : highScores } );
 	});		
 	
