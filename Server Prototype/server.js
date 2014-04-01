@@ -245,6 +245,13 @@ io.sockets.on(
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
 				if (waitingOnRace.length == 0) {
+					// check to make sure this client isn't also waiting for challenge,
+					// if so then remove the client from that waiting list
+					if (waitingOnChallenge.length != 0) {
+						if (waitingOnChallenge[0] == msg.user_name) {
+							waitingOnChallenge.length = 0;
+						}
+					}
 					waitingOnRace[0] = msg.user_name;
 					client.emit('waitForRace', 'Waiting for other player.');
 				}
@@ -299,6 +306,14 @@ io.sockets.on(
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
 				if (waitingOnChallenge.length == 0) {
+					// check to make sure this client isn't also waiting for race,
+					// if so then remove the client from that waiting list
+					if (waitingOnRace.length != 0) {
+						if (waitingOnRace[0] == msg.user_name) {
+							waitingOnRace.length = 0;
+						}
+					}
+				
 					waitingOnChallenge[0] = msg.user_name;
 					client.emit('waitForChallenge', 'Waiting for other player.');
 				}
