@@ -53,6 +53,10 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 		// else the new score isn't as high as any of the saved high scores
 	}
 }
+
+Player.prototype.getHighScores = function() {
+	return this.highScores;
+}
 	
 // ----------------------------------------------------------------------------
 
@@ -340,8 +344,11 @@ io.sockets.on(
 	// high scores request
 	client.on(
 		'highScoresRequest',
-		function() {
-			client.emit('highScoresResponse', 'High Score Placeholder');
+		// the highScoreRequest object should contain the player's userName
+		function(highScoreRequest) {
+			var playerIndex = findPlayerIndex(highScoreRequest.userName);
+			var highScores = players[playerIndex].getHighScores;
+			client.emit('highScoresResponse', { playerScores : highScores } );
 	});		
 	
 	// new high score
