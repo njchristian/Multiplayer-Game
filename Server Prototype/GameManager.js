@@ -179,7 +179,7 @@ GameManager.prototype.update = function(){
 	
 	if( this.isMulti() ){
 		// send own update
-		this.socket.emit('update', { xPosition: this.ship.xPos, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so } );
+		this.socket.emit('update', { xPosition: this.ship.xPos, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
 	
 		// get update object from other player
 		this.socket.on(
@@ -193,6 +193,8 @@ GameManager.prototype.update = function(){
 						myGame.gameManager.opShip.rotation = update.rotation;
 						
 						myGame.gameManager.opSO = update.screenOffset;
+						
+						myGame.gameManager.opLevel = update.level;
 				}
 		});	
 		
