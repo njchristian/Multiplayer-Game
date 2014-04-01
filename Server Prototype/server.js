@@ -6,8 +6,11 @@
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
 	-should scores be stored separately for each game mode?
+	-make log in better and require password
+	-file IO with player data
 */
-// ---------------need to make into modules if possible------------------------	
+// need to make into modules if possible
+// ------------------------Player.js-----------------------------	
 
 function Player(name) {
 	this.userName = name;
@@ -15,8 +18,8 @@ function Player(name) {
 	this.highScores = [];
 	// potential alternative to highScores
 	this.bestTimes = [];
-	this.challengeDistance = [];
-	this.multiPlayerRating = 0;
+	this.bestDistance = [];
+	this.multiplayerRating = 0;
 }
 
 Player.prototype.setName = function(name) {
@@ -27,6 +30,7 @@ Player.prototype.setGameMode = function(mode) {
 	this.gameMode = mode;
 }
 
+// could change this to store times
 Player.prototype.addHighScore = function(score) { // probably want to change this to store the scores in order
 	// Stores the top 5 scores
 	
@@ -61,8 +65,20 @@ Player.prototype.addHighScore = function(score) { // probably want to change thi
 Player.prototype.getHighScores = function() {
 	return this.highScores;
 }
+
+Player.prototype.getBestTimes = function() {
+	return this.bestTimes;
+}
+
+Player.prototype.getBestDistances = function() {
+	return this.bestDistances;
+}
+
+Player.prototype.getMPRating = function() {
+	return this.multiplayerRating;
+}
 	
-// ----------------------------------------------------------------------------
+// ---------------------------------Main---------------------------------------
 
 // The node.js HTTP server.
 //var http = require('http');
@@ -86,49 +102,6 @@ var players = []; // array of all the players
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
 
-/*
-// Handles HTTP requests.
-function handler(request, response) {
-  // This will read the file 'index.html', and call the function (the 2nd
-  // argument) to process the content of the file.
-  // __dirname is a preset variable pointing to the folder of this file.
-   // var url_request = url.parse(request.url).pathname;      
-    // var tmp  = url_request.lastIndexOf(".");
-    // var extension  = url_request.substring((tmp + 1));
-	
-	// file_path = url_request.replace("/", "");
-  
-  // fs.readFile(
-    // __dirname + '/index.html',
-    // function(err, content) {
-      // if (err) {
-        // // If an error happened when loading 'index.html', return a 500 error.
-        // response.writeHead(500);
-        // return response.end('Error loading ' + file_path);
-      // }
-      // // If no error happened, return the content of 'index.html'
-	  // if (extension === 'js') {
-			// response.writeHead(200, {'Content-Type': 'text/javascript'});
-	  // }
-	  // else {
-		// response.writeHead(200, {'Content-Type': 'text/html'});
-	  // }
-      // response.end(content);
-    // });
-	 fs.readFile(
-    __dirname + '/index.html',
-    function(err, content) {
-      if (err) {
-        // If an error happened when loading 'index.html', return a 500 error.
-        response.writeHead(500);
-        return response.end('Error loading index.html!');
-      }
-      // If no error happened, return the content of 'index.html'
-      response.writeHead(200, {'Content-Type': 'text/html'});
-      response.end(content);
-    });
-}
-*/
 
 // ------------- HELPER FUNCTIONS ---------------------------------------------
 
