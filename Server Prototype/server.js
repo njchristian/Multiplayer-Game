@@ -3,7 +3,6 @@
 /*
 	TODO:
 	-make TODO list...
-	-if client is waiting for MP game and changed their mind, need to remove them from that queue
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
 	-maybe add a function to find the playerIndex
@@ -183,6 +182,19 @@ io.sockets.on(
 				players[playerIndex].setGameMode(0);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_tt_msg', 'You have selected SinglePlayer Time Trial!' );
+				
+				// need to make sure that this player was not waiting for a MP mode,
+				// if they were then they need to be removed from that queue.
+				if (waitingOnRace.length != 0) {
+					if (waitingOnRace[0] == msg.user_name) {
+						waitingOnRace.length = 0;
+					}
+				}
+				if (waitingOnChallenge.length != 0) {
+					if (waitingOnChallenge[0] == msg.user_name) {
+						waitingOnChallenge.length = 0;
+					}
+				}
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
@@ -209,6 +221,19 @@ io.sockets.on(
 				players[playerIndex].setGameMode(1);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
+				
+				// need to make sure that this player was not waiting for a MP mode,
+				// if they were then they need to be removed from that queue.
+				if (waitingOnRace.length != 0) {
+					if (waitingOnRace[0] == msg.user_name) {
+						waitingOnRace.length = 0;
+					}
+				}
+				if (waitingOnChallenge.length != 0) {
+					if (waitingOnChallenge[0] == msg.user_name) {
+						waitingOnChallenge.length = 0;
+					}
+				}
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
