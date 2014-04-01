@@ -40,15 +40,6 @@ Player.prototype.addHighScore = function(score) {
 		this.highScore.sort(function(a, b) {return b-a});
 	}
 	// else there are already 5 scores, so we need to remove the lowest
-	// else {
-		// var indexOfLowest = 0;
-		// for ( var i = 1; i < this.highScores.length; ++i ) {
-			// if ( this.highScores[i] < this.highScores[indexOfLowest] ) {
-				// indexOfLowest = i;
-			// }
-		// }
-		// this.highScores[indexOfLowest] = score;
-	// }
 	else {
 		// assume it is sorted in descending order, therefore the lowest score is the last one
 		if (score > this.highScores[this.highScores.length - 1]) {
@@ -104,6 +95,18 @@ Player.prototype.addNewDistance = function(distance) {
 		}
 		// else the new distance isn't as far as any of the saved distances
 	}
+}
+
+
+Player.prototype.updateMPRating = function(rating) {
+	if (rating == "win") {
+		this.multiplayerRating += 10;
+	}
+	else if (rating == "loss") {
+		this.multiplayerRating -= 10;
+	}
+	else
+		console.log('updateMPRating was called with something other than win or loss');
 }
 
 	
@@ -353,14 +356,17 @@ io.sockets.on(
 	});	
 	
 	// High score stuff
-	// high scores request
+	// high scores request - returns the players best times, best distances, 
+	// and MP rating
 	client.on(
 		'highScoresRequest',
 		// the highScoreRequest object should contain the player's userName
 		function(highScoreRequest) {
 			var playerIndex = findPlayerIndex(highScoreRequest.userName);
-			var highScores = players[playerIndex].getHighScores();
-			client.emit('highScoresResponse', { playerScores : highScores } );
+			//var highScores = players[playerIndex].getHighScores();
+			client.emit('highScoresResponse', { playerTimes : players[playerIndex].bestTimes, 
+				playerDistances : players[playerIndex].bestDistances, 
+				playerMPRating : players[playersIndex].multiplayerRating } );
 	});		
 	
 	// new high score
@@ -386,6 +392,79 @@ io.sockets.on(
 			}
 	});	
 	
+	// new time
+	client.on(
+		'newTime',
+		// timeObject should contain the user name (userName) and 
+		// a new time (time);
+		function(timeObject) {
+			if (timeObject) {
+				// find player
+				var playerIndex = findPlayerIndex(timeObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// add the new time
+				players[playerIndex].addNewTime(timeObject.time);
+			}
+			else {
+				console.log('error setting new time'); //debug check
+			}
+	});	
+	
+	// new distance
+	client.on(
+		'newDistance',
+		// distanceObject should contain the user name (userName) and 
+		// a new distance (distance);
+		function(distanceObject) {
+			if (distanceObject) {
+				// find player
+				var playerIndex = findPlayerIndex(distanceObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// add the new distance
+				players[playerIndex].addNewDistance(distanceObject.distance);
+			}
+			else {
+				console.log('error setting new distance'); //debug check
+			}
+	});	
+	
+	client.on(
+		'ratingUpdate',
+		// ratingObject should contain the user name (userName) and the
+		// data for updating the rating (rating). rating should be either
+		// "win" or "loss"
+		function(ratingObject) {
+			if (ratingObject) {
+				// find player
+				var playerIndex = findPlayerIndex(ratingObject.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// update rating
+				players[playerIndex].updateMPRating(ratingObject.rating);
+			}
+			else {
+				console.log('error updating MP rating');
+			}
+	});	
+	
+	
 	// update - right now it just broadcasts the update to other client
 	// only works for a single multiplayer game at the moment
 	client.on(
@@ -393,6 +472,25 @@ io.sockets.on(
 		function(updateObject) {
 			client.broadcast.emit('newUpdate', updateObject);
 	});	
+	
+	
+	// receive a signal that a client has won their game
+	client.on(
+		'wonGame',
+		// winObject should have the user name of the player that has won
+		// (userName)
+		function(winObject) {
+			client.broadcast.emit('opponentWon', { name : winObject.userName } ); 
+	});
+	
+	// receive a signal that a client has lost their game
+	client.on(
+		'lostGame',
+		// lostObject should have the user name of the player that has lost
+		// (userName)
+		function(lostObject) {
+			client.broadcast.emit('opponentLost', { name : lostObject.userName } ); 
+	});
 
   });
 
