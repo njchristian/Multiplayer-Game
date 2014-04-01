@@ -4,7 +4,7 @@ function Game( g, s, n ){
 
 	this.graphics = g;
 	
-	var socket = s;
+	this.socket = s;
 	
 	this.name = n;
 	
@@ -37,8 +37,8 @@ function Game( g, s, n ){
 	
 	this.isOnMenu = true;
 	
-	this.gameManager = new GameManager( this, g, socket );
-	this.menuManager = new MenuManager( this, g, socket, this.name );
+	this.gameManager = new GameManager( this, g, this.socket );
+	this.menuManager = new MenuManager( this, g, this.socket, this.name );
 	
 	
 }
@@ -67,7 +67,9 @@ Game.prototype.returnToMenu = function(){
 
 
 
-function goToGame( gm, socket, name ){
+function goToGame( gm ){
+	
+	var socket = myGame.socket;
 	
 	// race
 	if (gm == 3) {
@@ -85,10 +87,10 @@ function goToGame( gm, socket, name ){
 		socket.on(
 		'opponentForRace',
 		function(message) {
-			if (message) {
+			//if (message) {
 				myGame.isOnMenu = false;
 				myGame.gameManager.newGame( gm );
-			}
+			//}
 		});
 	}
 	// challenge --------------------------needs finishing TODO
@@ -97,7 +99,7 @@ function goToGame( gm, socket, name ){
 		
 		// handle multiplayer race wait message
 	socket.on(
-		'waitForRace',
+		'waitForChallenge',
 		function(message) {
 			if (message) {
 				console.log('waiting for opponent');
@@ -105,12 +107,12 @@ function goToGame( gm, socket, name ){
 		});
 		
 		socket.on(
-		'opponentForRace',
+		'opponentForChallenge',
 		function(message) {
-			if (message) {
+			//if (message) {
 				myGame.isOnMenu = false;
 				myGame.gameManager.newGame( gm );
-			}
+			//}
 		});
 	}
 	// single player

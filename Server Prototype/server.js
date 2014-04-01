@@ -484,8 +484,8 @@ io.sockets.on(
 		'wonGame',
 		// winObject should have the user name of the player that has won
 		// (userName)
-		function(winObject) {
-			client.broadcast.emit('opponentWon', { name : winObject.userName } ); 
+		function() {
+			client.broadcast.emit('opponentWon', { name : "" } ); 
 	});
 	
 	// receive a signal that a client has lost their game
@@ -493,8 +493,8 @@ io.sockets.on(
 		'lostGame',
 		// lostObject should have the user name of the player that has lost
 		// (userName)
-		function(lostObject) {
-			client.broadcast.emit('opponentLost', { name : lostObject.userName } ); 
+		function() {
+			client.broadcast.emit('opponentLost', { name : "" } ); 
 	});
 
   });

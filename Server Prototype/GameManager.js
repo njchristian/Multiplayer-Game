@@ -211,6 +211,26 @@ GameManager.prototype.update = function(){
 				}
 		});	
 		
+		this.socket.on(
+			'opponentWon',
+			function(name) {
+				if (name) {
+					//console.log('update x position is: ' + update.xPosition );
+						//var u = JSON.parse( update );
+						myGame.gameManager.onLoss();
+				}
+		});	
+		
+		this.socket.on(
+			'opponentLost',
+			function(name) {
+				if (name) {
+					//console.log('update x position is: ' + update.xPosition );
+						//var u = JSON.parse( update );
+						myGame.gameManager.onWin();
+				}
+		});	
+		
 	}
 	
 	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
@@ -323,12 +343,20 @@ GameManager.prototype.onDeath = function(){
 
 GameManager.prototype.onWin = function(){
 
+	if( this.isMulti() ){
+		this.socket.emit('wonGame', { name : "" } );
+	}
+
 	this.gameOver = true;
 	this.winner = true;
 	
 }
 
 GameManager.prototype.onLoss = function(){
+
+	if( this.isMulti() ){
+		this.socket.emit('lostGame', { name : "" } );
+	}
 
 	this.gameOver = true;
 	this.winner = false;
