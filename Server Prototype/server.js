@@ -271,25 +271,12 @@ io.sockets.on(
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
 				if (waitingOnRace.length == 0) {
-					// // check to make sure this client isn't also waiting for challenge,
-					// // if so then remove the client from that waiting list
-					// if (waitingOnChallenge.length != 0) {
-						// if (waitingOnChallenge[0] == msg.user_name) {
-							// waitingOnChallenge.length = 0;
-						// }
-					// }
 					waitingOnRace[0] = msg.user_name;
 					client.emit('waitForRace', 'Waiting for other player.');
 				}
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
-					// check to make sure the same player hasn't hit the same button again
-					// if so then just exit this function
-					// if (msg.user_name == waitingOnRace[0]) {
-						// return;
-					// }
-					
 					// else we assume there is an opponent so it is race time
 					client.emit('opponentForRace', 'Opponent found, get ready to race.');
 					client.broadcast.emit('opponentForRace', 'Opponent found, get ready to race.');
@@ -322,30 +309,19 @@ io.sockets.on(
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_ch_msg', 'You have selected MultiPlayer Challenge!' );
 				
+				// if the user is also waiting for race then remove them from that
+				// waiting list. this also handles the case where the same client clicks
+				// MP challenge twice in a row
 				clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
-				if (waitingOnChallenge.length == 0) {
-					// check to make sure this client isn't also waiting for race,
-					// if so then remove the client from that waiting list
-					// if (waitingOnRace.length != 0) {
-						// if (waitingOnRace[0] == msg.user_name) {
-							// waitingOnRace.length = 0;
-						// }
-					// }
-				
+				if (waitingOnChallenge.length == 0) {				
 					waitingOnChallenge[0] = msg.user_name;
 					client.emit('waitForChallenge', 'Waiting for other player.');
 				}
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
-					// check to make sure the same player hasn't hit the same button again
-					// if so then just exit this function
-					// if (msg.user_name == waitingOnChallenge[0]) {
-						// return;
-					// }
-					
 					// else we assume there is an opponent so it is race time
 					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
 					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
@@ -375,14 +351,9 @@ io.sockets.on(
 		// a new high score (highScore);
 		function(highScoreObject) {
 			if (highScoreObject) {
-				var playerIndex = -1;
 				// find player
-				for (var i = 0; i < players.length; ++i) {
-					if (players[i].userName == highScoreObject.userName) {
-						playerIndex = i;
-						break;
-					}
-				}
+				var playerIndex = findPlayerIndex(highScoreObject.userName);
+				
 				// make sure player exists
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
