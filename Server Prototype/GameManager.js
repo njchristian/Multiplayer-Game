@@ -188,7 +188,7 @@ GameManager.prototype.handleUpdate = function( update ){
 
 GameManager.prototype.update = function(){
 
-	if( this.pause ) return;
+	if( this.pause || this.gameOver ) return;
 	
 	if( this.isMulti() ){
 		// send own update
@@ -343,22 +343,27 @@ GameManager.prototype.onDeath = function(){
 
 GameManager.prototype.onWin = function(){
 
-	if( this.isMulti() ){
+	this.gameOver = true;
+	
+	if( this.isMulti() && this.gameMode == MULTI_RACE){
+		console.log("Win");
 		this.socket.emit('wonGame', { name : "" } );
 	}
 
-	this.gameOver = true;
+	
 	this.winner = true;
 	
 }
 
 GameManager.prototype.onLoss = function(){
-
-	if( this.isMulti() ){
+	this.gameOver = true;
+	
+	if( this.isMulti() && this.gameMode == MULTI_CHALLENGE){
+		console.log("Lose");
 		this.socket.emit('lostGame', { name : "" } );
 	}
 
-	this.gameOver = true;
+	
 	this.winner = false;
 
 }
