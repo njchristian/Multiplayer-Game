@@ -13,6 +13,10 @@ function Player(name) {
 	this.userName = name;
 	this.gameMode = 0; // 0 signifies no game mode selected yet
 	this.highScores = [];
+	// potential alternative to highScores
+	this.bestTimes = [];
+	this.challengeDistance = [];
+	this.multiPlayerRating = 0;
 }
 
 Player.prototype.setName = function(name) {
@@ -229,11 +233,14 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
+				
+				// find player
 				var playerIndex = findPlayerIndex(msg.user_name);
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
+				
 				players[playerIndex].setGameMode(2);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
@@ -255,6 +262,8 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
+				
+				// find player
 				var playerIndex = findPlayerIndex(msg.user_name);
 				
 				// make sure player was found
@@ -301,6 +310,7 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
+				// find player
 				var playerIndex = findPlayerIndex(msg.user_name);
 				
 				// make sure player exists
