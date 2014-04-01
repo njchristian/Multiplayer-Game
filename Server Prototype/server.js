@@ -251,6 +251,13 @@ io.sockets.on(
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
+					// check to make sure the same player hasn't hit the same button again
+					// if so then just exit this function
+					if (msg.user_name == waitingOnRace[0]) {
+						return;
+					}
+					
+					// else we assume there is an opponent so it is race time
 					client.emit('opponentForRace', 'Opponent found, get ready to race.');
 					client.broadcast.emit('opponentForRace', 'Opponent found, get ready to race.');
 					// clear the waiting on race array
@@ -298,6 +305,13 @@ io.sockets.on(
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
+					// check to make sure the same player hasn't hit the same button again
+					// if so then just exit this function
+					if (msg.user_name == waitingOnChallenge[0]) {
+						return;
+					}
+					
+					// else we assume there is an opponent so it is race time
 					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
 					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
 					// clear the waiting on challenge array
