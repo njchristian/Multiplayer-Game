@@ -49,6 +49,9 @@ function GameManager( gameObject, g, websocket ){
 	//Flag for pause menu
 	this.pause = false;
 	
+	this.winner = false;
+	this.gameOver = false;
+	
 	//Identify a variable for game mode.
 	this.gameMode = 0;
 	
@@ -65,6 +68,10 @@ function GameManager( gameObject, g, websocket ){
 	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
 	this.reScroll = false
 	
+	g.font = "45px Courier";
+	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
+	this.endScroll = false;
+	
 }
 
 GameManager.prototype.newGame = function( gm ){
@@ -76,6 +83,7 @@ GameManager.prototype.newGame = function( gm ){
 	//Sets all states to those to start a new game
 	
 	this.pause = false;
+	this.gameOver = false;
 	
 	//Flags for ship movement
 	this.thrust = false;
@@ -155,6 +163,11 @@ GameManager.prototype.draw = function( graphics ){
 	if( this.isMulti() ){
 		this.drawShip( graphics, this.opShip, true );
 		this.drawOpBlocks(graphics);
+	}
+	
+	if( this.gameOver ){ 
+		this.drawEndGame( graphics, this.winner );
+		return;
 	}
 	
 	if( this.pause ) this.drawPause( graphics );
@@ -250,7 +263,7 @@ GameManager.prototype.update = function(){
 			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
-			//console.log( "Now in level: " + this.currentLevel );
+			console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
 		}
@@ -269,7 +282,7 @@ GameManager.prototype.update = function(){
 			
 		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
 		//if( false ){			
-			console.log("Collision");
+			//console.log("Collision");
 			
 			this.onDeath();		
 				
@@ -284,7 +297,7 @@ GameManager.prototype.onDeath = function(){
 
 	if( this.isChallenge() ){
 
-		this.parentGame.returnToMenu();
+		this.onLoss();
 	
 	}else{
 	
@@ -310,7 +323,15 @@ GameManager.prototype.onDeath = function(){
 
 GameManager.prototype.onWin = function(){
 
-	this.parentGame.returnToMenu();
+	this.gameOver = true;
+	this.winner = true;
+	
+}
+
+GameManager.prototype.onLoss = function(){
+
+	this.gameOver = true;
+	this.winner = false;
 
 }
 
@@ -593,6 +614,48 @@ GameManager.prototype.drawPause = function( graphics ){
 		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
 	}else{
 		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+	}
+	
+	graphics.font = "40px Courier";
+	
+	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	
+}
+
+GameManager.prototype.drawEndGame = function( graphics, won ){
+
+	//draw the pause menu
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = "100px Courier";
+	
+	var text;
+	if( won ){
+		text = "WINNER";
+	}else{
+		text = "LOSER";
+	}
+	
+	graphics.strokeText(text, sw/2, sh/2 );
+	
+	graphics.fillStyle = "green";
+	graphics.font = "45px Courier";
+	
+	if( this.endScroll ){
+		graphics.strokeText("Main Menu", sw/2, sh/2 + 175 );
+	}else{
+		graphics.fillText("Main Menu", sw/2, sh/2 + 175 );
 	}
 	
 }
