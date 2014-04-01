@@ -206,7 +206,9 @@ io.sockets.on(
         client.emit('login_failed');
       });
 
-	// Listen for game mode choice events  
+	// Listen for game mode choice events 
+
+	// SINGLE PLAYER Messages
 	  
 	// single player time trial message
 	client.on(
@@ -260,6 +262,8 @@ io.sockets.on(
 			
 			
 	});		
+	  
+	// MULTI PLAYER Messages  
 	  
 	// multiplayer race message
 	client.on(
@@ -355,7 +359,7 @@ io.sockets.on(
 			
 	});	
 	
-	// High score stuff
+	// HIGH SCORE Messages
 	// high scores request - returns the players best times, best distances, 
 	// and MP rating
 	client.on(
@@ -464,7 +468,7 @@ io.sockets.on(
 			}
 	});	
 	
-	
+	// UPDATE
 	// update - right now it just broadcasts the update to other client
 	// only works for a single multiplayer game at the moment
 	client.on(
@@ -474,6 +478,7 @@ io.sockets.on(
 	});	
 	
 	
+	// GAME ENDING Messages 
 	// receive a signal that a client has won their game
 	client.on(
 		'wonGame',
