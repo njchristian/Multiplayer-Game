@@ -74,7 +74,7 @@ var url = require("url")
 // Allows access to local file system.
 var fs = require('fs')
 
-var players = [];
+var players = []; // array of all the players
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
@@ -123,6 +123,17 @@ function handler(request, response) {
 }
 */
 
+function findPlayerIndex(playerName) {
+	var playerIndex = -1;
+	for (var i = 0; i < players.length; ++i) {
+		if (players[i].userName == playerName) {
+			playerIndex = i;
+			break;
+		}
+	}
+	return playerIndex;
+}
+
 // What to do with a new client
 io.sockets.on(
   'connection',
@@ -168,18 +179,12 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
-				var playerIndex = -1;
-				for (var i = 0; i < players.length; ++i) {
-					if (players[i].userName == msg.user_name) {
-						playerIndex = i;
-						break;
-					}
-				}
+				var playerIndex = findPlayerIndex(msg.user_name);
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
-				players[playerIndex].setGameMode(0);
+				players[playerIndex].setGameMode(1);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_tt_msg', 'You have selected SinglePlayer Time Trial!' );
 				
@@ -207,18 +212,12 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
-				var playerIndex = -1;
-				for (var i = 0; i < players.length; ++i) {
-					if (players[i].userName == msg.user_name) {
-						playerIndex = i;
-						break;
-					}
-				}
+				var playerIndex = findPlayerIndex(msg.user_name);
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
-				players[playerIndex].setGameMode(1);
+				players[playerIndex].setGameMode(2);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
 				
@@ -248,21 +247,15 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
-				var playerIndex = -1;
-				// find player
-				for (var i = 0; i < players.length; ++i) {
-					if (players[i].userName == msg.user_name) {
-						playerIndex = i;
-						break;
-					}
-				}
+				var playerIndex = findPlayerIndex(msg.user_name);
+				
 				// make sure player was found
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
 				// set player's gamemode choice and send confirmation message
-				players[playerIndex].setGameMode(2);
+				players[playerIndex].setGameMode(3);
 				console.log(msg.user_name + ' wants to race.');
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_race_msg', 'You have selected MultiPlayer Race!' );
@@ -309,22 +302,15 @@ io.sockets.on(
 		function(msg) {
 			if ( msg && msg.user_name ) {
 				console.log(msg.user_name);
-				var playerIndex = -1;
+				var playerIndex = findPlayerIndex(msg.user_name);
 				
-				// find player
-				for (var i = 0; i < players.length; ++i) {
-					if (players[i].userName == msg.user_name) {
-						playerIndex = i;
-						break;
-					}
-				}
 				// make sure player exists
 				if (playerIndex == -1) {
 					client.emit('error', 'User name not found!');
 					return;
 				}
 				// set game mode and send confirmation message
-				players[playerIndex].setGameMode(3);
+				players[playerIndex].setGameMode(4);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_ch_msg', 'You have selected MultiPlayer Challenge!' );
 				
