@@ -5,14 +5,13 @@
 	-make TODO list...
 	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
 	mode and they are having to wait, therefore they for sure know what they selected
-	-maybe add a function to find the playerIndex
 	-should scores be stored separately for each game mode?
 */
 // ---------------need to make into modules if possible------------------------	
 
 function Player(name) {
 	this.userName = name;
-	this.gameMode = -1;
+	this.gameMode = 0; // 0 signifies no game mode selected yet
 	this.highScores = [];
 }
 
@@ -123,6 +122,10 @@ function handler(request, response) {
 }
 */
 
+// ------------- HELPER FUNCTIONS ---------------------------------------------
+
+// takes in a player name and returns that player's index in the
+// array of players
 function findPlayerIndex(playerName) {
 	var playerIndex = -1;
 	for (var i = 0; i < players.length; ++i) {
@@ -133,6 +136,25 @@ function findPlayerIndex(playerName) {
 	}
 	return playerIndex;
 }
+
+
+// this function will check to see if this player is waiting in either MP queue
+// and if so will remove them from that waiting list. this is called when the
+// player decides to quit waiting and play SP instead
+function clearAllWaiting(playerName) {
+	if (waitingOnRace.length != 0) {
+		if (waitingOnRace[0] == playerName) {
+			waitingOnRace.length = 0;
+		}
+	}
+	if (waitingOnChallenge.length != 0) {
+		if (waitingOnChallenge[0] == playerName) {
+			waitingOnChallenge.length = 0;
+		}
+	}
+}
+
+// -------------SOCKET EVENTS -------------------------------------------------
 
 // What to do with a new client
 io.sockets.on(
@@ -190,16 +212,7 @@ io.sockets.on(
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
-				if (waitingOnRace.length != 0) {
-					if (waitingOnRace[0] == msg.user_name) {
-						waitingOnRace.length = 0;
-					}
-				}
-				if (waitingOnChallenge.length != 0) {
-					if (waitingOnChallenge[0] == msg.user_name) {
-						waitingOnChallenge.length = 0;
-					}
-				}
+				clearAllWaiting(msg.user_name);
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
@@ -223,16 +236,7 @@ io.sockets.on(
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
-				if (waitingOnRace.length != 0) {
-					if (waitingOnRace[0] == msg.user_name) {
-						waitingOnRace.length = 0;
-					}
-				}
-				if (waitingOnChallenge.length != 0) {
-					if (waitingOnChallenge[0] == msg.user_name) {
-						waitingOnChallenge.length = 0;
-					}
-				}
+				clearAllWaiting(msg.user_name);
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
@@ -260,16 +264,20 @@ io.sockets.on(
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_race_msg', 'You have selected MultiPlayer Race!' );
 				
+				// if the user is also waiting for challenge then remove them from that
+				// waiting list. this also handles the case where the same client clicks
+				// MP race twice in a row
+				clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
 				if (waitingOnRace.length == 0) {
-					// check to make sure this client isn't also waiting for challenge,
-					// if so then remove the client from that waiting list
-					if (waitingOnChallenge.length != 0) {
-						if (waitingOnChallenge[0] == msg.user_name) {
-							waitingOnChallenge.length = 0;
-						}
-					}
+					// // check to make sure this client isn't also waiting for challenge,
+					// // if so then remove the client from that waiting list
+					// if (waitingOnChallenge.length != 0) {
+						// if (waitingOnChallenge[0] == msg.user_name) {
+							// waitingOnChallenge.length = 0;
+						// }
+					// }
 					waitingOnRace[0] = msg.user_name;
 					client.emit('waitForRace', 'Waiting for other player.');
 				}
@@ -278,9 +286,9 @@ io.sockets.on(
 				else {
 					// check to make sure the same player hasn't hit the same button again
 					// if so then just exit this function
-					if (msg.user_name == waitingOnRace[0]) {
-						return;
-					}
+					// if (msg.user_name == waitingOnRace[0]) {
+						// return;
+					// }
 					
 					// else we assume there is an opponent so it is race time
 					client.emit('opponentForRace', 'Opponent found, get ready to race.');
@@ -314,16 +322,17 @@ io.sockets.on(
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_ch_msg', 'You have selected MultiPlayer Challenge!' );
 				
+				clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
 				if (waitingOnChallenge.length == 0) {
 					// check to make sure this client isn't also waiting for race,
 					// if so then remove the client from that waiting list
-					if (waitingOnRace.length != 0) {
-						if (waitingOnRace[0] == msg.user_name) {
-							waitingOnRace.length = 0;
-						}
-					}
+					// if (waitingOnRace.length != 0) {
+						// if (waitingOnRace[0] == msg.user_name) {
+							// waitingOnRace.length = 0;
+						// }
+					// }
 				
 					waitingOnChallenge[0] = msg.user_name;
 					client.emit('waitForChallenge', 'Waiting for other player.');
@@ -333,9 +342,9 @@ io.sockets.on(
 				else {
 					// check to make sure the same player hasn't hit the same button again
 					// if so then just exit this function
-					if (msg.user_name == waitingOnChallenge[0]) {
-						return;
-					}
+					// if (msg.user_name == waitingOnChallenge[0]) {
+						// return;
+					// }
 					
 					// else we assume there is an opponent so it is race time
 					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
