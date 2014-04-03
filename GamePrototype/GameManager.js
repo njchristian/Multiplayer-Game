@@ -56,8 +56,9 @@ function GameManager( gameObject, g ){
 	this.opSO = 0;
 	this.opLevel = 0;
 	
-	this.bullets = new Array();
-	this.bullets[0] = new Bullet(sw, sh/2, bw/2);
+	this.bulletSet = new Array();
+	
+	this.warningCounter = 0;
 	
 	g.font = "65px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
@@ -215,6 +216,7 @@ GameManager.prototype.update = function(){
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
+			this.generateBulletSet();
 		}
 		
 	}
@@ -223,27 +225,47 @@ GameManager.prototype.update = function(){
 		this.currentLevel--;
 	}
 	
-	for( b in this.bullets ){
+	for( b in this.bulletSet ){
 	
-		this.bullets[b].update();
+		this.bulletSet[b].update();
 	
+	}
+	
+	var bl = this.bulletSet.length;
+	
+	if( bl > 0 && this.bulletSet[bl-1].x < this.so ){
+		this.bulletSet = new Array();
 	}
 	
 	//Same change as in Draw function to change to challenge mode
 	
 	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
+	updateCDVerticesAndLines( this.ship );
+	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
 		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
 		//if( false ){			
-			console.log("Collision");
+			//console.log("Collision");
 			
 			this.onDeath();		
 				
 			break;
 		}
 			
+	}
+	
+	for( i in this.bulletSet ){
+	
+		if( hasHitBullet( this.bulletSet[i] ) ){
+		
+			this.onDeath();		
+				
+			break;
+		
+		}
+	
 	}
 
 }
@@ -458,6 +480,25 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 
 }
 
+GameManager.prototype.generateBulletSet = function(){
+
+	var rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[0] = new Bullet(this.so + sw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[1] = new Bullet(this.so + sw + 3*bw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[2] = new Bullet(this.so + sw + 6*bw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[3] = new Bullet(this.so + sw + 9*bw, bw + rand, bw/4);
+	
+	
+
+
+}
+
 GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 		
 	graphics.lineWidth = 1;
@@ -567,9 +608,9 @@ GameManager.prototype.drawPause = function( graphics ){
 
 GameManager.prototype.drawBullets = function(g){
 
-	for( b in this.bullets ){
+	for( b in this.bulletSet ){
 	
-		this.bullets[b].draw(g, this.so);
+		this.bulletSet[b].draw(g, this.so);
 	
 	}
 
