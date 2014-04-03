@@ -158,6 +158,25 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	
 	graphics.strokeText("INSTRUCTIONS",sw/2,75);
 	
+	graphics.font = "30px Courier";
+	graphics.fillText("MOVE THROUGH THE OBSTACLES WITH YOUR SHIP!",sw/2,150);
+	
+	graphics.textAlign = 'left';
+	graphics.font = "40px Courier";
+	graphics.strokeText("CONTROLS",10,210);
+	graphics.strokeText("GAME MODES",10,370);
+	
+	graphics.font = "30px Courier";
+	graphics.fillText("UP ARROW: THRUST SHIP",10,240);
+	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,270);
+	graphics.fillText("P: PAUSE",10,300);
+	
+	graphics.font = "25px Courier";
+	graphics.fillText("TIME TRIAL: 5 LIVES, COMPLETE THE LEVELS AS FAST AS YOU CAN",10,400);
+	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN",10,430);
+	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,460);
+	
+	graphics.textAlign = 'center';
 	graphics.font = "65px Courier";
 	
 	if( this.instructionMenu[0].mouseOn ){

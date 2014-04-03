@@ -2,7 +2,9 @@ var shipVertices = new Array();
 var shipHalfVertices = new Array();
 var shipLines = new Array();
 
-function updateCDVerticesAndLines( ship ){
+function updateCDVerticesAndLines( ship, multi ){
+
+	var shipHeight = (multi) ? ship.height * .5 : ship.height;
 
 	shipVertices[0] = new Point(ship.xPos + shipHeight * Math.cos( ship.rotation + PI/2 ), 
 							    ship.yPos - shipHeight * Math.sin( ship.rotation + PI/2 ));
@@ -21,10 +23,7 @@ function updateCDVerticesAndLines( ship ){
 
 }
 
-function hasCollidedWithShip(ship, block, multi, isChallenge, so){
-		
-	
-	var shipHeight = (multi) ? ship.height * .5 : ship.height;
+function hasCollidedWithShip(ship, block, isChallenge, so){
 	
 	//console.log(shipHeight);
 			
