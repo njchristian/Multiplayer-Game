@@ -137,19 +137,21 @@ var waitingOnChallenge = []; // stores players waiting for multiplayer challenge
 //reading all data for the previous players
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
     //console.log(line);
-	var newPlayer = JSON.parse(line);
-	//console.log(newPlayer)
-	players[players.length] = new Player(newPlayer.user_name);
-	for ( var i = 0; i < newPlayer.highScores.length; ++i) {
-				players[players.length].addHighScore( newPlayer.highScores[i]); // i think this wrong
+	if (line != "")
+	{
+		var newPlayer = JSON.parse(line);
+		//console.log(newPlayer)
+		players[players.length] = new Player(newPlayer.user_name);
+		for ( var i = 0; i < newPlayer.highScores.length; ++i) {
+					players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
+		}
+		for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
+					players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+		}
+		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
+					players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+		}
 	}
-	for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
-				players[players.length].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
-	}
-	for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-				players[players.length].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
-	}
-	
 	//adds to the file
 	//var line = JSON.stringify(newPlayer);
    // fs.appendFileSync("./data.txt", line.toString() + "\n");
@@ -530,13 +532,12 @@ io.sockets.on(
 				}
 			
 			var player = players[playerIndex];
-			var json = { user_name: player.userName, highscores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
+			var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
 			var line = JSON.stringify(json);
-			fs.writeFileSync("./data.txt", line.toString() + "\n");	
+			//fs.writeFileSync("./data.txt", line.toString() + "\n");	
+			fs.appendFileSync("./data.txt", line.toString() + "\n");
 			
 	});
-	
-		
 
   });
 
