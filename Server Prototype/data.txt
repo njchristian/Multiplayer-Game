@@ -1,4 +1,7 @@
-{"user_name":"asd","highScores":[],"bestTimes":[],"bestDistances":[]}
-{"user_name":"asqweqwe","highScores":[],"bestTimes":[],"bestDistances":[]}
-{"user_name":"Chris Langham","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"zach","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"qwerty","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"Chris","highScores":[],"bestTimes":[],"bestDistances":[]}
 {"user_name":"taylor","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"timmy","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"God","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"qwertyuiop","highScores":[],"bestTimes":[],"bestDistances":[]}

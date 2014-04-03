@@ -140,7 +140,6 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 	if (line != "")
 	{
 		var newPlayer = JSON.parse(line);
-		//console.log(newPlayer)
 		players[players.length] = new Player(newPlayer.user_name);
 		for ( var i = 0; i < newPlayer.highScores.length; ++i) {
 					players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
@@ -218,11 +217,15 @@ io.sockets.on(
           // current client. See socket.io FAQ for more examples.
           client.broadcast.emit('notification',
                                 message.user_name + ' joined the game.'); // might wanna remove this
-			console.log(message.user_name + ' joined the game.');					
-			players[players.length] = new Player(message.user_name);
-			for ( var i = 0; i < players.length; ++i) {
-				console.log(players[i].userName);
-			}	
+			console.log(message.user_name + ' joined the game.');
+			var playerIndex = findPlayerIndex(message.user_name);
+					
+			if (playerIndex == -1) {
+					players[players.length] = new Player(message.user_name);
+			}			
+			else{ //this is a return player
+			//not sure what goes here
+			}
           return
         }
         // When something is wrong, send a login_failed message to the client.
@@ -522,20 +525,17 @@ io.sockets.on(
 	
 	//the client is done now write his stuff to the file
 	client.on('endgame', function(name)
-	{
-			var playerIndex = findPlayerIndex(name);
-			
-			if (playerIndex == -1) {
-					client.emit('error', 'User name not found!');
-					console.log('User name not found!');
-					return;
-				}
-			
-			var player = players[playerIndex];
-			var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
-			var line = JSON.stringify(json);
-			//fs.writeFileSync("./data.txt", line.toString() + "\n");	
-			fs.appendFileSync("./data.txt", line.toString() + "\n");
+	{			
+			fs.writeFileSync("./data.txt","");
+			var player;
+			for ( var j = 0; j < players.length; ++j)
+			{
+				player = players[ j ];
+				var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
+				var line = JSON.stringify(json);
+				//fs.writeFileSync("./data.txt", line.toString() + "\n");	
+				fs.appendFileSync("./data.txt", line.toString() + "\n");
+			}
 			
 	});
 
