@@ -138,6 +138,7 @@ var waitingOnChallenge = []; // stores players waiting for multiplayer challenge
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
     //console.log(line);
 	var newPlayer = JSON.parse(line);
+	//console.log(newPlayer)
 	players[players.length] = new Player(newPlayer.user_name);
 	for ( var i = 0; i < newPlayer.highScores.length; ++i) {
 				players[players.length].addHighScore( newPlayer.highScores[i]); // i think this wrong
@@ -531,7 +532,7 @@ io.sockets.on(
 			var player = players[playerIndex];
 			var json = { user_name: player.userName, highscores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
 			var line = JSON.stringify(json);
-			fs.appendFileSync("./data.txt", line.toString() + "\n");	
+			fs.writeFileSync("./data.txt", line.toString() + "\n");	
 			
 	});
 	

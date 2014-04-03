@@ -1,1 +1,1 @@
-{"user_name":"some player","highscores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"Taylor","highscores":[],"bestTimes":[],"bestDistances":[]}
