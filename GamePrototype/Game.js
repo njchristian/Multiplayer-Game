@@ -7,7 +7,7 @@ function Game( g ){
 	
 	this.gameManager = new GameManager( this, g );
 	this.menuManager = new MenuManager( this, g );
-	
+	timer.update();
 	
 }
 
