@@ -117,7 +117,7 @@ Player.prototype.updateMPRating = function(rating) {
 var express = require('express');
 var app = express();
 app.use( express.static( __dirname) );
-var server = app.listen(10268);
+var server = app.listen(10270);
 
 // The socket.io WebSocket server, running with the node.js server.
 var io = require('socket.io').listen(server);
@@ -134,19 +134,20 @@ var players = []; // array of all the players
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
 
+//reading all data for the previous players
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
-    console.log(line);
-	// var newPlayer = JSON.parse(line);
-	// players[players.length] = new Player(newPlayer.user_name);
-	// for ( var i = 0; i < newPlayer.highscores.length; ++i) {
-				// players[players.length].addHighScore( newPlayer.highscores[i]); // i think this wrong
-	// }
-	// for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
-				// players[players.length].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
-	// }
-	// for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-				// players[players.length].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
-	// }
+    //console.log(line);
+	var newPlayer = JSON.parse(line);
+	players[players.length] = new Player(newPlayer.user_name);
+	for ( var i = 0; i < newPlayer.highScores.length; ++i) {
+				players[players.length].addHighScore( newPlayer.highScores[i]); // i think this wrong
+	}
+	for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
+				players[players.length].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+	}
+	for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
+				players[players.length].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+	}
 	
 	//adds to the file
 	//var line = JSON.stringify(newPlayer);
@@ -515,6 +516,26 @@ io.sockets.on(
 		function() {
 			client.broadcast.emit('opponentLost', { name : "" } ); 
 	});
+	
+	//the client is done now write his stuff to the file
+	client.on('endgame', function(name)
+	{
+			var playerIndex = findPlayerIndex(name);
+			
+			if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+			
+			var player = players[playerIndex];
+			var json = { user_name: player.userName, highscores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
+			var line = JSON.stringify(json);
+			fs.appendFileSync("./data.txt", line.toString() + "\n");	
+			
+	});
+	
+		
 
   });
 
