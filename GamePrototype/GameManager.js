@@ -63,6 +63,8 @@ function GameManager( gameObject, g ){
 	
 	this.warningCounter = 0;
 	
+	this.deathDSO;
+	
 	g.font = "65px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
 	this.rtmScroll = false;
@@ -156,10 +158,15 @@ GameManager.prototype.draw = function( graphics ){
 
 	//graphics.clearRect(0,0,sw, sh);
 	this.drawBackground( graphics );
-	this.drawShip( graphics, this.ship, false );
+	
+	if( this.dead ){
+		drawDeathAnimation( graphics );
+	}else{
+		this.drawShip( graphics, this.ship, false );	
+	}
+	
 	this.drawBlocks( graphics );
-	this.drawTimer ( graphics );
-	this.drawBullets( graphics );
+	this.drawTimer ( graphics );	this.drawBullets( graphics );
 	
 	if(!this.isChallenge() && !this.isMulti() ){
 		this.drawDeaths( graphics );
@@ -184,7 +191,13 @@ GameManager.prototype.draw = function( graphics ){
 GameManager.prototype.update = function(){
 
 	if( this.pause ) return;
-
+	
+	if( this.dead ){
+		updateDeathAnimation();
+		this.so-=this.deathDSO;
+		return;
+	}
+	
 	//Thrust calculations need to know if its multi-player or not to scale
 	if( this.thrust ){
 		this.thrustC = (this.thrustC + 1)%4;
@@ -274,7 +287,7 @@ GameManager.prototype.update = function(){
 	
 	for( i in this.bulletSet ){
 	
-		if( hasHitBullet( this.bulletSet[i] ) ){
+		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
 			this.onDeath();		
 				
@@ -299,20 +312,32 @@ GameManager.prototype.onDeath = function(){
 		if( this.currentLevel == 0 ) respawnPoint+=(2*bw);
 			
 		var respawnOffset = this.ship.xPos - respawnPoint;
-			
-		if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
-			
-		this.so-=respawnOffset;
-			
-		this.ship.xPos = respawnPoint;
-			
-		this.ship.yPos = sh/4;
-		this.ship.vx = 0;
-		this.ship.vy = 0;
+	
+		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
 		this.deathCounter++;
+		
+		this.deathDSO = respawnOffset/frames;
+	
+		this.dead = true;
+		
+		setTimeout( alive, 3000 );
 		
 	}
 		
+}
+
+GameManager.prototype.respawn = function(){
+
+	this.dead = false;
+
+	var respawnPoint = this.currentLevel * sw;
+			
+	this.ship.rotation = 0;
+	this.ship.xPos = respawnPoint;	
+	this.ship.yPos = sh/4;
+	this.ship.vx = 0;
+	this.ship.vy = 0;
+
 }
 
 GameManager.prototype.onWin = function(){
@@ -735,6 +760,12 @@ function gameHandleKeyUp(e){
 			
 	}
 	
+}
+
+function alive(){
+
+	myGame.gameManager.respawn();
+
 }
 
 function gameHandleClick(e){
