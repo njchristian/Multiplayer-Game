@@ -134,6 +134,25 @@ var players = []; // array of all the players
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
 
+fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
+    console.log(line);
+	// var newPlayer = JSON.parse(line);
+	// players[players.length] = new Player(newPlayer.user_name);
+	// for ( var i = 0; i < newPlayer.highscores.length; ++i) {
+				// players[players.length].addHighScore( newPlayer.highscores[i]); // i think this wrong
+	// }
+	// for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
+				// players[players.length].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+	// }
+	// for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
+				// players[players.length].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+	// }
+	
+	//adds to the file
+	//var line = JSON.stringify(newPlayer);
+   // fs.appendFileSync("./data.txt", line.toString() + "\n");
+});
+
 
 // ------------- HELPER FUNCTIONS ---------------------------------------------
 
