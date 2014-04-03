@@ -108,6 +108,8 @@ body {
 					console.log('init check');
 					
 					myGame.start();
+					
+					socket.emit('endgame', name);
 				  });
 			
 			$('#login').click(function() {
