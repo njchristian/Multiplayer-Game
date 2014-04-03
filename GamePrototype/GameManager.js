@@ -56,6 +56,9 @@ function GameManager( gameObject, g ){
 	this.opSO = 0;
 	this.opLevel = 0;
 	
+	this.bullets = new Array();
+	this.bullets[0] = new Bullet(sw, sh/2, bw/2);
+	
 	g.font = "65px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
 	this.rtmScroll = false;
@@ -150,6 +153,8 @@ GameManager.prototype.draw = function( graphics ){
 	this.drawShip( graphics, this.ship, false );
 	this.drawBlocks( graphics );
 	
+	this.drawBullets( graphics );
+	
 	if( this.isMulti() ){
 		this.drawShip( graphics, this.opShip, true );
 		this.drawOpBlocks(graphics);
@@ -216,6 +221,12 @@ GameManager.prototype.update = function(){
 	
 	if( this.ship.xPos < (this.currentLevel * sw ) ){
 		this.currentLevel--;
+	}
+	
+	for( b in this.bullets ){
+	
+		this.bullets[b].update();
+	
 	}
 	
 	//Same change as in Draw function to change to challenge mode
@@ -550,6 +561,16 @@ GameManager.prototype.drawPause = function( graphics ){
 		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
 	}else{
 		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+	}
+
+}
+
+GameManager.prototype.drawBullets = function(g){
+
+	for( b in this.bullets ){
+	
+		this.bullets[b].draw(g, this.so);
+	
 	}
 
 }
