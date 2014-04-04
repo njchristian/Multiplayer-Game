@@ -134,20 +134,23 @@ var players = []; // array of all the players
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
 
+//reading all data for the previous players
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
-    console.log(line);
-	// var newPlayer = JSON.parse(line);
-	// players[players.length] = new Player(newPlayer.user_name);
-	// for ( var i = 0; i < newPlayer.highscores.length; ++i) {
-				// players[players.length].addHighScore( newPlayer.highscores[i]); // i think this wrong
-	// }
-	// for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
-				// players[players.length].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
-	// }
-	// for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-				// players[players.length].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
-	// }
-	
+    //console.log(line);
+	if (line != "")
+	{
+		var newPlayer = JSON.parse(line);
+		players[players.length] = new Player(newPlayer.user_name);
+		for ( var i = 0; i < newPlayer.highScores.length; ++i) {
+					players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
+		}
+		for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
+					players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+		}
+		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
+					players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+		}
+	}
 	//adds to the file
 	//var line = JSON.stringify(newPlayer);
    // fs.appendFileSync("./data.txt", line.toString() + "\n");
@@ -214,11 +217,15 @@ io.sockets.on(
           // current client. See socket.io FAQ for more examples.
           client.broadcast.emit('notification',
                                 message.user_name + ' joined the game.'); // might wanna remove this
-			console.log(message.user_name + ' joined the game.');					
-			players[players.length] = new Player(message.user_name);
-			for ( var i = 0; i < players.length; ++i) {
-				console.log(players[i].userName);
-			}	
+			console.log(message.user_name + ' joined the game.');
+			var playerIndex = findPlayerIndex(message.user_name);
+					
+			if (playerIndex == -1) {
+					players[players.length] = new Player(message.user_name);
+			}			
+			else{ //this is a return player
+			//not sure what goes here
+			}
           return
         }
         // When something is wrong, send a login_failed message to the client.
@@ -514,6 +521,22 @@ io.sockets.on(
 		// (userName)
 		function() {
 			client.broadcast.emit('opponentLost', { name : "" } ); 
+	});
+	
+	//the client is done now write his stuff to the file
+	client.on('endgame', function(name)
+	{			
+			fs.writeFileSync("./data.txt","");
+			var player;
+			for ( var j = 0; j < players.length; ++j)
+			{
+				player = players[ j ];
+				var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
+				var line = JSON.stringify(json);
+				//fs.writeFileSync("./data.txt", line.toString() + "\n");	
+				fs.appendFileSync("./data.txt", line.toString() + "\n");
+			}
+			
 	});
 
   });

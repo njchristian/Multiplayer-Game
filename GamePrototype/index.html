@@ -17,7 +17,7 @@
 	<script src="GameManager.js"></script>
 	<script src="CanvasText.js"></script>
 	<script src="Bullet.js"></script>
-    <script>
+	<script src="Timer.js"></script>	<script src="Animator.js"></script>    <script>
 	
 		//From here need to make equivalent rect shape objects for the blocks, which will allow scrolling
 		
@@ -36,10 +36,11 @@
 		
 		var gameLength = 0;
 		
-		var shipHeight = 15;
+		//var shipHeight = 15;
 		
 		var fps = 30;
 		var myGame;
+		var timer;
         function init() {
 			
 			//I forgot the format for adding event listeners, so here it is for reference
@@ -54,6 +55,7 @@
 			
 			var graphics = c.getContext("2d");
 			
+			timer = new Timer();
 			myGame = new Game( graphics );
 			
 			myGame.start();
