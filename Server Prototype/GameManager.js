@@ -356,6 +356,8 @@ GameManager.prototype.update = function(){
 		//if( false ){			
 			//console.log("Collision");
 			
+			this.socket.emit('deathByWall', { user_name: this.name } );
+			
 			this.onDeath();		
 				
 			break;
@@ -367,6 +369,8 @@ GameManager.prototype.update = function(){
 	
 		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
+			this.socket.emit('deathByBullet', { user_name: this.name } );
+			
 			this.onDeath();		
 				
 			break;
@@ -378,8 +382,6 @@ GameManager.prototype.update = function(){
 }
 
 GameManager.prototype.onDeath = function(){
-
-	this.socket.emit('death', { user_name: this.name } );
 
 	if( this.isChallenge() ){
 

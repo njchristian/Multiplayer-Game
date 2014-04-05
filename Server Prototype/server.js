@@ -393,9 +393,15 @@ io.sockets.on(
 	});	
 	
 	client.on(
-		'death',
+		'deathByWall',
 		function(died) {
-			fs.appendFileSync(died.user_name + ".txt", died.user_name + " died.\n");
+			fs.appendFileSync(died.user_name + ".txt", died.user_name + " died because they hit an obstacle.\n");
+	});	
+	
+	client.on(
+		'deathByBullet',
+		function(died) {
+			fs.appendFileSync(died.user_name + ".txt", died.user_name + " died because they hit a bullet.\n");
 	});	
 	
 	// HIGH SCORE Messages
