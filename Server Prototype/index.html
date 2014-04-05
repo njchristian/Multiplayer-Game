@@ -73,6 +73,7 @@ body {
 		var timer;
 		
 		var socket;
+		var name;
 		
 		function dToR(degrees){
 			return degrees/360 * 2*PI;
@@ -80,11 +81,11 @@ body {
 		
 		 function doUnload(){
 		 if (window.event.clientX < 0 && window.event.clientY < 0){
-		   alert("Window closed");
+		  // alert("Window closed");
 		   socket.emit('endgame', { user_name: name });
 		 }
 		 else{
-		   alert("Window refreshed");
+		  // alert("Window refreshed");
 		   socket.emit('endgame', { user_name: name });
 		 }
 	   }
@@ -98,7 +99,7 @@ body {
 			// document.location.host returns the host of the current page.
 			socket = io.connect('http://' + document.location.host);
 			
-			var name;
+			//var name;
 			
 			socket.on(
 			  'welcome',
@@ -130,7 +131,6 @@ body {
 					
 					myGame.start();
 					
-					//socket.emit('endgame', { user_name: name });
 				  });
 			
 			$('#login').click(function() {

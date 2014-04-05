@@ -49,6 +49,7 @@ function GameManager( gameObject, g, websocket, userName ){
 	
 	//Flag for pause menu
 	this.pause = false;
+	//this.progress = 0; //used to log progess
 	
 	this.winner = false;
 	this.gameOver = false;
@@ -356,7 +357,8 @@ GameManager.prototype.update = function(){
 		//if( false ){			
 			//console.log("Collision");
 			
-			this.socket.emit('deathByWall', { user_name: this.name } );
+			//progess is pointless in single player modes
+			this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
 			
 			this.onDeath();		
 				
@@ -369,7 +371,8 @@ GameManager.prototype.update = function(){
 	
 		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
-			this.socket.emit('deathByBullet', { user_name: this.name } );
+			//progess is pointless in single player modes
+			this.socket.emit('deathByBullet', { user_name: this.name, progress : this.raceProgress } );
 			
 			this.onDeath();		
 				
@@ -568,7 +571,8 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = "40px Courier";
 	graphics.textAlign = 'right';
-	graphics.strokeText("Progress: " + Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,bw/2);
+	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
+	graphics.strokeText("Progress: " + this.raceProgress + "%",sw,bw/2);
 	graphics.strokeText("Progress: " + Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,sh/2+bw/2); 
 }
 
