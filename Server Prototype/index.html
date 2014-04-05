@@ -72,9 +72,22 @@ body {
 		var myGame;
 		var timer;
 		
+		var socket;
+		
 		function dToR(degrees){
 			return degrees/360 * 2*PI;
 		}
+		
+		 function doUnload(){
+		 if (window.event.clientX < 0 && window.event.clientY < 0){
+		   alert("Window closed");
+		   socket.emit('endgame', { user_name: name });
+		 }
+		 else{
+		   alert("Window refreshed");
+		   socket.emit('endgame', { user_name: name });
+		 }
+	   }
 		
 		$(document).ready(function() {
 			// Hide the warning section and show the login section.
@@ -83,7 +96,7 @@ body {
 
 			// Initialize socket.io.
 			// document.location.host returns the host of the current page.
-			var socket = io.connect('http://' + document.location.host);
+			socket = io.connect('http://' + document.location.host);
 			
 			var name;
 			
@@ -117,7 +130,7 @@ body {
 					
 					myGame.start();
 					
-					socket.emit('endgame', { user_name: name });
+					//socket.emit('endgame', { user_name: name });
 				  });
 			
 			$('#login').click(function() {
@@ -144,7 +157,7 @@ body {
     </script>
 </head>
 <!-- <body onLoad="init();"> -->
-<body>
+<body onunload="doUnload()">
 
 	<div id="login_section">
 		<div id="status">Connecting to the game server ...</div>

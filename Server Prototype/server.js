@@ -545,15 +545,15 @@ io.sockets.on(
 	//the client is done now write his stuff to the file
 	client.on('endgame', function(name)
 	{			
-			fs.appendFileSync(name.user_name + ".txt", name.user_name + " died.\n");
+			fs.appendFileSync(name.user_name + ".txt", name.user_name + " quit.\n");
+			console.log("Wrote to data.txt file\n");
 			fs.writeFileSync("./data.txt","");
 			var player;
 			for ( var j = 0; j < players.length; ++j)
 			{
 				player = players[ j ];
 				var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
-				var line = JSON.stringify(json);
-				//fs.writeFileSync("./data.txt", line.toString() + "\n");	
+				var line = JSON.stringify(json);	
 				fs.appendFileSync("./data.txt", line.toString() + "\n");
 			}
 			
