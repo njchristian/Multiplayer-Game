@@ -347,6 +347,8 @@ GameManager.prototype.update = function(){
 	
 	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
+	updateCDVerticesAndLines( this.ship );
+	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
 		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){

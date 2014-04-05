@@ -73,7 +73,7 @@ function goToGame( gm ){
 	
 	// race
 	if (gm == 3) {
-		socket.emit('mp_race', { user_name: name });
+		socket.emit('mp_race', { user_name: myGame.name });
 		
 		// handle multiplayer race wait message
 	socket.on(
