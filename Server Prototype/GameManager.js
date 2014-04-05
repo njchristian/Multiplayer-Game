@@ -61,6 +61,15 @@ function GameManager( gameObject, g, websocket ){
 	this.opSO = 0;
 	this.opLevel = 0;
 	
+	this.bulletSet = new Array();
+	
+	this.deathCounter = 0;
+	this.raceProgress = 0;
+	
+	this.warningCounter = 0;
+	
+	this.deathDSO;
+	
 	g.font = "65px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
 	this.rtmScroll = false;
@@ -68,21 +77,23 @@ function GameManager( gameObject, g, websocket ){
 	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
 	this.reScroll = false
 	
-	g.font = "45px Courier";
-	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
-	this.endScroll = false;
+	// g.font = "45px Courier";
+	// this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
+	// this.endScroll = false;
 	
 }
 
 GameManager.prototype.newGame = function( gm ){
 
 	console.log("New Game");
-
+	timer.clearTime();
 	this.gameMode = gm;
 	
 	//Sets all states to those to start a new game
 	
 	this.pause = false;
+	this.deathCounter = 0;
+	this.raceProgress = 0;
 	this.gameOver = false;
 	
 	//Flags for ship movement
@@ -157,18 +168,37 @@ GameManager.prototype.draw = function( graphics ){
 
 	//graphics.clearRect(0,0,sw, sh);
 	this.drawBackground( graphics );
-	this.drawShip( graphics, this.ship, false );
+	
+	if( this.dead ){
+		drawDeathAnimation( graphics );
+	}else{
+		this.drawShip( graphics, this.ship, false );	
+	}
+	
 	this.drawBlocks( graphics );
+	this.drawTimer ( graphics );	
+	this.drawBullets( graphics );
+	
+	if(!this.isChallenge() && !this.isMulti() ){
+		this.drawDeaths( graphics );
+	}
+	
+	if(this.isChallenge()) {
+		this.drawChallengeScore( graphics );
+	}
 	
 	if( this.isMulti() ){
 		this.drawShip( graphics, this.opShip, true );
 		this.drawOpBlocks(graphics);
+		if( !this.isChallenge()) {
+			this.drawRaceProgress (graphics);
+		}
 	}
 	
-	if( this.gameOver ){ 
-		this.drawEndGame( graphics, this.winner );
-		return;
-	}
+	// if( this.gameOver ){ 
+		// this.drawEndGame( graphics, this.winner );
+		// return;
+	// }
 	
 	if( this.pause ) this.drawPause( graphics );
 
@@ -189,6 +219,12 @@ GameManager.prototype.handleUpdate = function( update ){
 GameManager.prototype.update = function(){
 
 	if( this.pause || this.gameOver ) return;
+	
+	if( this.dead ){
+		updateDeathAnimation();
+		this.so-=this.deathDSO;
+		return;
+	}
 	
 	if( this.isMulti() ){
 		// send own update
@@ -283,15 +319,28 @@ GameManager.prototype.update = function(){
 			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
-			console.log( "Now in level: " + this.currentLevel );
+			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
+			this.generateBulletSet();
 		}
 		
 	}
 	
 	if( this.ship.xPos < (this.currentLevel * sw ) ){
 		this.currentLevel--;
+	}
+	
+	for( b in this.bulletSet ){
+	
+		this.bulletSet[b].update();
+	
+	}
+	
+	var bl = this.bulletSet.length;
+	
+	if( bl > 0 && this.bulletSet[bl-1].x < this.so ){
+		this.bulletSet = new Array();
 	}
 	
 	//Same change as in Draw function to change to challenge mode
@@ -310,6 +359,18 @@ GameManager.prototype.update = function(){
 		}
 			
 	}
+	
+	for( i in this.bulletSet ){
+	
+		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
+		
+			this.onDeath();		
+				
+			break;
+		
+		}
+	
+	}
 
 }
 
@@ -327,18 +388,41 @@ GameManager.prototype.onDeath = function(){
 			
 		var respawnOffset = this.ship.xPos - respawnPoint;
 			
-		if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
+		//if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
+		
+		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
+		this.deathCounter++;	
+		
+		this.deathDSO = respawnOffset/frames;
+	
+		this.dead = true;
+		
+		setTimeout( alive, 3000 );
+		
+		//this.so-=respawnOffset;
 			
-		this.so-=respawnOffset;
+		//this.ship.xPos = respawnPoint;
 			
-		this.ship.xPos = respawnPoint;
-			
-		this.ship.yPos = sh/4;
-		this.ship.vx = 0;
-		this.ship.vy = 0;
+		//this.ship.yPos = sh/4;
+		//this.ship.vx = 0;
+		//this.ship.vy = 0;
 		
 	}
 		
+}
+
+GameManager.prototype.respawn = function(){
+
+	this.dead = false;
+
+	var respawnPoint = this.currentLevel * sw;
+			
+	this.ship.rotation = 0;
+	this.ship.xPos = respawnPoint;	
+	this.ship.yPos = sh/4;
+	this.ship.vx = 0;
+	this.ship.vy = 0;
+
 }
 
 GameManager.prototype.onWin = function(){
@@ -352,7 +436,7 @@ GameManager.prototype.onWin = function(){
 
 	
 	this.winner = true;
-	
+	this.parentGame.returnToMenu(); //??
 }
 
 GameManager.prototype.onLoss = function(){
@@ -365,7 +449,7 @@ GameManager.prototype.onLoss = function(){
 
 	
 	this.winner = false;
-
+	this.parentGame.returnToMenu(); //??
 }
 
 GameManager.prototype.isMulti = function(){
@@ -473,6 +557,45 @@ GameManager.prototype.drawBlocks = function( graphics ){
 
 }
 
+GameManager.prototype.drawRaceProgress = function( graphics ){
+	graphics.strokeStyle = "white";
+	graphics.font = "40px Courier";
+	graphics.textAlign = 'right';
+	graphics.strokeText("Progress: " + Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,bw/2);
+	graphics.strokeText("Progress: " + Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,sh/2+bw/2); 
+}
+
+GameManager.prototype.drawChallengeScore = function( graphics ){
+	graphics.strokeStyle = "white";
+	graphics.font = "40px Courier";
+	graphics.textAlign = 'right';
+	graphics.strokeText("Score: " + Math.floor((this.ship.xPos-sw)/sw),sw,bw/2);
+}
+
+GameManager.prototype.drawTimer = function( graphics ){
+	graphics.strokeStyle = "white";
+	graphics.font = "40px Courier";
+	graphics.textAlign = 'center';
+	if(timer.min==0){		
+		graphics.strokeText(timer.sec,sw/2, bw/2);
+	}
+	else{
+	if(timer.sec<10){
+			graphics.strokeText(timer.min+":0"+timer.sec,sw/2, bw/2);
+		}
+		else{
+			graphics.strokeText(timer.min+":"+timer.sec, sw/2, bw/2);
+		}
+	}
+}
+
+GameManager.prototype.drawDeaths = function ( graphics ){
+	graphics.strokeStyle = "white";
+	graphics.font = "40px Courier";
+	graphics.textAlign = 'right';
+	graphics.strokeText("Deaths: " + this.deathCounter, sw,bw/2);
+}
+
 GameManager.prototype.drawOpBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
@@ -541,6 +664,25 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 		}
 		
 	}
+
+}
+
+GameManager.prototype.generateBulletSet = function(){
+
+	var rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[0] = new Bullet(this.so + sw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[1] = new Bullet(this.so + sw + 3*bw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[2] = new Bullet(this.so + sw + 6*bw, bw + rand, bw/4);
+	
+	rand = Math.floor((Math.random()*sh-2*bw));
+	this.bulletSet[3] = new Bullet(this.so + sw + 9*bw, bw + rand, bw/4);
+	
+	
+
 
 }
 
@@ -649,10 +791,20 @@ GameManager.prototype.drawPause = function( graphics ){
 		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
 	}
 	
-	graphics.font = "40px Courier";
+	//graphics.font = "40px Courier";
 	
-	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	//graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
 	
+}
+
+GameManager.prototype.drawBullets = function(g){
+
+	for( b in this.bulletSet ){
+	
+		this.bulletSet[b].draw(g, this.so);
+	
+	}
+
 }
 
 GameManager.prototype.drawEndGame = function( graphics, won ){
@@ -744,6 +896,12 @@ function gameHandleKeyUp(e){
 			
 	}
 	
+}
+
+function alive(){
+
+	myGame.gameManager.respawn();
+
 }
 
 function gameHandleClick(e){

@@ -43,6 +43,9 @@ body {
 	<script src="MenuManager.js"></script>
 	<script src="GameManager.js"></script>
 	<script src="CanvasText.js"></script>
+	<script src="Bullet.js"></script>
+	<script src="Timer.js"></script>	
+	<script src="Animator.js"></script>    <script>
 	
     <script>
 	
@@ -63,10 +66,15 @@ body {
 		
 		var gameLength = 0;
 		
-		var shipHeight = 15;
+		//var shipHeight = 15;
 		
 		var fps = 30;
 		var myGame;
+		var timer;
+		
+		function dToR(degrees){
+			return degrees/360 * 2*PI;
+		}
 		
 		$(document).ready(function() {
 			// Hide the warning section and show the login section.
@@ -102,7 +110,7 @@ body {
 					var c = document.getElementById("gameCanvas");
 					
 					var graphics = c.getContext("2d");
-					
+					timer = new Timer();
 					myGame = new Game( graphics, socket, name );
 					
 					console.log('init check');

@@ -8,7 +8,7 @@ function Game( g, s, n ){
 	
 	this.name = n;
 	
-	<!-- this.socket = io.connect("http://localhost:10001"); -->
+	//<!-- this.socket = io.connect("http://localhost:10001"); -->
 	//this.socket = io.connect("http://localhost:8000");
 
 	/*this.userName = 'tester';
@@ -39,7 +39,7 @@ function Game( g, s, n ){
 	
 	this.gameManager = new GameManager( this, g, this.socket );
 	this.menuManager = new MenuManager( this, g, this.socket, this.name );
-	
+	timer.update();
 	
 }
 
