@@ -4,13 +4,14 @@ var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
 
-function GameManager( gameObject, g, websocket ){
+function GameManager( gameObject, g, websocket, userName ){
 
 	this.parentGame = gameObject;
 	
 	this.gravityCoefficient = 0;
 	
 	this.socket = websocket;
+	this.name = userName; // store the user name
 
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
@@ -377,6 +378,8 @@ GameManager.prototype.update = function(){
 }
 
 GameManager.prototype.onDeath = function(){
+
+	this.socket.emit('death', { user_name: this.name } );
 
 	if( this.isChallenge() ){
 

@@ -226,6 +226,7 @@ io.sockets.on(
 			else{ //this is a return player
 			//not sure what goes here
 			}
+			fs.appendFileSync(message.user_name + ".txt", message.user_name + " logged in.\n");
           return
         }
         // When something is wrong, send a login_failed message to the client.
@@ -250,6 +251,8 @@ io.sockets.on(
 				players[playerIndex].setGameMode(1);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_tt_msg', 'You have selected SinglePlayer Time Trial!' );
+				
+				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player time trial game.\n");
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
@@ -277,6 +280,8 @@ io.sockets.on(
 				players[playerIndex].setGameMode(2);
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
+				
+				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player challenge game.\n");
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
@@ -331,6 +336,7 @@ io.sockets.on(
 					// clear the waiting on race array
 					waitingOnRace.length = 0;
 				}
+				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a multiplayer race game.\n");
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
@@ -377,12 +383,19 @@ io.sockets.on(
 					// clear the waiting on challenge array
 					waitingOnChallenge.length = 0;
 				}
+				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a multiplayer challenge game.\n");
 			}
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
 			}	
 			
 			
+	});	
+	
+	client.on(
+		'death',
+		function(died) {
+			fs.appendFileSync(died.user_name + ".txt", died.user_name + " died.\n");
 	});	
 	
 	// HIGH SCORE Messages
@@ -526,6 +539,7 @@ io.sockets.on(
 	//the client is done now write his stuff to the file
 	client.on('endgame', function(name)
 	{			
+			fs.appendFileSync(name.user_name + ".txt", name.user_name + " died.\n");
 			fs.writeFileSync("./data.txt","");
 			var player;
 			for ( var j = 0; j < players.length; ++j)

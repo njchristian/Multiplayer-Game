@@ -117,7 +117,7 @@ body {
 					
 					myGame.start();
 					
-					socket.emit('endgame', name);
+					socket.emit('endgame', { user_name: name });
 				  });
 			
 			$('#login').click(function() {
