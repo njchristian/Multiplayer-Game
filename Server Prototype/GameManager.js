@@ -357,7 +357,7 @@ GameManager.prototype.update = function(){
 		//if( false ){			
 			//console.log("Collision");
 			
-			//progess is pointless in single player modes
+			//progess is not used in single player challenge mode  and should be
 			this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
 			
 			this.onDeath();		
@@ -371,7 +371,7 @@ GameManager.prototype.update = function(){
 	
 		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
-			//progess is pointless in single player modes
+			//progess is not used in single player challenge mode and should be
 			this.socket.emit('deathByBullet', { user_name: this.name, progress : this.raceProgress } );
 			
 			this.onDeath();		
