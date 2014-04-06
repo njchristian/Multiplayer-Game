@@ -43,6 +43,9 @@ body {
 	<script src="MenuManager.js"></script>
 	<script src="GameManager.js"></script>
 	<script src="CanvasText.js"></script>
+	<script src="Bullet.js"></script>
+	<script src="Timer.js"></script>	
+	<script src="Animator.js"></script>
 	
     <script>
 	
@@ -63,10 +66,29 @@ body {
 		
 		var gameLength = 0;
 		
-		var shipHeight = 15;
+		//var shipHeight = 15;
 		
 		var fps = 30;
 		var myGame;
+		var timer;
+		
+		var socket;
+		var name;
+		
+		function dToR(degrees){
+			return degrees/360 * 2*PI;
+		}
+		
+		 function doUnload(){
+		 if (window.event.clientX < 0 && window.event.clientY < 0){
+		  // alert("Window closed");
+		   socket.emit('endgame', { user_name: name });
+		 }
+		 else{
+		  // alert("Window refreshed");
+		   socket.emit('endgame', { user_name: name });
+		 }
+	   }
 		
 		$(document).ready(function() {
 			// Hide the warning section and show the login section.
@@ -75,9 +97,9 @@ body {
 
 			// Initialize socket.io.
 			// document.location.host returns the host of the current page.
-			var socket = io.connect('http://' + document.location.host);
+			socket = io.connect('http://' + document.location.host);
 			
-			var name;
+			//var name;
 			
 			socket.on(
 			  'welcome',
@@ -102,14 +124,13 @@ body {
 					var c = document.getElementById("gameCanvas");
 					
 					var graphics = c.getContext("2d");
-					
+					timer = new Timer();
 					myGame = new Game( graphics, socket, name );
 					
 					console.log('init check');
 					
 					myGame.start();
 					
-					socket.emit('endgame', name);
 				  });
 			
 			$('#login').click(function() {
@@ -136,7 +157,7 @@ body {
     </script>
 </head>
 <!-- <body onLoad="init();"> -->
-<body>
+<body onunload="doUnload()">
 
 	<div id="login_section">
 		<div id="status">Connecting to the game server ...</div>
