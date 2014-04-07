@@ -5,3 +5,4 @@
 {"user_name":"timmy","highScores":[],"bestTimes":[],"bestDistances":[]}
 {"user_name":"God","highScores":[],"bestTimes":[],"bestDistances":[]}
 {"user_name":"qwertyuiop","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"Chris Langham","highScores":[],"bestTimes":[],"bestDistances":[]}

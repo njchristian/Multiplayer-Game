@@ -1,5 +1,5 @@
 
-var deathAnimationTime = 3;
+var deathAnimationTime = 3.0;
 
 var segmentOne = new Array();
 var segmentTwo = new Array();
@@ -74,12 +74,12 @@ function animateDeath( ship, respawnX, respawnY, so, multi, ro ){
 
 	//Move back to respawn points
 	
-	rp1 = new Point(ship.xPos + shipHeight * Math.cos( PI/2 ) + so, 
-							    ship.yPos - shipHeight * Math.sin( PI/2 ));
-	rp2 = new Point(ship.xPos + shipHeight * Math.cos(  0 - 2*PI/6 ) + so, 
-							    ship.yPos - shipHeight * Math.sin( 0 - 2*PI/6 ));
-	rp3 = new Point(ship.xPos + shipHeight * Math.cos( 8*PI/6 ) + so, 
-							    ship.yPos - shipHeight * Math.sin( 8*PI/6 ));
+	rp1 = new Point(respawnX + shipHeight * Math.cos( PI/2 ) - so, 
+							    respawnY - shipHeight * Math.sin( PI/2 ));
+	rp2 = new Point(respawnX + shipHeight * Math.cos(  0 - 2*PI/6 ) - so, 
+							    respawnY - shipHeight * Math.sin( 0 - 2*PI/6 ));
+	rp3 = new Point(respawnX + shipHeight * Math.cos( 8*PI/6 ) - so, 
+							    respawnY - shipHeight * Math.sin( 8*PI/6 ));
 								
 	r1dx = (segDX * frames - rp1.x)/frames;	
 	r2dx = (segDX * frames - rp2.x)/frames;	
@@ -147,6 +147,11 @@ function updateDeathAnimation(){
 		segmentThree[1].y+=r3dy;
 	
 	}
+	
+	if( currentFrame == frames ){
+		alive();
+	}
+	
 	currentFrame++;
 }
 

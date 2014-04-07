@@ -37,7 +37,7 @@ function Game( g, s, n ){
 	
 	this.isOnMenu = true;
 	
-	this.gameManager = new GameManager( this, g, this.socket );
+	this.gameManager = new GameManager( this, g, this.socket, this.name );
 	this.menuManager = new MenuManager( this, g, this.socket, this.name );
 	timer.update();
 	
@@ -73,7 +73,7 @@ function goToGame( gm ){
 	
 	// race
 	if (gm == 3) {
-		socket.emit('mp_race', { user_name: name });
+		socket.emit('mp_race', { user_name: myGame.name });
 		
 		// handle multiplayer race wait message
 	socket.on(
@@ -95,29 +95,34 @@ function goToGame( gm ){
 	}
 	// challenge --------------------------needs finishing TODO
 	else if (gm == 4) {
-		socket.emit('mp_ch', { user_name: name });
+		socket.emit('mp_ch', { user_name: myGame.name });
 		
 		// handle multiplayer race wait message
-	socket.on(
-		'waitForChallenge',
-		function(message) {
-			if (message) {
-				console.log('waiting for opponent');
-			}
+		socket.on(
+			'waitForChallenge',
+			function(message) {
+				if (message) {
+					console.log('waiting for opponent');
+				}
 		});
 		
 		socket.on(
-		'opponentForChallenge',
-		function(message) {
-			//if (message) {
-				myGame.isOnMenu = false;
-				myGame.gameManager.newGame( gm );
-			//}
+			'opponentForChallenge',
+			function(message) {
+				//if (message) {
+					myGame.isOnMenu = false;
+					myGame.gameManager.newGame( gm );
+				//}
 		});
 	}
 	// single player
-	else {
-
+	else if (gm == 1) {
+		socket.emit('sp_tt', { user_name: myGame.name });
+		myGame.isOnMenu = false;
+		myGame.gameManager.newGame( gm );
+	}
+	else if (gm == 2) {
+		socket.emit('sp_ch', { user_name: myGame.name });
 		myGame.isOnMenu = false;
 		myGame.gameManager.newGame( gm );
 	

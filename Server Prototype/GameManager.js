@@ -4,13 +4,14 @@ var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
 
-function GameManager( gameObject, g, websocket ){
+function GameManager( gameObject, g, websocket, userName ){
 
 	this.parentGame = gameObject;
 	
 	this.gravityCoefficient = 0;
 	
 	this.socket = websocket;
+	this.name = userName; // store the user name
 
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
@@ -48,6 +49,7 @@ function GameManager( gameObject, g, websocket ){
 	
 	//Flag for pause menu
 	this.pause = false;
+	//this.progress = 0; //used to log progess
 	
 	this.winner = false;
 	this.gameOver = false;
@@ -347,11 +349,16 @@ GameManager.prototype.update = function(){
 	
 	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
+	updateCDVerticesAndLines( this.ship );
+	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
 		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
 		//if( false ){			
 			//console.log("Collision");
+			
+			//progess is not used in single player challenge mode  and should be
+			this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
 			
 			this.onDeath();		
 				
@@ -364,6 +371,9 @@ GameManager.prototype.update = function(){
 	
 		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
+			//progess is not used in single player challenge mode and should be
+			this.socket.emit('deathByBullet', { user_name: this.name, progress : this.raceProgress } );
+			
 			this.onDeath();		
 				
 			break;
@@ -393,11 +403,12 @@ GameManager.prototype.onDeath = function(){
 		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
 		this.deathCounter++;	
 		
-		this.deathDSO = respawnOffset/frames;
+		//this.deathDSO = respawnOffset/frames;
+		this.deathDSO = respawnOffset/(deathAnimationTime*fps);
 	
 		this.dead = true;
 		
-		setTimeout( alive, 3000 );
+		//setTimeout( alive, 3000 );
 		
 		//this.so-=respawnOffset;
 			
@@ -561,7 +572,8 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = "40px Courier";
 	graphics.textAlign = 'right';
-	graphics.strokeText("Progress: " + Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,bw/2);
+	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
+	graphics.strokeText("Progress: " + this.raceProgress + "%",sw,bw/2);
 	graphics.strokeText("Progress: " + Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))) + "%",sw,sh/2+bw/2); 
 }
 
