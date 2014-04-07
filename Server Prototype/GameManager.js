@@ -403,11 +403,12 @@ GameManager.prototype.onDeath = function(){
 		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
 		this.deathCounter++;	
 		
-		this.deathDSO = respawnOffset/frames;
+		//this.deathDSO = respawnOffset/frames;
+		this.deathDSO = respawnOffset/(deathAnimationTime*fps);
 	
 		this.dead = true;
 		
-		setTimeout( alive, 3000 );
+		//setTimeout( alive, 3000 );
 		
 		//this.so-=respawnOffset;
 			
