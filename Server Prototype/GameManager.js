@@ -30,7 +30,7 @@ function GameManager( gameObject, g, websocket, userName ){
 	//Buffer array for challenge mode
 	this.challengeBuffer = new Array();
 	this.challengeTotalLevels = 0;
-	this.challengeSV = 4;
+	this.challengeSV = 2;
 	this.challengeShipOffset = 0;
 	
 	//Scroll offset
@@ -79,9 +79,9 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
 	this.reScroll = false
 	
-	// g.font = "45px Courier";
-	// this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
-	// this.endScroll = false;
+	g.font = "45px Courier";
+	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
+	this.endScroll = false;
 	
 }
 
@@ -92,22 +92,24 @@ GameManager.prototype.newGame = function( gm ){
 	this.gameMode = gm;
 	
 	//Sets all states to those to start a new game
-	
+	this.dead = false;
 	this.pause = false;
 	this.deathCounter = 0;
 	this.raceProgress = 0;
 	this.gameOver = false;
-	
+	this.bulletSet = new Array();
 	//Flags for ship movement
 	this.thrust = false;
 	this.leftTurn = false;
 	this.rightTurn = false;
 	
+	this.challengeSV = 2;
+	
 	this.ship.xPos = sw/2;
 	this.ship.yPos = sh/4;
 	this.ship.vx = 0;
 	this.ship.vy = 0;
-	this.ship.rotation = 0;
+	this.ship.rotation = -1*PI/2;
 	
 	this.opShip.xPos = sw/2;
 	this.opShip.yPos = 3*sh/4;
@@ -197,10 +199,10 @@ GameManager.prototype.draw = function( graphics ){
 		}
 	}
 	
-	// if( this.gameOver ){ 
-		// this.drawEndGame( graphics, this.winner );
-		// return;
-	// }
+	if( this.gameOver ){ 
+		this.drawEndGame( graphics, this.winner );
+		return;
+	}
 	
 	if( this.pause ) this.drawPause( graphics );
 
@@ -271,11 +273,6 @@ GameManager.prototype.update = function(){
 		
 	}
 	
-	if( this.gameMode == SINGLE_CHALLENGE || this.gameMode == MULTI_CHALLENGE ){
-	
-		//check if we need to add a new level
-	
-	}
 
 	//Thrust calculations need to know if its multi-player or not to scale
 	if( this.thrust ){
@@ -318,13 +315,14 @@ GameManager.prototype.update = function(){
 		
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
+			this.challengeSV+=.2;
 			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
-			this.generateBulletSet();
+			//this.generateBulletSet();
 		}
 		
 	}
@@ -349,7 +347,7 @@ GameManager.prototype.update = function(){
 	
 	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
-	updateCDVerticesAndLines( this.ship );
+	updateCDVerticesAndLines( this.ship, this.isMulti() );
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
@@ -436,7 +434,7 @@ GameManager.prototype.respawn = function(){
 
 }
 
-GameManager.prototype.onWin = function(){
+GameManager.prototype.onWin = function( ){
 
 	this.gameOver = true;
 	
@@ -447,7 +445,7 @@ GameManager.prototype.onWin = function(){
 
 	
 	this.winner = true;
-	this.parentGame.returnToMenu(); //??
+	//this.parentGame.returnToMenu(); //??
 }
 
 GameManager.prototype.onLoss = function(){
@@ -460,7 +458,7 @@ GameManager.prototype.onLoss = function(){
 
 	
 	this.winner = false;
-	this.parentGame.returnToMenu(); //??
+	//this.parentGame.returnToMenu(); //??
 }
 
 GameManager.prototype.isMulti = function(){
@@ -803,9 +801,9 @@ GameManager.prototype.drawPause = function( graphics ){
 		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
 	}
 	
-	//graphics.font = "40px Courier";
+	graphics.font = "40px Courier";
 	
-	//graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
 	
 }
 

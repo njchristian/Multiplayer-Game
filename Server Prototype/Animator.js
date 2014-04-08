@@ -29,7 +29,7 @@ function animateDeath( ship, respawnX, respawnY, so, multi, ro ){
 	frames = deathAnimationTime*fps;
 	currentFrame = 0;
 	
-	var dso = ro/frames;
+	var dso = ro/(frames+1);
 
 	var shipHeight = (multi) ? ship.height * .5 : ship.height;
 
@@ -115,7 +115,7 @@ function drawDeathAnimation( g ){
 
 function updateDeathAnimation(){
 
-	if( currentFrame < frames/2 ){
+	//if( currentFrame < frames/2 ){
 		segmentOne[0].x+=segDX;
 		segmentOne[0].y+=segOnedy;
 		segmentOne[1].x+=segDX;
@@ -130,6 +130,7 @@ function updateDeathAnimation(){
 		segmentThree[0].y+=segThreedy;
 		segmentThree[1].x+=segDX;
 		segmentThree[1].y+=segThreedy;
+		/*
 	}else{
 		segmentOne[0].x+=r1dx;
 		segmentOne[0].y+=r1dy;
@@ -147,8 +148,9 @@ function updateDeathAnimation(){
 		segmentThree[1].y+=r3dy;
 	
 	}
+	*/
 	
-	if( currentFrame == frames ){
+	if( currentFrame == frames-1 ){
 		alive();
 	}
 	

@@ -2,6 +2,12 @@ var MAIN_MENU = 1;
 var INSTRUCTIONS = 2;
 var HIGHSCORES = 3;
 
+var TT_EASY = 1;
+var TT_MEDIUM = 2;
+var TT_HARD = 3;
+var CHALLENGE = 4;
+
+
 //Pass the parent game object, and a graphics object to measure text with
 function MenuManager( gameObject, g ){
 
@@ -17,6 +23,8 @@ function MenuManager( gameObject, g ){
 	
 	this.highscoreMenu = new Array();
 	this.createHighscoreMenu( g );
+	
+	this.hsStyle = TT_EASY;
 
 }
 
@@ -46,7 +54,18 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 
 	g.font = "65px Courier";
 	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
-
+	
+	g.font = "35px Courier";
+	
+	var w = g.measureText("Challenge").width;
+	this.highscoreMenu[1] = new CanvasText( "Challenge", 325 + w/2, 560, w, 35, true, setHighscoreStyle, CHALLENGE);
+	var w = g.measureText("Easy").width;
+	this.highscoreMenu[2] = new CanvasText( "Easy", 20 + w/2, 595, w, 35, true, setHighscoreStyle, TT_EASY);
+	var w = g.measureText("Medium").width;
+	this.highscoreMenu[3] = new CanvasText( "Medium", 20 + w/2, 630, w, 35, true, setHighscoreStyle, TT_MEDIUM);
+	var w = g.measureText("Hard").width;
+	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, 595, w, 35, true, setHighscoreStyle, TT_HARD);
+	
 }
 
 MenuManager.prototype.draw = function( graphics ){
@@ -62,7 +81,6 @@ MenuManager.prototype.draw = function( graphics ){
 		this.drawHighscores(graphics);
 	}
 
-	//this.parentGame.goToGame();
 }
 
 MenuManager.prototype.drawMainMenu = function( graphics ){
@@ -71,21 +89,26 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	
 	graphics.fillStyle ="green";
-	graphics.strokeStyle ="green";
+	graphics.strokeStyle ="red";
 	graphics.textAlign = 'center';
 	graphics.textBaseline = 'middle';
 	
-	graphics.font = "140px Courier";
+	graphics.lineWidth = 1;
 	
-	graphics.strokeText("MAIN MENU",sw/2,75);
+	graphics.font = "120px Courier";
 	
+	graphics.strokeText("SPACE ESCAPE",sw/2,75);
+	
+	graphics.lineWidth = 2;
 	graphics.font = "80px Courier";
+	graphics.strokeStyle ="green";
 	
 	graphics.strokeText("SINGLE PLAYER", sw/2, 160);
 	
 	graphics.strokeText("MULTIPLAYER", sw/2, 385);
 	
 	graphics.font = "60px Courier";
+	graphics.lineWidth = 1;
 	
 	if( this.mainMenu[0].mouseOn ){
 		graphics.strokeText("TIME TRIAL", sw/2, 235);
@@ -208,6 +231,106 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		graphics.fillText("MAIN MENU", 3*sw/4, 600);
 	}
 	
+	//Draw table
+	
+	graphics.lineWidth = 5;
+	
+	graphics.beginPath();
+	graphics.moveTo(sw/10, 170);
+	graphics.lineTo(9*sw/10, 170);
+	graphics.stroke();
+	
+	graphics.font = "45px Courier";
+	
+	graphics.lineWidth = 1;
+	
+	graphics.strokeText("Player", sw/5, 150);
+	
+	
+	//
+	if( this.hsStyle == CHALLENGE ){
+		graphics.strokeText("Score", 4*sw/5, 150);
+	}else{
+		graphics.strokeText("Time", 4*sw/5, 150);
+	}
+	
+	//
+	
+	graphics.font = "30px Courier";
+	
+	var styleText;
+	switch (this.hsStyle){
+	
+	case TT_EASY:
+		styleText = "Time Trial: Easy";
+		break;
+	case TT_MEDIUM:
+		styleText = "Time Trial: Medium";
+		break;
+	case TT_HARD:
+		styleText = "Time Trial: Hard";
+		break;
+	case CHALLENGE:
+		styleText = "Challenge";
+		break;
+		
+	}
+	
+	graphics.textAlign = 'center';
+	graphics.fillText(styleText, sw/2, 150);
+	
+	
+	var playerNames = new Array();
+	var playerScores = new Array();
+	
+	//populate this array...
+	
+	//Client sends the server a request given this.hsStyle. hsStyle is the enum style description of the game type we want the highscores for.
+	//It can return this in any way you want, as long as it has the player names and score
+	
+	
+	//Output names
+	graphics.font = "30px Courier";
+	graphics.textAlign = 'left';
+	var i = 0;
+	
+	
+	for( i = 0; i < playerNames.length; ++i){
+		var text = "";
+		text = text + (i+1) + ". " + playerNames[i];
+		graphics.strokeText(text, sw/10, 210 + 35*i);
+	}
+	
+	
+	for( var j = i; j < 10; ++j ){
+		var text = "";
+		text = text + (j+1) + ". ...";
+		graphics.strokeText(text, sw/10, 210 + 35*j);
+	}
+	
+	graphics.textAlign = 'right';
+	
+	for( i = 0; i < playerScores.length; ++i){
+		var text = playerScores[i];
+		graphics.strokeText(text, 9*sw/10, 210 + 35*i);
+	}
+	
+	
+	for( var j = i; j < 10; ++j ){
+		graphics.strokeText("...", 9*sw/10, 210 + 35*j);
+	}
+	
+	graphics.textAlign = 'left';
+	
+	graphics.font = "35px Courier";
+	
+	graphics.fillText("Time Trial:", 20, 560);
+	graphics.fillText("Challenge", 325, 560);
+	graphics.fillText("Easy", 20, 595);
+	graphics.fillText("Medium", 20, 630);
+	graphics.fillText("Hard", 150, 595);
+	
+	graphics.textAlign = 'center';
 }
 
 function toMainMenu(){
@@ -260,6 +383,7 @@ function menuHandleClick(event){
 			if( text.clicked( event.clientX, event.clientY ) ){
 			
 				text.callback( text.argument );
+				document.body.style.cursor = 'default';
 			
 			}
 		
@@ -333,9 +457,12 @@ function menuHandleScroll( event ){
 			if( text.clicked( event.clientX, event.clientY ) ){
 			
 				text.mouseOn = true;
+				document.body.style.cursor = 'pointer';
+				break;
 			
 			}else{
 				text.mouseOn = false;
+				document.body.style.cursor = 'default';
 			}
 			
 		}
@@ -386,7 +513,11 @@ function menuHandleScroll( event ){
 
 }
 
+function setHighscoreStyle( style ){
 
+	myGame.menuManager.hsStyle = style;
+
+}
 
 
 
