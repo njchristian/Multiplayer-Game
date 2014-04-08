@@ -7,9 +7,99 @@
 	-should scores be stored separately for each game mode?
 	-make log in better and require password
 	-file IO with player data
+	-rethink addPlayerRating function of HighScores.js
 */
+
+var TT_EASY = 1;
+var TT_MEDIUM = 2;
+var TT_HARD = 3;
+var CHALLENGE = 4;
+
 // need to make into modules if possible
-// ------------------------Player.js-----------------------------	
+// ---------------------HighScoreItem.js---------------------------------------
+
+function HighScoresItem(name, d) {
+	this.playerName = name; // stores the player's name
+	this.data = d; // stores the time/distance/rating
+}
+
+// ---------------------HighScores.js------------------------------------------
+
+function HighScores() {
+	this.overallBestTimes = [];
+	this.overallBestDistances = [];
+	this.playerRatings = [];
+}
+
+HighScores.prototype.addNewTime = function(playerName, time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 5 times, just store it
+	if (this.overallBestTimes.length < 10) {
+		this.overallBestTimes[this.overallBestTimes.length] = new HighScoreItem(playerName, time);
+		// sort in descending order
+		this.overallBestTimes.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (time > this.overallBestTimes[this.overallBestTimes.length - 1]) {
+			// replace the slowest time with the new time
+			this.overallBestTimes[this.overallBestTimes.length - 1] = new HighScoreItem(playerName, time);
+			
+			// this.overallBestTimes[this.overallBestTimes.length - 1].playerName = playerName;
+			// this.overallBestTimes[this.overallBestTimes.length - 1].data = time;
+			// sort in descending order
+			this.overallBestTimes.sort(function(a, b) {return b-a});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+}
+
+HighScores.prototype.addNewDistance = function(playerName, distance) {
+	// Stores the top 10 longest distances in challenge mode
+	
+	// So if there are less than 10 top distances, just store it
+	if (this.overallBestDistances.length < 10) {
+		this.overallBestDistances[this.overallBestDistances.length] = new HighScoreItem(playerName, distance);
+		// sort in descending order
+		this.overallBestDistances.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume it is sorted in descending order, therefore the smallest 
+		// distance is the last one
+		if (distance > this.overallBestDistances[this.overallBestDistances.length - 1]) {
+			// replace the smallest distance with the new distance
+			this.overallBestDistances[this.overallBestDistances.length - 1] = new HighScoreItem(playerName, distance);
+			// sort in descending order
+			this.overallBestDistances.sort(function(a, b) {return b-a});
+		}
+		// else the new distance isn't as far as any of the saved distances
+	}
+}
+
+HighScores.prototype.addNewRating = function(playerName, rating) { //rethink
+	// Stores the top 10 ratings
+	
+	// So if there are less than 10 top ratings, just store it
+	if (this.playerRatings.length < 10) {
+		this.playerRatings[playerRatings.length] = new HighScoreItem(playerName, rating);
+		// sort in descending order
+		this.playerRatings.sort(function(a, b) {return b-a});
+	}
+	else {
+		// assume the ratings array is sorted in descending order, therefore, the
+		// lowest rating is in the last slot
+		if (rating > this.playerRatings[this.playerRatings.length - 1]) {
+			// replace the lowest rating with the new one
+			this.playerRatings[this.playerRatings.length - 1] = new HighScoreItem(playerName, rating);
+			// sort in descending order
+			this.playerRatings.sort(function(a, b) {return b-a});
+		}
+	}
+}
+
+// ------------------------Player.js-------------------------------------------	
 
 function Player(name) {
 	this.userName = name;
@@ -130,6 +220,7 @@ var url = require("url")
 var fs = require('fs')
 
 var players = []; // array of all the players
+var highScores = []; // array for the high scores
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
@@ -137,23 +228,33 @@ var waitingOnChallenge = []; // stores players waiting for multiplayer challenge
 //reading all data for the previous players
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
     //console.log(line);
-	if (line != "")
-	{
+	if (line != "") {
 		var newPlayer = JSON.parse(line);
 		players[players.length] = new Player(newPlayer.user_name);
 		for ( var i = 0; i < newPlayer.highScores.length; ++i) {
-					players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
+			players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
 		}
 		for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
-					players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+			players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
 		}
 		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-					players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+			players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
 		}
 	}
 	//adds to the file
 	//var line = JSON.stringify(newPlayer);
    // fs.appendFileSync("./data.txt", line.toString() + "\n");
+});
+
+fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (line) {
+	if (line != "") {
+		var newHighScore = JSON.parse(line);
+		highScores[highScores.length] = new HighScores();
+		highScores[highScores.length - 1] = newHighScore;
+		// for ( var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
+			// highScores[highScores.length - 1] = newHighScore.
+		// }
+	}
 });
 
 
