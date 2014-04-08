@@ -29,7 +29,7 @@ function animateDeath( ship, respawnX, respawnY, so, multi, ro ){
 	frames = deathAnimationTime*fps;
 	currentFrame = 0;
 	
-	var dso = ro/frames;
+	var dso = ro/(frames+1);
 
 	var shipHeight = (multi) ? ship.height * .5 : ship.height;
 
