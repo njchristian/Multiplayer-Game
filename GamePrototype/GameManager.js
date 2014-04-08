@@ -81,7 +81,7 @@ GameManager.prototype.newGame = function( gm ){
 	this.gameMode = gm;
 	
 	//Sets all states to those to start a new game
-	
+	this.dead = false;
 	this.pause = false;
 	this.deathCounter = 0;
 	this.raceProgress = 0;
@@ -245,7 +245,9 @@ GameManager.prototype.update = function(){
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
-			this.generateBulletSet();
+			if( this.bulletSet.length == 0 ){
+				//this.generateBulletSet();
+			}
 		}
 		
 	}
