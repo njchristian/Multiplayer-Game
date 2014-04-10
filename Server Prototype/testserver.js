@@ -443,7 +443,7 @@ io.sockets.on(
 					var waitingChallengeId = waitingOnChallenge[0];
 					// clear the waiting on race array
 					waitingOnChallenge.length = 0;
-					var newGame = new activeGame( waitingChallengeId, client.id , 3);
+					var newGame = new activeGame( waitingChallengeId, client.id , 4);
 					gameManager.addGame( newGame );
 					
 					//emit to both players to play
