@@ -431,18 +431,24 @@ io.sockets.on(
 				clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
-				if (waitingOnChallenge.length == 0) {				
-					waitingOnChallenge[0] = msg.user_name;
-					client.emit('waitForChallenge', 'Waiting for other player.');
-				}
+				f (waitingOnChallenge.length == 0) {
+					waitingOnChallenge[0] = client.id;
+					// waitingOnChallenge[0] = msg.user_name;
+					io.sockets.socket( waitingOnChallenge[0] ).emit('waitForRace', 'Waiting for other player.');
+				 }
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
 					// else we assume there is an opponent so it is race time
-					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
-					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
-					// clear the waiting on challenge array
+					var waitingChallengeId = waitingOnChallenge[0];
+					// clear the waiting on race array
 					waitingOnChallenge.length = 0;
+					var newGame = new activeGame( waitingChallengeId, client.id , 3);
+					gameManager.addGame( newGame );
+					
+					//emit to both players to play
+					io.sockets.socket( waitingChallengeId ).emit( 'opponentForChallenge', 'Opponent found, get ready to race.');
+					io.sockets.socket( client.id ).emit( 'opponentForChallenge', 'Opponent found, get ready to race.');
 				}
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a multiplayer challenge game.\n");
 			}
