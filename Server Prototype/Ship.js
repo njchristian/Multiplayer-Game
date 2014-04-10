@@ -27,7 +27,9 @@ Ship.prototype.thrust = function( isMulti ){
 
 	var multiMulti = isMulti ? .5 : 1;
 	//console.log("Thrust");
+	
 	this.vx += (Math.cos( this.rotation + PI/2 )*.5);
+	if(this.vx > 15) this.vx = 15;
 	this.vy -= (Math.sin( this.rotation + PI/2 )*.5) * multiMulti;
 
 }
