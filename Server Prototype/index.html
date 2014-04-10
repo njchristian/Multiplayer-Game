@@ -59,8 +59,8 @@ body {
 		var PI = Math.PI;
 		
 		//I dunno how to get this from the canvas - I'll keep looking
-		var sw = 1000;
-		var sh = 650;
+		var sw = $(window).width();
+		var sh = $(window).height();
 		
 		var bw = 40;
 		
@@ -89,12 +89,24 @@ body {
 		   socket.emit('endgame', { user_name: name });
 		 }
 	   }
+	   
+	   //when the window resizes change the values of sw and sh
+	 /*  $(window).resize(function(){ 
+			console.log("resize called");
+			sw = $(window).width();
+			sh = $(window).height();
+			document.getElementById('gameCanvas').width = sw;
+			document.getElementById('gameCanvas').height = sh
+			*/
 		
 		$(document).ready(function() {
 			// Hide the warning section and show the login section.
 			
 			$('#login_section').css('display', 'block');
-
+			
+			//set the values of the Canvas
+			document.getElementById('gameCanvas').width = sw;
+			document.getElementById('gameCanvas').height = sh;
 			// Initialize socket.io.
 			// document.location.host returns the host of the current page.
 			socket = io.connect('http://' + document.location.host);
@@ -166,7 +178,7 @@ body {
 		<input id="login" type="button" value="Log In" disabled="true"></input>
 	</div>
 
-    <canvas id="gameCanvas" width="1000" height="650">
+    <canvas id="gameCanvas" ><!--width="1000" height="650">-->
         alternate content
     </canvas>
 </body>
