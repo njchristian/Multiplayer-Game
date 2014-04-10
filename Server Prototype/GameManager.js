@@ -90,6 +90,8 @@ GameManager.prototype.newGame = function( gm ){
 	console.log("New Game");
 	timer.clearTime();
 	this.gameMode = gm;
+	this.highChallengeScore = 0;
+	this.highChallengeScore = 0;
 	
 	//Sets all states to those to start a new game
 	this.dead = false;
@@ -579,7 +581,11 @@ GameManager.prototype.drawChallengeScore = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = "40px Courier";
 	graphics.textAlign = 'right';
-	graphics.strokeText("Score: " + Math.floor((this.ship.xPos-sw)/sw),sw,bw/2);
+	var score = Math.floor(this.ship.xPos/10)-50;
+	if(score > this.highChallengeScore){
+		this.highChallengeScore = score;
+	}
+	graphics.strokeText("Score: " + this.highChallengeScore,sw,bw/2);
 }
 
 GameManager.prototype.drawTimer = function( graphics ){
@@ -587,16 +593,26 @@ GameManager.prototype.drawTimer = function( graphics ){
 	graphics.font = "40px Courier";
 	graphics.textAlign = 'center';
 	if(timer.min==0){		
-		graphics.strokeText(timer.sec,sw/2, bw/2);
+		if(timer.sec==0){
+			graphics.strokeText("0."+timer.tenth,sw/2,bw/2);
+		}
+		else{
+			graphics.strokeText(timer.sec+"."+timer.tenth,sw/2, bw/2);
+		}
 	}
 	else{
 	if(timer.sec<10){
-			graphics.strokeText(timer.min+":0"+timer.sec,sw/2, bw/2);
+		if(timer.sec==0){
+			graphics.strokeText(timer.min+":00."+timer.tenth,sw/2,bw/2);
 		}
 		else{
-			graphics.strokeText(timer.min+":"+timer.sec, sw/2, bw/2);
+			graphics.strokeText(timer.min+":0"+timer.sec+"."+timer.tenth,sw/2, bw/2);
 		}
 	}
+	else{
+		graphics.strokeText(timer.min+":"+timer.sec+"."+timer.tenth, sw/2, bw/2);
+	}
+}
 }
 
 GameManager.prototype.drawDeaths = function ( graphics ){
