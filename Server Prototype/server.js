@@ -199,6 +199,56 @@ Player.prototype.updateMPRating = function(rating) {
 		console.log('updateMPRating was called with something other than win or loss');
 }
 
+//takes cliend.id and sends a value to the oppopent
+function emitOtherPlayer( myid , msg, value )
+{
+	var game = gameManager.findGame( myid );
+	var otherPlayer = game.otherPlayer( myid );
+	io.sockets.socket( otherPlayer ).emit( msg, value );
+};
+
+//class to hold games
+function activeGame(player1, player2, gameMode)
+{
+	this.player1id = player1;
+	this.player2id = player2;
+	this.gameMode = gameMode;
+	
+	this.otherPlayer = function(myid)
+	{
+		if ( this.player1id == myid )
+			return this.player2id;
+		else
+			return this.player1id;
+	}
+}
+
+//manages all of the active games
+function GameManager()
+{
+	this.allGames = [];
+	
+	this.addGame = function( game )
+	{
+		this.allGames[ this.allGames.length ] = game;
+	};
+	
+	this.findGame = function( playerId )
+	{
+		for( var game in this.allGames)
+		{
+			if( this.allGames[game].player1id === playerId)
+			{
+				return this.allGames[game];
+			}
+			if( this.allGames[game].player2id === playerId )
+			{
+				return this.allGames[game];
+			}
+		}
+	}
+}
+
 	
 // ---------------------------------Main---------------------------------------
 
@@ -224,6 +274,8 @@ var highScores = []; // array for the high scores
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
+
+var gameManager = new GameManager();
 
 //reading all data for the previous players
 fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) { 
@@ -418,24 +470,29 @@ io.sockets.on(
 				console.log('Player game mode is: ' + players[playerIndex].gameMode);
 				client.emit('mp_race_msg', 'You have selected MultiPlayer Race!' );
 				
-				// if the user is also waiting for challenge then remove them from that
-				// waiting list. this also handles the case where the same client clicks
-				// MP race twice in a row
-				clearAllWaiting(msg.user_name);
-				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
+				
+				//io.sockets.sockets[ waitingOnRace[ waitingOnRace.length ] ].emit( "hello" );
+				
+				//waitingonRace can be an object set to either null or client.id
 				if (waitingOnRace.length == 0) {
-					waitingOnRace[0] = msg.user_name;
-					client.emit('waitForRace', 'Waiting for other player.');
-				}
+					waitingOnRace[0] = client.id;
+					// waitingOnRace[0] = msg.user_name;
+					io.sockets.socket( waitingOnRace[0] ).emit('waitForRace', 'Waiting for other player.');
+				 }
+				
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
-					// else we assume there is an opponent so it is race time
-					client.emit('opponentForRace', 'Opponent found, get ready to race.');
-					client.broadcast.emit('opponentForRace', 'Opponent found, get ready to race.');
+					var waitingId = waitingOnRace[0];
 					// clear the waiting on race array
 					waitingOnRace.length = 0;
+					var newGame = new activeGame( waitingId, client.id , 3);
+					gameManager.addGame( newGame );
+					
+					//emit to both players to play
+					io.sockets.socket( waitingId ).emit( 'opponentForRace', 'Opponent found, get ready to race.');
+					io.sockets.socket( client.id ).emit( 'opponentForRace', 'Opponent found, get ready to race.');
 				}
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a multiplayer race game.\n");
 			}
@@ -471,18 +528,24 @@ io.sockets.on(
 				clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
-				if (waitingOnChallenge.length == 0) {				
-					waitingOnChallenge[0] = msg.user_name;
-					client.emit('waitForChallenge', 'Waiting for other player.');
-				}
+				f (waitingOnChallenge.length == 0) {
+					waitingOnChallenge[0] = client.id;
+					// waitingOnChallenge[0] = msg.user_name;
+					io.sockets.socket( waitingOnChallenge[0] ).emit('waitForRace', 'Waiting for other player.');
+				 }
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
 					// else we assume there is an opponent so it is race time
-					client.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
-					client.broadcast.emit('opponentForChallenge', 'Opponent found, get ready for challenge mode.');
-					// clear the waiting on challenge array
+					var waitingChallengeId = waitingOnChallenge[0];
+					// clear the waiting on race array
 					waitingOnChallenge.length = 0;
+					var newGame = new activeGame( waitingChallengeId, client.id , 4);
+					gameManager.addGame( newGame );
+					
+					//emit to both players to play
+					io.sockets.socket( waitingChallengeId ).emit( 'opponentForChallenge', 'Opponent found, get ready to race.');
+					io.sockets.socket( client.id ).emit( 'opponentForChallenge', 'Opponent found, get ready to race.');
 				}
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a multiplayer challenge game.\n");
 			}
@@ -492,6 +555,7 @@ io.sockets.on(
 			
 			
 	});	
+
 	
 	client.on(
 		'deathByWall',
@@ -624,7 +688,10 @@ io.sockets.on(
 	client.on(
 		'update',
 		function(updateObject) {
-			client.broadcast.emit('newUpdate', updateObject);
+			//emit to the opponent
+			// client.broadcast.emit('newUpdate', updateObject);
+			emitOtherPlayer( client.id, 'newUpdate', updateObject);
+
 	});	
 	
 	
@@ -635,7 +702,10 @@ io.sockets.on(
 		// winObject should have the user name of the player that has won
 		// (userName)
 		function() {
-			client.broadcast.emit('opponentWon', { name : "" } ); 
+					//emit to the opponent
+			//client.broadcast.emit('opponentWon', { name : "" } ); 
+			emitOtherPlayer( client.id, 'opponentWon', { name : "" } ); 
+
 	});
 	
 	// receive a signal that a client has lost their game
@@ -644,7 +714,10 @@ io.sockets.on(
 		// lostObject should have the user name of the player that has lost
 		// (userName)
 		function() {
-			client.broadcast.emit('opponentLost', { name : "" } ); 
+					//emit to the opponent
+			//client.broadcast.emit('opponentLost', { name : "" } ); 
+			emitOtherPlayer( client.id, 'opponentLost', { name : "" } ); 
+
 	});
 	
 	//the client is done now write his stuff to the file
