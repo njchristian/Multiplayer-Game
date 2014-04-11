@@ -8,6 +8,7 @@
 	-make log in better and require password
 	-file IO with player data
 	-rethink addPlayerRating function of HighScores.js
+	-need a way to delete games
 */
 
 var TT_EASY = 1;
