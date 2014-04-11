@@ -526,10 +526,10 @@ io.sockets.on(
 				// if the user is also waiting for race then remove them from that
 				// waiting list. this also handles the case where the same client clicks
 				// MP challenge twice in a row
-				clearAllWaiting(msg.user_name);
+				//clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
-				f (waitingOnChallenge.length == 0) {
+				if (waitingOnChallenge.length == 0) {
 					waitingOnChallenge[0] = client.id;
 					// waitingOnChallenge[0] = msg.user_name;
 					io.sockets.socket( waitingOnChallenge[0] ).emit('waitForRace', 'Waiting for other player.');
