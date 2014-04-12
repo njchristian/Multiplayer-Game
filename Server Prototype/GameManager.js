@@ -853,7 +853,7 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	var text;
 	if( won ){
-		text = "YON WON!";
+		text = "YOU WON!";
 	}else{
 		text = "YOU SUCK"; //just for giggles but we should let the loser down softly
 	}

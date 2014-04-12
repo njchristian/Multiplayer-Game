@@ -16,3 +16,4 @@
 {"user_name":"rtjrt","highScores":[],"bestTimes":[],"bestDistances":[]}
 {"user_name":"sdf","highScores":[],"bestTimes":[],"bestDistances":[]}
 {"user_name":"fg","highScores":[],"bestTimes":[],"bestDistances":[]}
+{"user_name":"Stace-Face","highScores":[],"bestTimes":[],"bestDistances":[]}
