@@ -839,11 +839,11 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
 	
 	graphics.lineWidth = 1;
 	
@@ -853,12 +853,12 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	var text;
 	if( won ){
-		text = "WINNER";
+		text = "YON WON!";
 	}else{
-		text = "LOSER";
+		text = "YOU SUCK"; //just for giggles but we should let the loser down softly
 	}
 	
-	graphics.strokeText(text, sw/2, sh/2 );
+	graphics.strokeText(text, sw/2+50, sh/2+50 );
 	
 	graphics.fillStyle = "green";
 	graphics.font = "45px Courier";
