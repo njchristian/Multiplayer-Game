@@ -7,7 +7,7 @@ var MULTI_CHALLENGE = 4;
 function GameManager( gameObject, g, websocket, userName ){
 
 	this.parentGame = gameObject;
-	
+	this.g = g;
 	this.gravityCoefficient = 0;
 	
 	this.socket = websocket;
@@ -832,6 +832,45 @@ GameManager.prototype.drawBullets = function(g){
 	}
 
 }
+
+//Attemp at adding a wait menu
+//the error is that the graphics object doesn't have any members
+// GameManager.prototype.drawWait = function( graphics )
+// {	
+	// //draw the wait menu
+	// //graphics.lineWidth = 3;
+	
+	// graphics.strokeStyle = "green";
+	// graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	
+	// graphics.fillStyle = "black";
+	
+	// graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	
+	// //graphics.lineWidth = 1;
+	
+	// graphics.textAlign = 'center';
+	
+	// graphics.font = "100px Courier";
+	
+	// var text;
+	// //if( won ){
+		// text = "WAITING";
+	// //}else{
+	// //	text = "YOU SUCK"; //just for giggles but we should let the loser down softly
+	// //}
+	
+	// graphics.strokeText(text, sw/2+50, sh/2+50 );
+	
+	// graphics.fillStyle = "green";
+	// graphics.font = "45px Courier";
+	
+	// if( this.endScroll ){
+		// graphics.strokeText("Main Menu", sw/2, sh/2 + 175 );
+	// }else{
+		// graphics.fillText("Main Menu", sw/2, sh/2 + 175 );
+	// }
+// };
 
 GameManager.prototype.drawEndGame = function( graphics, won ){
 
