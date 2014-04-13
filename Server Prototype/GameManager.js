@@ -347,40 +347,40 @@ GameManager.prototype.update = function(){
 	
 	//Same change as in Draw function to change to challenge mode
 	
-	// var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
+	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
-	// updateCDVerticesAndLines( this.ship, this.isMulti() );
+	updateCDVerticesAndLines( this.ship, this.isMulti() );
 	
-	// for( i in collisionArray[this.currentLevel].blocks ){
+	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		// if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
-		// //if( false ){			
-			// //console.log("Collision");
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
+		//if( false ){			
+			//console.log("Collision");
 			
-			// //progess is not used in single player challenge mode  and should be
-			// this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
+			//progess is not used in single player challenge mode  and should be
+			this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
 			
-			// this.onDeath();		
+			this.onDeath();		
 				
-			// break;
-		// }
+			break;
+		}
 			
-	// }
+	}
 	
-	// for( i in this.bulletSet ){
+	for( i in this.bulletSet ){
 	
-		// if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
+		if( hasHitBullet( this.bulletSet[i], this.isMulti() ) ){
 		
-			// //progess is not used in single player challenge mode and should be
-			// this.socket.emit('deathByBullet', { user_name: this.name, progress : this.raceProgress } );
+			//progess is not used in single player challenge mode and should be
+			this.socket.emit('deathByBullet', { user_name: this.name, progress : this.raceProgress } );
 			
-			// this.onDeath();		
+			this.onDeath();		
 				
-			// break;
+			break;
 		
-		// }
+		}
 	
-	// }
+	}
 
 }
 
@@ -388,6 +388,8 @@ GameManager.prototype.onDeath = function(){
 
 	if( this.isChallenge() ){
 
+		this.socket.emit('newDistance', { userName: this.name, distance: this.highChallengeScore });
+	
 		this.onLoss();
 	
 	}else{

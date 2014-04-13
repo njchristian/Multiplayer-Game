@@ -66,11 +66,19 @@ function timeCompareLessThan(time1, time2) {
 	return false;
 }
 
-// ---------------------HighScoreItem.js---------------------------------------
+// ---------------------Distance.js---------------------------------------
 
-function HighScoresItem(name, d) {
+function Distance(name, d) {
 	this.playerName = name; // stores the player's name
-	this.data = d; // stores the time/distance/rating
+	this.dist = d; // stores the distance
+}
+
+// return true if dist1 is larger, else return false
+function distCompareGreaterThan(dist1, dist2) {
+	if (dist1.dist > dist2.dist) {
+		return true;
+	}
+	return false;
 }
 
 // ---------------------HighScores.js------------------------------------------
@@ -105,23 +113,23 @@ HighScores.prototype.addNewTime = function(time) {
 	}
 }
 
-HighScores.prototype.addNewDistance = function(playerName, distance) {
+HighScores.prototype.addNewDistance = function(distance) {
 	// Stores the top 10 longest distances in challenge mode
 	
 	// So if there are less than 10 top distances, just store it
 	if (this.overallBestDistances.length < 10) {
-		this.overallBestDistances[this.overallBestDistances.length] = new HighScoreItem(playerName, distance);
+		this.overallBestDistances[this.overallBestDistances.length] = distance;
 		// sort in descending order
-		this.overallBestDistances.sort(function(a, b) {return b-a});
+		this.overallBestDistances.sort(function(a, b) {return distCompareGreaterThan(a, b)});
 	}
 	else {
 		// assume it is sorted in descending order, therefore the smallest 
 		// distance is the last one
-		if (distance > this.overallBestDistances[this.overallBestDistances.length - 1]) {
+		if (distCompareGreaterThan(distance, this.overallBestDistances[this.overallBestDistances.length - 1])) {
 			// replace the smallest distance with the new distance
-			this.overallBestDistances[this.overallBestDistances.length - 1] = new HighScoreItem(playerName, distance);
+			this.overallBestDistances[this.overallBestDistances.length - 1] = distance;
 			// sort in descending order
-			this.overallBestDistances.sort(function(a, b) {return b-a});
+			this.overallBestDistances.sort(function(a, b) {return distCompareGreaterThan(a, b)});
 		}
 		// else the new distance isn't as far as any of the saved distances
 	}
@@ -156,7 +164,7 @@ var highScores = new HighScores(); // array for the high scores
 function Player(name) {
 	this.userName = name;
 	this.gameMode = 0; // 0 signifies no game mode selected yet
-	this.highScores = [];
+	//this.highScores = [];
 	// potential alternative to highScores
 	this.bestTimes = []; // best times from time trial
 	this.bestDistances = []; // furtherest distances from challenge mode
@@ -172,27 +180,27 @@ Player.prototype.setGameMode = function(mode) {
 }
 
 
-Player.prototype.addHighScore = function(score) {
-	// Stores the top 5 scores
+// Player.prototype.addHighScore = function(score) {
+	// // Stores the top 5 scores
 	
-	// So if there are less than 5 scores, just store it
-	if (this.highScores.length < 5) {
-		this.highScores[this.highScores.length] = score;
-		// sort in descending order
-		this.highScore.sort(function(a, b) {return b-a});
-	}
-	// else there are already 5 scores, so we need to remove the lowest
-	else {
-		// assume it is sorted in descending order, therefore the lowest score is the last one
-		if (score > this.highScores[this.highScores.length - 1]) {
-			// replace the lowest score with the new score
-			this.highScores[this.highScores.length - 1] = score;
-			// sort in descending order
-			this.highScore.sort(function(a, b) {return b-a});
-		}
-		// else the new score isn't as high as any of the saved high scores
-	}
-}
+	// // So if there are less than 5 scores, just store it
+	// if (this.highScores.length < 5) {
+		// this.highScores[this.highScores.length] = score;
+		// // sort in descending order
+		// this.highScore.sort(function(a, b) {return b-a});
+	// }
+	// // else there are already 5 scores, so we need to remove the lowest
+	// else {
+		// // assume it is sorted in descending order, therefore the lowest score is the last one
+		// if (score > this.highScores[this.highScores.length - 1]) {
+			// // replace the lowest score with the new score
+			// this.highScores[this.highScores.length - 1] = score;
+			// // sort in descending order
+			// this.highScore.sort(function(a, b) {return b-a});
+		// }
+		// // else the new score isn't as high as any of the saved high scores
+	// }
+// }
 
 Player.prototype.addNewTime = function(time) {
 	// Stores the top 10 times
@@ -229,6 +237,7 @@ Player.prototype.addNewDistance = function(distance) {
 		this.bestDistances[this.bestDistances.length] = distance;
 		// sort in descending order
 		this.bestDistances.sort(function(a, b) {return b-a});
+		highScores.addNewDistance(distance);
 	}
 	else {
 		// assume it is sorted in descending order, therefore the smallest 
@@ -238,10 +247,12 @@ Player.prototype.addNewDistance = function(distance) {
 			this.bestDistances[this.bestDistances.length - 1] = distance;
 			// sort in descending order
 			this.bestDistances.sort(function(a, b) {return b-a});
+			
+			highScores.addNewDistance(distance);
 		}
 		// else the new distance isn't as far as any of the saved distances
 	}
-	highScores.addNewDistance(this.userName, distance);
+	
 }
 
 
@@ -344,9 +355,9 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 	if (line != "") {
 		var newPlayer = JSON.parse(line);
 		players[players.length] = new Player(newPlayer.user_name);
-		for ( var i = 0; i < newPlayer.highScores.length; ++i) {
-			players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
-		}
+		// for ( var i = 0; i < newPlayer.highScores.length; ++i) {
+			// players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
+		// }
 		for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
 			players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
 		}
@@ -728,7 +739,9 @@ io.sockets.on(
 					return;
 				}
 				// add the new distance
-				players[playerIndex].addNewDistance(distanceObject.distance);
+				console.log("Distance: " + distanceObject.distance);
+				var dist = new Distance(distanceObject.userName, distanceObject.distance);
+				players[playerIndex].addNewDistance(dist);
 			}
 			else {
 				console.log('error setting new distance'); //debug check
