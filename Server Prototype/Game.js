@@ -81,6 +81,7 @@ function goToGame( gm ){
 		function(message) {
 			if (message) {
 				console.log('waiting for opponent');
+				//myGame.gameManager.drawWait( myGame.gameManager.g );
 			}
 		});
 		
