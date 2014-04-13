@@ -18,10 +18,6 @@ Timer.prototype.clearTime = function(){
 	timer.tenth=0;
 }
 
-Timer.prototype.string = function() {
-	return timer.min.toString() + ':' + timer.sec.toString() + '.' + timer.tenth.toString();
-}
-
 function Update(){
 	if(!myGame.gameManager.pause){
 		timer.tenth++;
