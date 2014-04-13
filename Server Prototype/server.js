@@ -28,14 +28,20 @@ var CHALLENGE = 4;
 // need to make into modules if possible
 // ------------------------Time.js---------------------------------------------
 
-function Time(minutes, seconds, tenths) {
+function Time(minutes, seconds, tenths, playerName) {
 	this.min = minutes;
 	this.sec = seconds;
 	this.tenth = tenths;
+	this.player = playerName;
+}
+
+
+Time.prototype.toString = function () {
+	return this.min.toString() + ':' + this.sec.toString() + '.' + this.tenth.toString();
 }
 
 // returns true if time1 is less than time 2 or false if time2 is less
-Time.prototype.compareLessThan = function (time1, time2) {
+function timeCompareLessThan(time1, time2) {
 	if (time1.min < time2.min) {
 		return true;
 	}
@@ -75,26 +81,25 @@ function HighScores() {
 	this.playerRatings = [];
 }
 
-HighScores.prototype.addNewTime = function(playerName, time) {
+HighScores.prototype.addNewTime = function(time) {
 	// Stores the top 10 times
 	
-	// So if there are less than 5 times, just store it
+	// So if there are less than 10 times, just store it
 	if (this.overallBestTimes.length < 10) {
-		this.overallBestTimes[this.overallBestTimes.length] = new HighScoreItem(playerName, time);
+		this.overallBestTimes[this.overallBestTimes.length] = time;
 		// sort in descending order
-		this.overallBestTimes.sort(function(a, b) {return b-a});
+		this.overallBestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		console.log("added a new time");
 	}
 	else {
 		// assume it is sorted in descending order, therefore the slowest time 
 		// is the last one
-		if (time > this.overallBestTimes[this.overallBestTimes.length - 1]) {
+		if (timeCompareLessThan(time, this.overallBestTimes[this.overallBestTimes.length - 1])) {
 			// replace the slowest time with the new time
-			this.overallBestTimes[this.overallBestTimes.length - 1] = new HighScoreItem(playerName, time);
+			this.overallBestTimes[this.overallBestTimes.length - 1] = time;
 			
-			// this.overallBestTimes[this.overallBestTimes.length - 1].playerName = playerName;
-			// this.overallBestTimes[this.overallBestTimes.length - 1].data = time;
 			// sort in descending order
-			this.overallBestTimes.sort(function(a, b) {return b-a});
+			this.overallBestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
@@ -144,7 +149,7 @@ HighScores.prototype.addNewRating = function(playerName, rating) { //rethink
 }
 // Semi-random global variable in order to reference in Player.js:
 
-var highScores = []; // array for the high scores
+var highScores = new HighScores(); // array for the high scores
 
 // ------------------------Player.js-------------------------------------------	
 
@@ -681,18 +686,22 @@ io.sockets.on(
 			if (timeObject) {
 				console.log("Got the timeObject");
 				console.log("name: " + timeObject.userName);
-				console.log("time: " + timeObject.time);
-				// find player
-				var playerIndex = findPlayerIndex(timeObject.userName);
+				console.log("min: " + timeObject.min);
+				console.log("sec: " + timeObject.sec);
+				console.log("tenth: " + timeObject.tenth);
+				// // find player
+				// var playerIndex = findPlayerIndex(timeObject.userName);
 				
-				// make sure player exists
-				if (playerIndex == -1) {
-					client.emit('error', 'User name not found!');
-					console.log('User name not found!');
-					return;
-				}
-				// add the new time
-				players[playerIndex].addNewTime(timeObject.time);
+				// // make sure player exists
+				// if (playerIndex == -1) {
+					// client.emit('error', 'User name not found!');
+					// console.log('User name not found!');
+					// return;
+				// }
+				// // add the new time
+				// players[playerIndex].addNewTime(timeObject.time);
+				var time = new Time(timeObject.min, timeObject.sec, timeObject.tenth, timeObject.userName);
+				highScores.addNewTime(time);
 			}
 			else {
 				console.log('error setting new time'); //debug check
@@ -802,7 +811,7 @@ io.sockets.on(
 			
 			var highScoreJSON = { overallBestTimes: highScores.overallBestTimes, overallBestDistances: highScores.overallBestDistances, playerRatings: highScores.playerRatings };
 			var line2 = JSON.stringify(highScoreJSON);
-			fs.writeFileSync("./highscores.txt", line.toString());
+			fs.writeFileSync("./highscores.txt", line2.toString());
 	});
 
   });
