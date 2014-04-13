@@ -636,24 +636,24 @@ io.sockets.on(
 				//clearAllWaiting(msg.user_name);
 				// check to see if there is an opponent waiting
 				// if there is not then set this client as waiting
-				if (waitingOnChallenge.length == 0) {
-					waitingOnChallenge[0] = client.id;
+				if (waitingOnChallenge.isWaiting == false) {
+					waitingOnChallenge.setWaitingPlayer(msg.user_name, client.id);
 					// waitingOnChallenge[0] = msg.user_name;
-					io.sockets.socket( waitingOnChallenge[0] ).emit('waitForRace', 'Waiting for other player.');
+					io.sockets.socket( waitingOnChallenge.userID ).emit('waitForRace', 'Waiting for other player.');
 					// -----------------------------------------------SHOULDNT THIS BE waitForChallenge?!?!?!?!?!?
 				 }
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
 					// make sure the same client didn't send both requests
-					if (client.id == waitingOnChallenge[0]) {
+					if (client.id == waitingOnChallenge.userID) {
 						return;
 					}
 					// else we assume there is an opponent so it is race time
-					var waitingChallengeId = waitingOnChallenge[0];
+					var waitingChallengeId = waitingOnChallenge.userID;
 					// clear the waiting on race array
-					waitingOnChallenge.length = 0;
-					var newGame = new activeGame( waitingChallengeId, client.id , 4);
+					waitingOnChallenge.isWaiting = false;
+					var newGame = new activeGame( waitingChallengeId, waitingOnChallenge.userName, client.id, msg.user_name, 4);
 					gameManager.addGame( newGame );
 					
 					//emit to both players to play
