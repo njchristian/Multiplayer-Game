@@ -195,26 +195,29 @@ Player.prototype.addHighScore = function(score) {
 }
 
 Player.prototype.addNewTime = function(time) {
-	// Stores the top 5 times
+	// Stores the top 10 times
 	
-	// So if there are less than 5 times, just store it
-	if (this.bestTimes.length < 5) {
+	// So if there are less than 10 times, just store it
+	if (this.bestTimes.length < 10) {
 		this.bestTimes[this.bestTimes.length] = time;
 		// sort in descending order
-		this.bestTimes.sort(function(a, b) {return b-a});
+		this.bestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		highScores.addNewTime(time);
 	}
 	else {
 		// assume it is sorted in descending order, therefore the slowest time 
 		// is the last one
-		if (time > this.bestTimes[this.bestTimes.length - 1]) {
+		if (timeCompareLessThan(time, this.bestTimes[this.bestTimes.length - 1])) {
 			// replace the slowest time with the new time
 			this.bestTimes[this.bestTimes.length - 1] = time;
 			// sort in descending order
-			this.bestTimes.sort(function(a, b) {return b-a});
+			this.bestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			
+			highScores.addNewTime(time);
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
-	highScores.addNewTime(this.userName, time);
+	
 }
 
 
@@ -689,19 +692,19 @@ io.sockets.on(
 				console.log("min: " + timeObject.min);
 				console.log("sec: " + timeObject.sec);
 				console.log("tenth: " + timeObject.tenth);
-				// // find player
-				// var playerIndex = findPlayerIndex(timeObject.userName);
+				// find player
+				var playerIndex = findPlayerIndex(timeObject.userName);
 				
-				// // make sure player exists
-				// if (playerIndex == -1) {
-					// client.emit('error', 'User name not found!');
-					// console.log('User name not found!');
-					// return;
-				// }
-				// // add the new time
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					console.log('User name not found!');
+					return;
+				}
+				// add the new time
 				// players[playerIndex].addNewTime(timeObject.time);
 				var time = new Time(timeObject.min, timeObject.sec, timeObject.tenth, timeObject.userName);
-				highScores.addNewTime(time);
+				players[playerIndex].addNewTime(time);
 			}
 			else {
 				console.log('error setting new time'); //debug check
