@@ -444,7 +444,7 @@ GameManager.prototype.onWin = function( ){
 	
 	if( this.isMulti() && this.gameMode == MULTI_RACE){
 		console.log("Win");
-		this.socket.emit('wonGame', { name : "" } );
+		this.socket.emit('wonGame', { userName : this.name } );
 	}
 	
 	if (this.gameMode == TIME_TRIAL) {
@@ -464,7 +464,7 @@ GameManager.prototype.onLoss = function(){
 	
 	if( this.isMulti() && this.gameMode == MULTI_CHALLENGE){
 		console.log("Lose");
-		this.socket.emit('lostGame', { name : "" } );
+		this.socket.emit('lostGame', { userName : this.name } );
 	}
 
 	

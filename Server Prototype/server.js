@@ -81,6 +81,20 @@ function distCompareGreaterThan(dist1, dist2) {
 	return false;
 }
 
+// ----------------------RatingItem.js----------------------------------------
+
+function RatingItem(pName, r) {
+	this.playerName = pName;
+	this.rating = r;
+}
+
+function ratingCompareGreaterThan(r1, r2) {
+	if (r1 > r2) {
+		return true;
+	}
+	return false;
+}
+
 // ---------------------HighScores.js------------------------------------------
 
 function HighScores() {
@@ -135,26 +149,27 @@ HighScores.prototype.addNewDistance = function(distance) {
 	}
 }
 
-HighScores.prototype.addNewRating = function(playerName, rating) { //rethink
+HighScores.prototype.addNewRating = function(playerName, rating) { 
 	// Stores the top 10 ratings
 	
 	// So if there are less than 10 top ratings, just store it
 	if (this.playerRatings.length < 10) {
-		this.playerRatings[playerRatings.length] = new HighScoreItem(playerName, rating);
+		this.playerRatings[this.playerRatings.length] = new RatingItem(playerName, rating);
 		// sort in descending order
-		this.playerRatings.sort(function(a, b) {return b-a});
+		this.playerRatings.sort(function(a, b) {return ratingCompareGreaterThan(a, b)});
 	}
 	else {
 		// assume the ratings array is sorted in descending order, therefore, the
 		// lowest rating is in the last slot
-		if (rating > this.playerRatings[this.playerRatings.length - 1]) {
+		if (rating > this.playerRatings[this.playerRatings.length - 1].rating) {
 			// replace the lowest rating with the new one
-			this.playerRatings[this.playerRatings.length - 1] = new HighScoreItem(playerName, rating);
+			this.playerRatings[this.playerRatings.length - 1] = new RatingItem(playerName, rating);
 			// sort in descending order
-			this.playerRatings.sort(function(a, b) {return b-a});
+			this.playerRatings.sort(function(a, b) {return ratingCompareGreaterThan(a, b)});
 		}
 	}
 }
+//-----------------------------------------------------------------------------
 // Semi-random global variable in order to reference in Player.js:
 
 var highScores = new HighScores(); // array for the high scores
@@ -257,15 +272,7 @@ Player.prototype.addNewDistance = function(distance) {
 
 
 Player.prototype.updateMPRating = function(rating) {
-	if (rating == "win") {
-		this.multiplayerRating += 10;
-	}
-	else if (rating == "loss") {
-		this.multiplayerRating -= 10;
-	}
-	else {
-		console.log('updateMPRating was called with something other than win or loss');
-	}
+	this.multiplayerRating += rating;
 	highScores.addNewRating(this.userName, rating);	
 }
 
@@ -280,10 +287,12 @@ function emitOtherPlayer( myid , msg, value )
 };
 
 //class to hold games
-function activeGame(player1, player2, gameMode)
+function activeGame(player1, p1Name, player2, p2Name, gameMode)
 {
 	this.player1id = player1;
+	this.player1Name = p1Name;
 	this.player2id = player2;
+	this.player2Name = p2Name;
 	this.gameMode = gameMode;
 	
 	this.otherPlayer = function(myid)
@@ -292,6 +301,14 @@ function activeGame(player1, player2, gameMode)
 			return this.player2id;
 		else
 			return this.player1id;
+	}
+	
+	this.otherPlayerName = function(myName) {
+		if (this.player1Name == myName) {
+			return this.player2Name;
+		}
+		else
+			return this.player1Name;
 	}
 }
 
@@ -321,6 +338,21 @@ function GameManager()
 	}
 }
 
+
+function waitingPlayer() {
+	
+	this.userName = "";
+	this.userID = "";
+	this.isWaiting = false;
+	
+}
+
+waitingPlayer.prototype.setWaitingPlayer = function(name, id) {
+	this.userName = name;
+	this.userID = id;
+	this.isWaiting = true;
+}
+
 	
 // ---------------------------------Main---------------------------------------
 
@@ -344,8 +376,8 @@ var fs = require('fs')
 var players = []; // array of all the players
 //var highScores = []; // array for the high scores -- moved above the player.js part
 
-var waitingOnRace = []; // stores players waiting for multiplayer race mode
-var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
+var waitingOnRace = new waitingPlayer(); // stores players waiting for multiplayer race mode
+var waitingOnChallenge = new waitingPlayer(); // stores players waiting for multiplayer challenge mode
 
 var gameManager = new GameManager();
 
@@ -547,25 +579,25 @@ io.sockets.on(
 				//io.sockets.sockets[ waitingOnRace[ waitingOnRace.length ] ].emit( "hello" );
 				
 				//waitingonRace can be an object set to either null or client.id
-				if (waitingOnRace.length == 0) {
-					waitingOnRace[0] = client.id;
+				if (waitingOnRace.isWaiting == false) {
+					waitingOnRace.setWaitingPlayer(msg.user_name, client.id);
 					// waitingOnRace[0] = msg.user_name;
-					io.sockets.socket( waitingOnRace[0] ).emit('waitForRace', 'Waiting for other player.');
+					io.sockets.socket( waitingOnRace.userID ).emit('waitForRace', 'Waiting for other player.');
 				 }
 				
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
 					// make sure the same client didn't send the same signal twice
-					if (client.id == waitingOnRace[0]) {
+					if (client.id == waitingOnRace.userID) {
 						return;
 					}
-					var waitingId = waitingOnRace[0];
-					// var waitingID = waitingOnRace;
+					var waitingId = waitingOnRace.userID;
+					
 					// clear the waiting on race array
-					waitingOnRace.length = 0;
-					// waitingOnRace = NULL; // is null the right way to clear out a var?
-					var newGame = new activeGame( waitingId, client.id , 3);
+					waitingOnRace.isWaiting = false;
+					
+					var newGame = new activeGame( waitingId, waitingOnRace.userName, client.id, msg.user_name, 3);
 					gameManager.addGame( newGame );
 					
 					//emit to both players to play
@@ -787,14 +819,45 @@ io.sockets.on(
 	
 	// GAME ENDING Messages 
 	// receive a signal that a client has won their game
+	// this is sent by a client when they win a race (the loser of the 
+	// race does not send a win/loss message)
 	client.on(
 		'wonGame',
 		// winObject should have the user name of the player that has won
 		// (userName)
-		function() {
-					//emit to the opponent
+		function(winObject) {
+			//emit to the opponent
 			//client.broadcast.emit('opponentWon', { name : "" } ); 
-			emitOtherPlayer( client.id, 'opponentWon', { name : "" } ); 
+			emitOtherPlayer( client.id, 'opponentWon', { name : "" } );
+			// find player
+			
+			// update the winning player so that it gains rating
+			var playerIndex = findPlayerIndex(winObject.userName);
+			
+			// make sure player exists
+			if (playerIndex == -1) {
+				client.emit('error', 'User name not found!');
+				console.log('User name not found!');
+				return;
+			}	
+
+			players[playerIndex].updateMPRating(10);
+			
+			// update the losing player so that it loses rating
+
+			var game = gameManager.findGame(client.id);
+			var oppName = game.otherPlayerName(winObject.userName);
+			
+			var otherPlayerIndex = findPlayerIndex(oppName);
+			
+			// make sure player exists
+			if (otherPlayerIndex == -1) {P
+				client.emit('error', 'User name not found!');
+				console.log('User name not found!');
+				return;
+			}	
+
+			players[otherPlayerIndex].updateMPRating(-10);	
 
 	});
 	
@@ -803,10 +866,38 @@ io.sockets.on(
 		'lostGame',
 		// lostObject should have the user name of the player that has lost
 		// (userName)
-		function() {
+		function(lostObject) {
 					//emit to the opponent
 			//client.broadcast.emit('opponentLost', { name : "" } ); 
 			emitOtherPlayer( client.id, 'opponentLost', { name : "" } ); 
+			
+			// update the winning player so that it gains rating
+			var playerIndex = findPlayerIndex(lostObject.userName);
+			
+			// make sure player exists
+			if (playerIndex == -1) {
+				client.emit('error', 'User name not found!');
+				console.log('User name not found!');
+				return;
+			}	
+
+			players[playerIndex].updateMPRating(-10);
+			
+			// update the losing player so that it loses rating
+
+			var game = gameManager.findGame(client.id);
+			var oppName = game.otherPlayerName(lostObject.userName);
+			
+			var otherPlayerIndex = findPlayerIndex(oppName);
+			
+			// make sure player exists
+			if (otherPlayerIndex == -1) {
+				client.emit('error', 'User name not found!');
+				console.log('User name not found!');
+				return;
+			}	
+
+			players[otherPlayerIndex].updateMPRating(10);
 
 	});
 	
