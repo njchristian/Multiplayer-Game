@@ -9,6 +9,7 @@
 	-file IO with player data
 	-rethink addPlayerRating function of HighScores.js
 	-need a way to delete games
+	-timer keeps counting after player wins
 */
 
 var TT_EASY = 1;
@@ -25,6 +26,40 @@ var CHALLENGE = 4;
 // includeInThisContext(__dirname+"/HighScoreItem.js");
 
 // need to make into modules if possible
+// ------------------------Time.js---------------------------------------------
+
+function Time(minutes, seconds, tenths) {
+	this.min = minutes;
+	this.sec = seconds;
+	this.tenth = tenths;
+}
+
+// returns true if time1 is less than time 2 or false if time2 is less
+Time.prototype.compareLessThan = function (time1, time2) {
+	if (time1.min < time2.min) {
+		return true;
+	}
+	else if (time1.min > time2.min) {
+		return false;
+	}
+	// if it gets this far then min must be the same
+	else if (time1.sec < time2.sec) {
+		return true;
+	}
+	else if (time1.sec > time2.sec) {
+		return false;
+	}
+	// if it gets this far then min and sec must be the same
+	else if (time1.tenth < time2.tenth) {
+		return true;
+	}	
+	else if (time1.tenth > time2.tenth) { // might not need this comparison
+		return false;
+	}
+	// we want to return false if they are equal
+	return false;
+}
+
 // ---------------------HighScoreItem.js---------------------------------------
 
 function HighScoresItem(name, d) {
@@ -107,6 +142,9 @@ HighScores.prototype.addNewRating = function(playerName, rating) { //rethink
 		}
 	}
 }
+// Semi-random global variable in order to reference in Player.js:
+
+var highScores = []; // array for the high scores
 
 // ------------------------Player.js-------------------------------------------	
 
@@ -171,6 +209,7 @@ Player.prototype.addNewTime = function(time) {
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
+	highScores.addNewTime(this.userName, time);
 }
 
 
@@ -194,6 +233,7 @@ Player.prototype.addNewDistance = function(distance) {
 		}
 		// else the new distance isn't as far as any of the saved distances
 	}
+	highScores.addNewDistance(this.userName, distance);
 }
 
 
@@ -204,9 +244,13 @@ Player.prototype.updateMPRating = function(rating) {
 	else if (rating == "loss") {
 		this.multiplayerRating -= 10;
 	}
-	else
+	else {
 		console.log('updateMPRating was called with something other than win or loss');
+	}
+	highScores.addNewRating(this.userName, rating);	
 }
+
+// -----------------------GameManager.js---------------------------------------
 
 //takes cliend.id and sends a value to the oppopent
 function emitOtherPlayer( myid , msg, value )
@@ -279,7 +323,7 @@ var url = require("url")
 var fs = require('fs')
 
 var players = []; // array of all the players
-var highScores = []; // array for the high scores
+//var highScores = []; // array for the high scores -- moved above the player.js part
 
 var waitingOnRace = []; // stores players waiting for multiplayer race mode
 var waitingOnChallenge = []; // stores players waiting for multiplayer challenge mode
@@ -635,6 +679,9 @@ io.sockets.on(
 		// a new time (time);
 		function(timeObject) {
 			if (timeObject) {
+				console.log("Got the timeObject");
+				console.log("name: " + timeObject.userName);
+				console.log("time: " + timeObject.time);
 				// find player
 				var playerIndex = findPlayerIndex(timeObject.userName);
 				
@@ -753,6 +800,9 @@ io.sockets.on(
 				fs.appendFileSync("./data.txt", line.toString() + "\n");
 			}
 			
+			var highScoreJSON = { overallBestTimes: highScores.overallBestTimes, overallBestDistances: highScores.overallBestDistances, playerRatings: highScores.playerRatings };
+			var line2 = JSON.stringify(highScoreJSON);
+			fs.writeFileSync("./highscores.txt", line.toString());
 	});
 
   });
