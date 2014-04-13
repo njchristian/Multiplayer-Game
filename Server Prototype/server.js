@@ -493,9 +493,15 @@ io.sockets.on(
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
+					// make sure the same client didn't send the same signal twice
+					if (client.id == waitingOnRace[0]) {
+						return;
+					}
 					var waitingId = waitingOnRace[0];
+					// var waitingID = waitingOnRace;
 					// clear the waiting on race array
 					waitingOnRace.length = 0;
+					// waitingOnRace = NULL; // is null the right way to clear out a var?
 					var newGame = new activeGame( waitingId, client.id , 3);
 					gameManager.addGame( newGame );
 					
@@ -508,8 +514,6 @@ io.sockets.on(
 			else {
 				client.emit('error', 'Invalid user name!'); // for debugging
 			}	
-			
-			
 	});	
 	
 	// multiplayer challenge message
@@ -541,10 +545,15 @@ io.sockets.on(
 					waitingOnChallenge[0] = client.id;
 					// waitingOnChallenge[0] = msg.user_name;
 					io.sockets.socket( waitingOnChallenge[0] ).emit('waitForRace', 'Waiting for other player.');
+					// -----------------------------------------------SHOULDNT THIS BE waitForChallenge?!?!?!?!?!?
 				 }
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
 				else {
+					// make sure the same client didn't send both requests
+					if (client.id == waitingOnChallenge[0]) {
+						return;
+					}
 					// else we assume there is an opponent so it is race time
 					var waitingChallengeId = waitingOnChallenge[0];
 					// clear the waiting on race array
