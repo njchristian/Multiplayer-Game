@@ -1,0 +1,2 @@
+cameron logged in.
+cameron quit.
