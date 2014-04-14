@@ -648,8 +648,7 @@ io.sockets.on(
 				if (waitingOnChallenge.isWaiting == false) {
 					waitingOnChallenge.setWaitingPlayer(msg.user_name, client.id);
 					// waitingOnChallenge[0] = msg.user_name;
-					io.sockets.socket( waitingOnChallenge.userID ).emit('waitForRace', 'Waiting for other player.');
-					// -----------------------------------------------SHOULDNT THIS BE waitForChallenge?!?!?!?!?!?
+					io.sockets.socket( waitingOnChallenge.userID ).emit('waitForChallenge', 'Waiting for other player.');
 				 }
 				// if there is an opponent waiting, signal that client that another
 				// player has been found
