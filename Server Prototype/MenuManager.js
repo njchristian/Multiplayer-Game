@@ -453,6 +453,13 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.textAlign = 'center';
 }
 
+MenuManager.prototype.clearHighScores = function() {
+	for (var i = 0; i < this.playerNames.length; ++i) {
+		this.playerNames[i] = "";
+		this.playerScores[i] = "";
+	}
+}
+
 MenuManager.prototype.setDistanceHighScores = function(data) {
 	for (var i = 0; i < data.length; ++i) {
 		this.playerNames[i] = data[i].playerName;
@@ -469,6 +476,9 @@ MenuManager.prototype.setTimeHighScores = function(data) {
 
 function toMainMenu(){
 
+	if (myGame.menuManager.currentScreen == HIGHSCORES) {
+		myGame.menuManager.clearHighScores();
+	}
 	myGame.menuManager.currentScreen = MAIN_MENU;
 
 }
@@ -666,9 +676,11 @@ function setHighscoreStyle( style ){
 				if (data) {
 					console.log("Got the high scores response.");
 					if (style == CHALLENGE) {
+						myGame.menuManager.clearHighScores();
 						myGame.menuManager.setDistanceHighScores(data.scores);
 					}
 					else {
+						myGame.menuManager.clearHighScores();
 						myGame.menuManager.setTimeHighScores(data.scores);
 					}
 				}
