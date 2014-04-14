@@ -43,8 +43,14 @@ function Time(minutes, seconds, tenths, playerName) {
 }
 
 
-Time.prototype.toString = function () {
-	return this.min.toString() + ':' + this.sec.toString() + '.' + this.tenth.toString();
+Time.prototype.convertToString = function () {
+	// check to see if there are less than 10 seconds
+	// if so then add in a 0 placeholder in the tens spot
+	// if (this.sec < 10) {
+		// return this.min.toString() + ':0' + this.sec.toString() + '.' + this.tenth.toString();
+	// }
+	// return this.min.toString() + ':' + this.sec.toString() + '.' + this.tenth.toString();
+	return this.min + ':' + this.sec + '.' + this.tenth;
 }
 
 // returns true if time1 is less than time 2 or false if time2 is less
@@ -414,8 +420,18 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (line) {
 	if (line != "") {
 		var newHighScore = JSON.parse(line);
-		highScores[highScores.length] = new HighScores();
-		highScores[highScores.length - 1] = newHighScore;
+		highScores = new HighScores();
+		// highScores[highScores.length - 1] = newHighScore;
+		for (var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
+			highScores.addNewTime(new Time(newHighScore.overallBestTimes[i].min, newHighScore.overallBestTimes[i].sec, newHighScore.overallBestTimes[i].tenth, newHighScore.overallBestTimes[i].player));
+		}
+		for (var i = 0; i < newHighScore.overallBestDistances.length; ++i) {
+			highScores.addNewDistance(new Distance(newHighScore.overallBestDistances[i].playerName, newHighScore.overallBestDistances[i].dist));
+		}
+		for (var i = 0; i < newHighScore.playerRatings.length; ++i) {
+			highScores.addNewRating(new Rating(newHighScore.playerRatings[i].playerName, newHighScore.playerRatings[i].rating));
+		}
+		console.log("Sec: " + highScores.overallBestTimes[0].sec);
 		// for ( var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
 			// highScores[highScores.length - 1] = newHighScore.
 		// }
@@ -714,7 +730,9 @@ io.sockets.on(
 			else {
 				var times = [];
 				for (var i = 0; i < highScores.overallBestTimes.length; ++i) {
-					var temp = new StringTime(highScores.overallBestTimes[i].player, highScores.overallBestTimes[i].toString());
+					console.log("Min: " + highScores.overallBestTimes[i].min);
+					console.log("Sec: " + highScores.overallBestTimes[i].sec);
+					var temp = new StringTime(highScores.overallBestTimes[i].player, highScores.overallBestTimes[i].convertToString());
 					times[times.length] = temp;
 				}
 				client.emit('highScoresResponse', {scores: times});
