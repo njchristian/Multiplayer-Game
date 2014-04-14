@@ -463,7 +463,7 @@ io.sockets.on(
   function(client) {
 
     // Welcome message.
-    client.emit('welcome', 'Welcome to the game!');
+    client.emit('welcome', 'Welcome to Space Escape!');
 
     // Handle client login - might wanna make the login stuff better in the future
     client.on(
