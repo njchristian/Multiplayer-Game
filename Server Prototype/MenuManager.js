@@ -24,6 +24,14 @@ function MenuManager( gameObject, g ){
 	this.highscoreMenu = new Array();
 	this.createHighscoreMenu( g );
 	
+	this.instructionShip = new Ship();
+	
+	this.leftTurn = false;
+	this.rightTurn = false;
+	this.thrust = false;
+	
+	this.thrustC = 0;
+	
 	this.hsStyle = TT_EASY;
 	
 	this.playerNames = new Array(10);
@@ -34,6 +42,67 @@ function MenuManager( gameObject, g ){
 	for (var i = 0; i < this.playerScores.length; ++i) {
 		this.playerScores[i] = "";
 	}
+}
+
+MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
+		
+	graphics.lineWidth = 1;
+	graphics.strokeStyle = "red";
+
+	//console.log("Offset: " + offset);
+	
+	var height = myGame.gameManager.shipHeight;
+	var tHeight= myGame.gameManager.shipThrustHeight;
+	
+	var tc;
+	if( this.thrustC < 2 ){
+		tc = 5;
+	}else{
+		tc = 3;
+	}
+	
+	graphics.beginPath();
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( PI/2 + ship.rotation ), 
+		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( -2*PI/6 + ship.rotation ), 
+		ship.yPos - height * Math.sin( -2*PI/6 + ship.rotation ));
+	
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( -2*PI/6 + ship.rotation ), 
+		ship.yPos - height * Math.sin( -2*PI/6 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( 8*PI/6 + ship.rotation ), 
+		ship.yPos - height * Math.sin( 8*PI/6 + ship.rotation ));
+	
+	graphics.moveTo(
+		ship.xPos + height * Math.cos( 8*PI/6 + ship.rotation ), 
+		ship.yPos - height * Math.sin( 8*PI/6 + ship.rotation ));
+	graphics.lineTo(
+		ship.xPos + height * Math.cos( PI/2 + ship.rotation ), 
+		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
+	//graphics.stroke();
+	
+	if( this.thrust ){
+	
+		graphics.moveTo(
+			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ), 
+			ship.yPos - tHeight * Math.sin( -5*PI/12 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ), 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		
+		graphics.moveTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ), 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ), 
+			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
+		
+		
+	}
+	graphics.stroke();
 }
 
 MenuManager.prototype.createMainMenu = function( g ){
@@ -74,6 +143,14 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	var w = g.measureText("Hard").width;
 	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, 595, w, 35, true, setHighscoreStyle, TT_HARD);
 	
+}
+
+MenuManager.prototype.update = function(){
+
+	if( this.currentScreen == INSTRUCTIONS ){
+		this.instructionShipUpdate();
+	}
+
 }
 
 MenuManager.prototype.draw = function( graphics ){
@@ -216,6 +293,43 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 		graphics.fillText("MAIN MENU", 3*sw/4, 600);
 	}
 
+	this.drawInstructionShip( graphics, this.instructionShip );
+}
+
+MenuManager.prototype.instructionShipUpdate = function(){
+
+	var ship = this.instructionShip;
+
+	//Thrust calculations need to know if its multi-player or not to scale
+	if( this.thrust ){
+		this.thrustC = (this.thrustC + 1)%4;
+		ship.thrust( false );
+	}
+	
+	//If one of them, but not both (exclusive OR)
+	if( this.leftTurn ^ this.rightTurn ){
+		if( this.leftTurn ){
+			ship.leftTurn();
+		}else{
+			ship.rightTurn();
+		}
+	}
+
+	ship.xPos+=ship.vx;
+	ship.yPos+=ship.vy;
+
+	if( ship.xPos > sw+ship.height ){
+		ship.xPos = -ship.height;
+	}else if ( ship.xPos < -ship.height ){
+		ship.xPos = sw + ship.height;
+	}
+	
+	if( ship.yPos > sh + ship.height ){
+		ship.yPos = -ship.height;
+	}else if( ship.yPos < -ship.height ){
+		ship.yPos = sh + ship.height;
+	}
+	
 }
 
 MenuManager.prototype.drawHighscores = function( graphics ){
@@ -362,6 +476,14 @@ function toMainMenu(){
 function toInstructions(){
 
 	myGame.menuManager.currentScreen = INSTRUCTIONS;
+	myGame.menuManager.instructionShip.xPos = sw/2;
+	myGame.menuManager.instructionShip.yPos = sh/2;
+	myGame.menuManager.instructionShip.rotation = 0;
+	myGame.menuManager.instructionShip.vx = 0;
+	myGame.menuManager.instructionShip.vy = 0;
+	myGame.menuManager.leftTurn = false;
+	myGame.menuManager.rightTurn = false;
+	myGame.menuManager.thrust = false;
 
 }
 

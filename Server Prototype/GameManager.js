@@ -921,23 +921,41 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 
 function gameHandleKeyDown(e){
 		
-	if( myGame.isOnMenu ) return;	
+	//if( myGame.isOnMenu ) return;	
 	//if( myGame.gameManager.pause || myGame.isOnMenu ) return;	
 		
 	if (!e) { var e = window.event; }
 		
+	var targetManager;
+
+	if( !myGame.isOnMenu ){
+		targetManager = myGame.gameManager;
+	}else{
+	
+		if( myGame.menuManager.currentScreen == INSTRUCTIONS ){
+			targetManager = myGame.menuManager;
+		}else{
+			//console.log("Return");
+			return;
+		}
+	
+	}	
+		
 	switch (e.keyCode){
 	
 	case KEYCODE_LEFT:
-		myGame.gameManager.leftTurn = true;
+		targetManager.leftTurn = true;
 		break;
 	case KEYCODE_RIGHT:
-		myGame.gameManager.rightTurn = true;
+		targetManager.rightTurn = true;
 		break;
 	case KEYCODE_UP:
-		myGame.gameManager.thrust = true;
+		//console.log("Thrust");
+		targetManager.thrust = true;
 		break;
 	case KEYCODE_P:
+	
+		if( myGame.isOnMenu ) break;
 	
 		if( !myGame.gameManager.isMulti() ){
 			myGame.gameManager.pause = !myGame.gameManager.pause;
@@ -952,20 +970,35 @@ function gameHandleKeyDown(e){
 
 function gameHandleKeyUp(e){
 		
-	if( myGame.gameManager.pause || myGame.isOnMenu ) return;
+	if( myGame.gameManager.pause ) return;
+		
 		
 	if (!e) { var e = window.event; }
+		
+	var targetManager;
+
+	if( !myGame.isOnMenu ){
+		targetManager = myGame.gameManager;
+	}else{
+	
+		if( myGame.menuManager.currentScreen == INSTRUCTIONS ){
+			targetManager = myGame.menuManager;
+		}else{
+			return;
+		}
+	
+	}
 		
 	switch (e.keyCode){
 			
 	case KEYCODE_LEFT:
-		myGame.gameManager.leftTurn = false;
+		targetManager.leftTurn = false;
 		break;
 	case KEYCODE_RIGHT:
-		myGame.gameManager.rightTurn = false;
+		targetManager.rightTurn = false;
 		break;
 	case KEYCODE_UP:
-		myGame.gameManager.thrust = false;
+		targetManager.thrust = false;
 		break;
 			
 	}

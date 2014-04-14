@@ -134,8 +134,9 @@ Game.prototype.update = function(){
 
 	if( !this.isOnMenu ){
 		this.gameManager.update();
+	}else{
+		this.menuManager.update();
 	}
-	//the menu does not need to be updated
 }
 
 var run = function( ){
