@@ -6,14 +6,29 @@
 
 <style type="text/css">
 body {
+  height: 100%;	
   font-family: sans-serif;
 }
 
+html {
+  height: 100%;
+}
+
 #status {
-  font-size: 14pt;
+  font-size: 28pt;
   color: red;
   margin-top: 12px;
   margin-bottom: 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#your_name {
+  font-size: 14pt;
+  color: green;
+  margin-right: 12px; 
+  text-align: center;
+  vertical-align: middle;  
 }
 
 #board {
@@ -25,6 +40,8 @@ body {
 
 #login_section {
   display: none;
+  height: 100%;
+  background-color: black;
 }
 
 
@@ -174,10 +191,10 @@ body {
 <body onunload="doUnload()">
 
 	<div id="login_section">
-		<div id="status">Connecting to the game server ...</div>
-		Your name:
-		<input id="name" type="text"></input>
-		<input id="login" type="button" value="Log In" disabled="true"></input>
+		<div id="status">Connecting to the Space Escape server ...</div>
+		<p id="your_name">Your name: 
+		<input id="name" type="text" autofocus="autofocus"></input>
+		<input id="login" type="button" value="Log In" disabled="true"></input></p>
 	</div>
 
     <canvas id="gameCanvas" ><!--width="1000" height="650">-->
