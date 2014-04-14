@@ -26,6 +26,13 @@ var CHALLENGE = 4;
 // includeInThisContext(__dirname+"/HighScoreItem.js");
 
 // need to make into modules if possible
+// ----------------------StringTime.js-----------------------------------------
+
+function StringTime(name, t) {
+	this.playerName = name;
+	this.time = t;
+}
+
 // ------------------------Time.js---------------------------------------------
 
 function Time(minutes, seconds, tenths, playerName) {
@@ -42,24 +49,24 @@ Time.prototype.toString = function () {
 
 // returns true if time1 is less than time 2 or false if time2 is less
 function timeCompareLessThan(time1, time2) {
-	if (time1.min < time2.min) {
+	if (time1.min > time2.min) {
 		return true;
 	}
-	else if (time1.min > time2.min) {
+	else if (time1.min < time2.min) {
 		return false;
 	}
 	// if it gets this far then min must be the same
-	else if (time1.sec < time2.sec) {
+	else if (time1.sec > time2.sec) {
 		return true;
 	}
-	else if (time1.sec > time2.sec) {
+	else if (time1.sec < time2.sec) {
 		return false;
 	}
 	// if it gets this far then min and sec must be the same
-	else if (time1.tenth < time2.tenth) {
+	else if (time1.tenth > time2.tenth) {
 		return true;
 	}	
-	else if (time1.tenth > time2.tenth) { // might not need this comparison
+	else if (time1.tenth < time2.tenth) { // might not need this comparison
 		return false;
 	}
 	// we want to return false if they are equal
@@ -74,8 +81,8 @@ function Distance(name, d) {
 }
 
 // return true if dist1 is larger, else return false
-function distCompareGreaterThan(dist1, dist2) {
-	if (dist1.dist > dist2.dist) {
+function distCompareLessThan(dist1, dist2) {
+	if (dist1.dist < dist2.dist) {
 		return true;
 	}
 	return false;
@@ -134,16 +141,16 @@ HighScores.prototype.addNewDistance = function(distance) {
 	if (this.overallBestDistances.length < 10) {
 		this.overallBestDistances[this.overallBestDistances.length] = distance;
 		// sort in descending order
-		this.overallBestDistances.sort(function(a, b) {return distCompareGreaterThan(a, b)});
+		this.overallBestDistances.sort(function(a, b) {return distCompareLessThan(a, b)});
 	}
 	else {
 		// assume it is sorted in descending order, therefore the smallest 
 		// distance is the last one
-		if (distCompareGreaterThan(distance, this.overallBestDistances[this.overallBestDistances.length - 1])) {
+		if (distCompareLessThan(this.overallBestDistances[this.overallBestDistances.length - 1], distance)) {
 			// replace the smallest distance with the new distance
 			this.overallBestDistances[this.overallBestDistances.length - 1] = distance;
 			// sort in descending order
-			this.overallBestDistances.sort(function(a, b) {return distCompareGreaterThan(a, b)});
+			this.overallBestDistances.sort(function(a, b) {return distCompareLessThan(a, b)});
 		}
 		// else the new distance isn't as far as any of the saved distances
 	}
@@ -245,23 +252,25 @@ Player.prototype.addNewTime = function(time) {
 
 
 Player.prototype.addNewDistance = function(distance) {
-	// Stores the top 5 longest distances in challenge mode
+	// Stores the top 10 longest distances in challenge mode
 	
-	// So if there are less than 5 top distances, just store it
-	if (this.bestDistances.length < 5) {
+	// So if there are less than 10 top distances, just store it
+	if (this.bestDistances.length < 10) {
 		this.bestDistances[this.bestDistances.length] = distance;
 		// sort in descending order
-		this.bestDistances.sort(function(a, b) {return b-a});
+		this.bestDistances.sort(function(a, b) {return distCompareLessThan(a, b)});
 		highScores.addNewDistance(distance);
 	}
 	else {
 		// assume it is sorted in descending order, therefore the smallest 
 		// distance is the last one
-		if (distance > this.bestDistances[this.bestDistances.length - 1]) {
+		console.log("checkpoint 1");
+		if (distCompareLessThan(this.bestDistances[this.bestDistances.length - 1], distance)) {
+			console.log("checkpoint 2");
 			// replace the smallest distance with the new distance
 			this.bestDistances[this.bestDistances.length - 1] = distance;
 			// sort in descending order
-			this.bestDistances.sort(function(a, b) {return b-a});
+			this.bestDistances.sort(function(a, b) {return distCompareLessThan(a, b)});
 			
 			highScores.addNewDistance(distance);
 		}
@@ -692,12 +701,27 @@ io.sockets.on(
 	client.on(
 		'highScoresRequest',
 		// the highScoreRequest object should contain the player's userName
-		function(highScoreRequest) {
-			var playerIndex = findPlayerIndex(highScoreRequest.userName);
-			//var highScores = players[playerIndex].getHighScores();
-			client.emit('highScoresResponse', { playerTimes : players[playerIndex].bestTimes, 
-				playerDistances : players[playerIndex].bestDistances, 
-				playerMPRating : players[playersIndex].multiplayerRating } );
+		function(highScoresRequest) {
+			// var playerIndex = findPlayerIndex(highScoreRequest.userName);
+			// //var highScores = players[playerIndex].getHighScores();
+			console.log(highScoresRequest.scoreType);
+			console.log("length is: " + highScores.overallBestDistances.length);
+			if (highScoresRequest.scoreType == CHALLENGE) {
+				for (var i = 0; i < highScores.overallBestDistances.length; ++i) {
+					console.log(highScores.overallBestDistances[i].dist);
+				}
+				client.emit('highScoresResponse', {scores: highScores.overallBestDistances });
+			}
+			else {
+				var times = [];
+				for (var i = 0; i < highScores.overallBestTimes.length; ++i) {
+					var temp = new StringTime(highScores.overallBestTimes[i].player, highScores.overallBestTimes[i].toString());
+					times[times.length] = temp;
+				}
+				client.emit('highScoresResponse', {scores: times});
+			}
+				// playerDistances : players[playerIndex].bestDistances, 
+				// playerMPRating : players[playersIndex].multiplayerRating } );
 	});		
 	
 	// new high score

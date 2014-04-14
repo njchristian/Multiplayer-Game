@@ -25,7 +25,15 @@ function MenuManager( gameObject, g ){
 	this.createHighscoreMenu( g );
 	
 	this.hsStyle = TT_EASY;
-
+	
+	this.playerNames = new Array(10);
+	for (var i = 0; i < this.playerNames.length; ++i) {
+		this.playerNames[i] = "";
+	}
+	this.playerScores = new Array(10);
+	for (var i = 0; i < this.playerScores.length; ++i) {
+		this.playerScores[i] = "";
+	}
 }
 
 MenuManager.prototype.createMainMenu = function( g ){
@@ -280,10 +288,8 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.fillText(styleText, sw/2, 150);
 	
 	
-	var playerNames = new Array();
-	var playerScores = new Array();
-	
 	//populate this array...
+		
 	
 	//Client sends the server a request given this.hsStyle. hsStyle is the enum style description of the game type we want the highscores for.
 	//It can return this in any way you want, as long as it has the player names and score
@@ -295,9 +301,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	var i = 0;
 	
 	
-	for( i = 0; i < playerNames.length; ++i){
+	for( i = 0; i < this.playerNames.length; ++i){
 		var text = "";
-		text = text + (i+1) + ". " + playerNames[i];
+		text = text + (i+1) + ". " + this.playerNames[i];
 		graphics.strokeText(text, sw/10, 210 + 35*i);
 	}
 	
@@ -310,8 +316,8 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.textAlign = 'right';
 	
-	for( i = 0; i < playerScores.length; ++i){
-		var text = playerScores[i];
+	for( i = 0; i < this.playerScores.length; ++i){
+		var text = this.playerScores[i];
 		graphics.strokeText(text, 9*sw/10, 210 + 35*i);
 	}
 	
@@ -331,6 +337,20 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.fillText("Hard", 150, 595);
 	
 	graphics.textAlign = 'center';
+}
+
+MenuManager.prototype.setDistanceHighScores = function(data) {
+	for (var i = 0; i < data.length; ++i) {
+		this.playerNames[i] = data[i].playerName;
+		this.playerScores[i] = data[i].dist;
+	}
+}
+
+MenuManager.prototype.setTimeHighScores = function(data) {
+	for (var i = 0; i < data.length; ++i) {
+		this.playerNames[i] = data[i].playerName;
+		this.playerScores[i] = data[i].time;
+	}
 }
 
 function toMainMenu(){
@@ -516,6 +536,22 @@ function menuHandleScroll( event ){
 function setHighscoreStyle( style ){
 
 	myGame.menuManager.hsStyle = style;
+	socket.emit('highScoresRequest', { scoreType: style });
+	
+	socket.on(
+			'highScoresResponse',
+			function(data) {
+				if (data) {
+					console.log("Got the high scores response.");
+					if (style == CHALLENGE) {
+						myGame.menuManager.setDistanceHighScores(data.scores);
+					}
+					else {
+						myGame.menuManager.setTimeHighScores(data.scores);
+					}
+				}
+		});	
+	
 
 }
 
