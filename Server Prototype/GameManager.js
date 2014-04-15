@@ -892,7 +892,7 @@ GameManager.prototype.drawTimeTrialBackground = function( g ){
 	g.fillStyle = "green";
 	g.font = "35px Courier";
 
-	g.fillText("UP TO TRHUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
+	g.fillText("UP TO THRUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
 	g.fillText("NAVIGATE THE OBSTACLES AND AIM FOR THE BEST TIME!", sw/2 - this.so, sh/2 + 100);
 	
 
@@ -907,7 +907,7 @@ GameManager.prototype.drawChallengeBackground = function( g ){
 	g.fillStyle = "green";
 	g.font = "35px Courier";
 
-	g.fillText("UP TO TRHUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
+	g.fillText("UP TO THRUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
 	g.fillText("SURVIVE AS LONG AS YOU CAN AND GET THE BEST SCORE!", sw/2 - this.so, sh/2 + 100);
 	
 
