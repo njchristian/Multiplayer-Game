@@ -108,15 +108,17 @@ MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 MenuManager.prototype.createMainMenu = function( g ){
 
 	g.font = "60px Courier";
-	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, 235, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
-	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, 305, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
 	
-	this.mainMenu[2] = new CanvasText( "ONLINE RACE", sw/2, 460, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE );
-	this.mainMenu[3] = new CanvasText( "ONLINE CHALLENGE", sw/2, 530, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE);
+	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL ); // was 235
+	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
+	
+	
+	this.mainMenu[2] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*7.45, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); // was 460
+	this.mainMenu[3] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*8.55, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); // was 530
 	
 	g.font = "65px Courier";
-	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
-	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, (sh/12)*10.25, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions ); // 600
+	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, (sh/12)*10.25, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores ); // 600
 	g.font = "50px Courier";
 	this.mainMenu[6] = new CanvasText( "TUTORIAL", sw/7, sh/2, g.measureText( "TUTORIAL" ).width, 50, true, goToGame, TUTORIAL);
 
@@ -125,25 +127,29 @@ MenuManager.prototype.createMainMenu = function( g ){
 MenuManager.prototype.createInstructionMenu = function( g ){
 
 	g.font = "65px Courier";
-	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
+	
+	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 
 }
 
 MenuManager.prototype.createHighscoreMenu = function( g ){
 
 	g.font = "65px Courier";
-	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, 600, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu );
+	
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 	
 	g.font = "35px Courier";
 	
 	var w = g.measureText("Challenge").width;
-	this.highscoreMenu[1] = new CanvasText( "Challenge", 325 + w/2, 560, w, 35, true, setHighscoreStyle, CHALLENGE);
-	var w = g.measureText("Easy").width;
-	this.highscoreMenu[2] = new CanvasText( "Easy", 20 + w/2, 595, w, 35, true, setHighscoreStyle, TT_EASY);
+
+	this.highscoreMenu[1] = new CanvasText( "Challenge", 325 + w/2, (sh/10)*7.75, w, 35, true, setHighscoreStyle, CHALLENGE); // 650
+	var w = g.measureText("Easy").width; 
+	this.highscoreMenu[2] = new CanvasText( "Easy", 20 + w/2, (sh/10)*8.25, w, 35, true, setHighscoreStyle, TT_EASY); // 595
 	var w = g.measureText("Medium").width;
-	this.highscoreMenu[3] = new CanvasText( "Medium", 20 + w/2, 630, w, 35, true, setHighscoreStyle, TT_MEDIUM);
-	var w = g.measureText("Hard").width;
-	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, 595, w, 35, true, setHighscoreStyle, TT_HARD);
+	
+	this.highscoreMenu[3] = new CanvasText( "Medium", 20 + w/2, (sh/10)*8.75, w, 35, true, setHighscoreStyle, TT_MEDIUM); // 630
+	var w = g.measureText("Hard").width; 
+	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, (sh/10)*8.25, w, 35, true, setHighscoreStyle, TT_HARD); // 595
 	
 }
 
@@ -184,55 +190,70 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.font = "120px Courier";
 	
-	graphics.strokeText("SPACE ESCAPE",sw/2,75);
+	
+	graphics.strokeText("SPACE ESCAPE",sw/2, sh/12); //was 75
 	
 	graphics.lineWidth = 2;
 	graphics.font = "80px Courier";
 	graphics.strokeStyle ="green";
 	
-	graphics.strokeText("SINGLE PLAYER", sw/2, 160);
 	
-	graphics.strokeText("MULTIPLAYER", sw/2, 385);
+	graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*2.5); // was 160
+	
+	
+	graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*6.25); // was 385
 	
 	graphics.font = "60px Courier";
 	graphics.lineWidth = 1;
 	
 	if( this.mainMenu[0].mouseOn ){
-		graphics.strokeText("TIME TRIAL", sw/2, 235);
+		
+		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*3.75); // was 235
 	}else{
-		graphics.fillText("TIME TRIAL", sw/2, 235);
+	
+		graphics.fillText("TIME TRIAL", sw/2, (sh/12)*3.75); // was 235
 	}
 	
 	if( this.mainMenu[1].mouseOn ){
-		graphics.strokeText("CHALLENGE", sw/2, 305);
+		
+		graphics.strokeText("CHALLENGE", sw/2, (sh/12)*4.85); // was 305
 	}else{
-		graphics.fillText("CHALLENGE", sw/2, 305);
+		
+		graphics.fillText("CHALLENGE", sw/2, (sh/12)*4.85);
 	}
 	
 	if( this.mainMenu[2].mouseOn ){
-		graphics.strokeText("ONLINE RACE", sw/2, 460);
+		
+		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*7.45); // was 460
 	}else{
-		graphics.fillText("ONLINE RACE", sw/2, 460);
+		
+		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*7.45);
 	}
 	
 	if( this.mainMenu[3].mouseOn ){
-		graphics.strokeText("ONLINE CHALLENGE", sw/2, 530);
+		
+		graphics.strokeText("ONLINE CHALLENGE", sw/2, (sh/12)*8.55); // was 530
 	}else{
-		graphics.fillText("ONLINE CHALLENGE", sw/2, 530);
+		
+		graphics.fillText("ONLINE CHALLENGE", sw/2, (sh/12)*8.55);
 	}
 	
 	graphics.font = "65px Courier";
 	
 	if( this.mainMenu[4].mouseOn ){
-		graphics.strokeText("INSTRUCTIONS", sw/4, 600);
+		
+		graphics.strokeText("INSTRUCTIONS", sw/4, (sh/12)*10.25); // was 600
 	}else{
-		graphics.fillText("INSTRUCTIONS", sw/4, 600);
+		
+		graphics.fillText("INSTRUCTIONS", sw/4, (sh/12)*10.25);
 	}
 	
 	if( this.mainMenu[5].mouseOn ){
-		graphics.strokeText("HIGHSCORES", 3*sw/4, 600);
+	
+		graphics.strokeText("HIGHSCORES", 3*sw/4, (sh/12)*10.25); // was 600
 	}else{
-		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
+		
+		graphics.fillText("HIGHSCORES", 3*sw/4, (sh/12)*10.25);
 	}
 	
 	graphics.font = "50px Courier";
@@ -277,33 +298,40 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	
 	graphics.font = "120px Courier";
 	
-	graphics.strokeText("INSTRUCTIONS",sw/2,75);
+	
+	graphics.strokeText("INSTRUCTIONS",sw/2, (sh/12)); // was 75
 	
 	graphics.font = "30px Courier";
-	graphics.fillText("MOVE THROUGH THE OBSTACLES WITH YOUR SHIP!",sw/2,150);
+	
+	graphics.fillText("MOVE THROUGH THE OBSTACLES WITH YOUR SHIP!",sw/2, (sh/10)*2); // 150
 	
 	graphics.textAlign = 'left';
 	graphics.font = "40px Courier";
-	graphics.strokeText("CONTROLS",10,210);
-	graphics.strokeText("GAME MODES",10,370);
+
+	graphics.strokeText("CONTROLS",10, (sh/10)*3); // 210
+	graphics.strokeText("GAME MODES",10, (sh/10)*6); // 370
 	
 	graphics.font = "30px Courier";
-	graphics.fillText("UP ARROW: THRUST SHIP",10,240);
-	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,270);
-	graphics.fillText("P: PAUSE",10,300);
+
+	graphics.fillText("UP ARROW: THRUST SHIP",10,(sh/10)*3.5); // 240
+	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,(sh/10)*4); // 270
+	graphics.fillText("P: PAUSE",10,(sh/10)*4.5); // 300
 	
 	graphics.font = "25px Courier";
-	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,400);
-	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,430);
-	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,460);
+	
+	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,(sh/10)*6.5); // 400
+	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,(sh/10)*7); // 430
+	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,(sh/10)*7.5); // 460
 	
 	graphics.textAlign = 'center';
 	graphics.font = "65px Courier";
 	
 	if( this.instructionMenu[0].mouseOn ){
-		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+		
+		graphics.strokeText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
 	}else{
-		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+		
+		graphics.fillText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
 	}
 
 	this.drawInstructionShip( graphics, this.instructionShip );
@@ -356,14 +384,17 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.font = "120px Courier";
 	
-	graphics.strokeText("HIGHSCORES",sw/2,75);
+	
+	graphics.strokeText("HIGHSCORES",sw/2,sh/12); // was 75
 	
 	graphics.font = "65px Courier";
 	
 	if( this.highscoreMenu[0].mouseOn ){
-		graphics.strokeText("MAIN MENU", 3*sw/4, 600);
+		
+		graphics.strokeText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
 	}else{
-		graphics.fillText("MAIN MENU", 3*sw/4, 600);
+		
+		graphics.fillText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
 	}
 	
 	//Draw table
@@ -371,22 +402,26 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.lineWidth = 5;
 	
 	graphics.beginPath();
-	graphics.moveTo(sw/10, 170);
-	graphics.lineTo(9*sw/10, 170);
+	
+	graphics.moveTo(sw/10, (sh/10)*2.25); // 170
+	graphics.lineTo(9*sw/10, (sh/10)*2.25); // 170
 	graphics.stroke();
 	
 	graphics.font = "45px Courier";
 	
 	graphics.lineWidth = 1;
 	
-	graphics.strokeText("Player", sw/5, 150);
+	
+	graphics.strokeText("Player", sw/5, (sh/10)*1.9); // 150
 	
 	
 	//
 	if( this.hsStyle == CHALLENGE ){
-		graphics.strokeText("Score", 4*sw/5, 150);
+		
+		graphics.strokeText("Score", 4*sw/5, (sh/10)*1.9); // 150
 	}else{
-		graphics.strokeText("Time", 4*sw/5, 150);
+	
+		graphics.strokeText("Time", 4*sw/5, (sh/10)*1.9); // 150
 	}
 	
 	//
@@ -412,7 +447,8 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	}
 	
 	graphics.textAlign = 'center';
-	graphics.fillText(styleText, sw/2, 150);
+	
+	graphics.fillText(styleText, sw/2, (sh/10)*1.9); // 150
 	
 	
 	//populate this array...
@@ -431,37 +467,42 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	for( i = 0; i < this.playerNames.length; ++i){
 		var text = "";
 		text = text + (i+1) + ". " + this.playerNames[i];
-		graphics.strokeText(text, sw/10, 210 + 35*i);
+		
+		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
 	}
 	
 	
 	for( var j = i; j < 10; ++j ){
 		var text = "";
-		text = text + (j+1) + ". ...";
-		graphics.strokeText(text, sw/10, 210 + 35*j);
+		
+		text = text + (j+1) + ". ..."; // this got broken somehow
+		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
 	}
 	
 	graphics.textAlign = 'right';
 	
 	for( i = 0; i < this.playerScores.length; ++i){
 		var text = this.playerScores[i];
-		graphics.strokeText(text, 9*sw/10, 210 + 35*i);
+	
+		graphics.strokeText(text, 9*sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
 	}
 	
 	
 	for( var j = i; j < 10; ++j ){
-		graphics.strokeText("...", 9*sw/10, 210 + 35*j);
+		
+		graphics.strokeText("...", 9*sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
 	}
 	
 	graphics.textAlign = 'left';
 	
 	graphics.font = "35px Courier";
 	
-	graphics.fillText("Time Trial:", 20, 560);
-	graphics.fillText("Challenge", 325, 560);
-	graphics.fillText("Easy", 20, 595);
-	graphics.fillText("Medium", 20, 630);
-	graphics.fillText("Hard", 150, 595);
+	
+	graphics.fillText("Time Trial:", 20, (sh/10)*7.75); // 560
+	graphics.fillText("Challenge", 325, (sh/10)*7.75); // 560
+	graphics.fillText("Easy", 20, (sh/10)*8.25); // 595
+	graphics.fillText("Medium", 20, (sh/10)*8.75); // 630
+	graphics.fillText("Hard", 150, (sh/10)*8.25); // 595
 	
 	graphics.textAlign = 'center';
 }

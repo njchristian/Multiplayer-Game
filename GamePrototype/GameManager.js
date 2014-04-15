@@ -246,7 +246,7 @@ GameManager.prototype.update = function(){
 		}else{
 			this.currentLevel++;
 			if( this.bulletSet.length == 0 ){
-				//this.generateBulletSet();
+				this.generateBulletSet();
 			}
 		}
 		
