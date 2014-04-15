@@ -177,6 +177,14 @@ html {
 					
 				  });
 			
+			// if the server goes offline while the client is logged in, 
+			// it will execute this code
+			socket.on(
+				'disconnect',
+				function() {
+					console.log("Lost connection with the server");
+			});
+			
 			$('#login').click(function() {
 			  name = $('#name').val();
 			  if (name) {
