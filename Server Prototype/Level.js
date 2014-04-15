@@ -127,6 +127,7 @@ function makeLevelOne( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -165,6 +166,7 @@ function makeLevelTwo( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -210,6 +212,7 @@ function makeLevelThree ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -245,6 +248,7 @@ function makeLevelFour ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -280,6 +284,7 @@ function makeLevelFive ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -319,6 +324,7 @@ function makeLevelSix ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -356,6 +362,7 @@ function makeLevelSeven ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -399,6 +406,7 @@ function makeLevelEight ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -440,6 +448,7 @@ function makeLevelNine ( levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -477,6 +486,7 @@ function makeLevelTen (levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
@@ -515,12 +525,51 @@ function makeLevelEleven (levels, multi, top, isChallenge, index, swOffset ){
 	if( isChallenge ){
 		t = index;
 		i = swOffset;
+		levels[t] = new Level();
 	}else{
 		t = levels.length - 1;
 		i = t;
 	}
 	
 	levels[t].blocks[0] = new Block(new Point( i*sw + lbw, base + lsh - lbw), new Point( i*sw + lbw + 1, base + lsh - lbw), new Point( i*sw + sw - lbw, base + lsh - lbw), new Point (i*sw + sw/2, base + lsh/4));
+	
+	makeBoundingBlocks (levels, multi, top, isChallenge, index, swOffset );
+}
+
+levelFactory[11] = makeLevelTwelve;
+function makeLevelTwelve (levels, multi, top, isChallenge, index, swOffset ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+		levels[t] = new Level();
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	
+	//levels[t].blocks[0] = new Block(new Point( i*sw + , base + ), new Point( i*sw + , base + ), new Point( i*sw + , base + ), new Point (i*sw + , base + ));
+	levels[t].blocks[0] = new Block(new Point( i*sw + sw/6, base + lsh/4), new Point( i*sw + sw/4, base + 3*lsh/4), new Point( i*sw + sw/3, base + 3*lsh/4), new Point (i*sw + sw/3, base + lsh/4));
+	levels[t].blocks[1] = new Block(new Point( i*sw + 2*sw/3, base + lbw), new Point( i*sw + 2*sw/3, base + lsh/4), new Point( i*sw + 5*sw/6, base + lsh/4), new Point (i*sw + 5*sw/6, base + lbw));
+	levels[t].blocks[2] = new Block(new Point( i*sw + 2*sw/3, base + lsh-lbw), new Point( i*sw + 2*sw/3, base + 3*lsh/4), new Point( i*sw + 5*sw/6, base + 3*lsh/4), new Point (i*sw + 5*sw/6, base + lsh - lbw));
 	
 	makeBoundingBlocks (levels, multi, top, isChallenge, index, swOffset );
 }
