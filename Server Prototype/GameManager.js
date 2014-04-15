@@ -402,7 +402,8 @@ GameManager.prototype.onDeath = function(){
 			
 		//if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
 		
-		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
+		console.log("height = "+sh/2);
+		animateDeath( this.ship, this.currentLevel * sw, sh/2, this.so, this.isMulti(), respawnOffset);
 		this.deathCounter++;	
 		
 		//this.deathDSO = respawnOffset/frames;
@@ -416,7 +417,7 @@ GameManager.prototype.onDeath = function(){
 			
 		//this.ship.xPos = respawnPoint;
 			
-		//this.ship.yPos = sh/4;
+		//this.ship.yPos = sh/2;
 		//this.ship.vx = 0;
 		//this.ship.vy = 0;
 		
@@ -432,7 +433,7 @@ GameManager.prototype.respawn = function(){
 			
 	this.ship.rotation = 0;
 	this.ship.xPos = respawnPoint;	
-	this.ship.yPos = sh/4;
+	this.ship.yPos = sh/2;
 	this.ship.vx = 0;
 	this.ship.vy = 0;
 
