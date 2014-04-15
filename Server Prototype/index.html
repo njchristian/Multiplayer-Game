@@ -6,12 +6,12 @@
 
 <style type="text/css">
 body {
-  height: 100%;	
+  height: 98%;	
   font-family: sans-serif;
 }
 
 html {
-  height: 100%;
+  height: 98%;
 }
 
 #status {
@@ -119,6 +119,7 @@ html {
 		$(document).ready(function() {
 			// Hide the warning section and show the login section.
 			
+			$('#gameCanvas').css('display', 'none');
 			$('#login_section').css('display', 'block');
 			
 			//set the values of the Canvas
@@ -156,7 +157,7 @@ html {
 				'login_ok',
 				  function() {
 					$('#login_section').css('display', 'none');
-					
+					$('#gameCanvas').css('display', 'block');
 					//I forgot the format for adding event listeners, so here it is for reference
 			
 					document.addEventListener('keydown', gameHandleKeyDown);
@@ -183,6 +184,8 @@ html {
 				'disconnect',
 				function() {
 					console.log("Lost connection with the server");
+					myGame.gameManager.onDeath();
+					$('#gameCanvas').css('display', 'none');
 			});
 			
 			$('#login').click(function() {
