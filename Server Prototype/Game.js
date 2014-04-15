@@ -80,6 +80,7 @@ function goToGame( gm ){
 		'waitForRace',
 		function(message) {
 			if (message) {
+				myGame.menuManager.isWaiting = true;
 				console.log('waiting for opponent');
 				//myGame.gameManager.drawWait( myGame.gameManager.g );
 			}
@@ -89,6 +90,7 @@ function goToGame( gm ){
 		'opponentForRace',
 		function(message) {
 			//if (message) {
+				myGame.menuManager.isWaiting = false;
 				myGame.isOnMenu = false;
 				myGame.gameManager.newGame( gm );
 			//}
