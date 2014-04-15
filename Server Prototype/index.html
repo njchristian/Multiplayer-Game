@@ -79,7 +79,7 @@ html {
 		var sw;// = $(window).width() - 50;
 		var sh;// = $(window).height() - 50;
 		
-		var bw = 40;
+		var bw;
 		
 		var gameLength = 0;
 		
@@ -122,8 +122,21 @@ html {
 			$('#login_section').css('display', 'block');
 			
 			//set the values of the Canvas
-			sw = $(window).width() - 50;
-			sh = $(window).height() - 50; 
+			var ww = $(window).width() - 50;
+			var wh = $(window).height() - 50; 
+			
+			if( wh > .65 * ww ){
+				sh = wh;
+				sw = ww;
+			}else{
+				sh = wh;
+				sw = sh/.65;
+			}
+			
+			bw = sw/25;
+			
+			SHIP_HEIGHT = 15/40 * bw;
+			
 			document.getElementById('gameCanvas').width = sw;
 			document.getElementById('gameCanvas').height = sh;
 			// Initialize socket.io.

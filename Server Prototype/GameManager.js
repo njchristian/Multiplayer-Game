@@ -355,9 +355,10 @@ GameManager.prototype.update = function(){
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
 			this.challengeSV+=.2;
+			this.currentLevel = (this.currentLevel + 1)%4;
 			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
-			this.currentLevel = (this.currentLevel + 1)%4;
+			
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
@@ -477,6 +478,10 @@ GameManager.prototype.respawn = function(){
 	this.dead = false;
 
 	var respawnPoint = this.currentLevel * sw;
+			
+	if( this.currentLevel == 0 ){
+		respawnPoint = 2*bw;
+	}
 			
 	this.ship.rotation = -PI/2;
 	this.ship.xPos = respawnPoint;	
