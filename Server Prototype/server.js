@@ -431,8 +431,9 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 		for (var i = 0; i < newHighScore.playerRatings.length; ++i) {
 			highScores.addNewRating(new Rating(newHighScore.playerRatings[i].playerName, newHighScore.playerRatings[i].rating));
 		}
-		console.log("Sec: " + highScores.overallBestTimes[0].sec);
+		//console.log("Sec: " + highScores.overallBestTimes[0].sec);
 		// for ( var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
+			// highScores[highScores.length - 1] = newHighScore.
 			// highScores[highScores.length - 1] = newHighScore.
 		// }
 	}

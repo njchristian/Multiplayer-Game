@@ -416,7 +416,7 @@ GameManager.prototype.onDeath = function(){
 			
 		//this.ship.xPos = respawnPoint;
 			
-		//this.ship.yPos = sh/4;
+		//this.ship.yPos = sh/2;
 		//this.ship.vx = 0;
 		//this.ship.vy = 0;
 		
