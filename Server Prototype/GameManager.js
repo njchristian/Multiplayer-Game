@@ -454,9 +454,10 @@ GameManager.prototype.onDeath = function(){
 	
 		this.dead = true;
 		
-		this.tutorialPause = true;
-		this.tutorialStage = 5;
-		
+		if( this.isTutorial){
+			this.tutorialPause = true;
+			this.tutorialStage = 5;
+		}
 		//setTimeout( alive, 3000 );
 		
 		//this.so-=respawnOffset;
