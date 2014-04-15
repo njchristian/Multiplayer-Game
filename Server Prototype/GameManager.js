@@ -3,6 +3,7 @@ var TIME_TRIAL = 1;
 var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
+var TUTORIAL = 5;
 
 function GameManager( gameObject, g, websocket, userName ){
 
@@ -83,6 +84,9 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
 	this.endScroll = false;
 	
+	this.isTutorial = false
+	this.tutorialPause = false;
+	
 }
 
 GameManager.prototype.newGame = function( gm ){
@@ -108,7 +112,10 @@ GameManager.prototype.newGame = function( gm ){
 	this.challengeSV = 2;
 	
 	this.ship.xPos = sw/2;
-	this.ship.yPos = sh/4;
+	this.ship.yPos = sh/2;
+	if( this.isMulti() ){
+		this.ship.yPos = sh/4;
+	}
 	this.ship.vx = 0;
 	this.ship.vy = 0;
 	this.ship.rotation = -1*PI/2;
@@ -125,6 +132,8 @@ GameManager.prototype.newGame = function( gm ){
 	
 	this.levelLayout = new Array();
 	this.challengeBuffer = new Array();
+	
+	this.isTutorial = false;
 	
 	this.levelGenerator();
 	
@@ -145,6 +154,10 @@ GameManager.prototype.levelGenerator = function(){
 		this.initChallengeBuffer();
 	}else{
 	
+		if( this.gameMode == TUTORIAL ){
+			this.generateTutorial();
+		}
+	
 	}
 
 }
@@ -154,6 +167,14 @@ GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLeve
 	initializeLevels( this.levelLayout, multi, top, opLevels );
 
 }
+
+GameManager.prototype.generateTutorial = function( ){
+
+	initializeTutorial( this.levelLayout );
+	this.tutorialPause = true;
+
+}
+
 
 GameManager.prototype.initChallengeBuffer = function(){
 
@@ -207,6 +228,7 @@ GameManager.prototype.draw = function( graphics ){
 	}
 	
 	if( this.pause ) this.drawPause( graphics );
+	if( this.tutorialPause ) this.drawTutorialPause( graphics );
 
 }
 /*
@@ -324,6 +346,12 @@ GameManager.prototype.update = function(){
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;
+			
+			if( this.isTutorial ){
+				//moving to a new level is a good time to tell the user something
+				this.tutorialPause = false;
+			}
+			
 			//this.generateBulletSet();
 		}
 		
@@ -430,7 +458,7 @@ GameManager.prototype.respawn = function(){
 
 	var respawnPoint = this.currentLevel * sw;
 			
-	this.ship.rotation = 0;
+	this.ship.rotation = -PI/2;
 	this.ship.xPos = respawnPoint;	
 	if( this.isMulti() ){
 		this.ship.yPos = sh/4;
@@ -954,6 +982,30 @@ GameManager.prototype.drawBullets = function(g){
 	// }
 // };
 
+GameManager.prototype.drawTutorialPause = function( graphics, text ){
+
+	//draw the pause menu
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+
+	graphics.textAlign = 'center';
+	
+	graphics.font = "40px Courier";
+	
+	graphics.fillText("This is where advice for the player goes", sw/2, sh/2);
+	
+	
+	graphics.font = "40px Courier";
+	
+	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+}	
+
 GameManager.prototype.drawEndGame = function( graphics, won ){
 
 	//draw the pause menu
@@ -1039,6 +1091,11 @@ function gameHandleKeyDown(e){
 	case KEYCODE_P:
 	
 		if( myGame.isOnMenu ) break;
+	
+		if( myGame.gameManager.tutorialPause ){
+			//if the tutorial is paused we want to do something different
+			myGame.gameManager.tutorialPause = false;
+		}
 	
 		if( !myGame.gameManager.isMulti() ){
 			myGame.gameManager.pause = !myGame.gameManager.pause;
