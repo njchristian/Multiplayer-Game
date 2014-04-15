@@ -508,6 +508,15 @@ GameManager.prototype.drawBackground = function( graphics ){
 
 	graphics.fillRect(0, 0, sw, sh);
 	
+	if( this.currentLevel <= 1 && !this.isMulti() ){
+	
+		if( this.isChallenge() ){
+			this.drawChallengeBackground( graphics );
+		}else{
+			this.drawTimeTrialBackground( graphics );
+		}
+	}
+	
 	//graphics.fillStyle = "green";
 	//graphics.fillRect( 100, 100, 100, 100 );
 	
@@ -789,6 +798,36 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 		
 	}
 	graphics.stroke();
+}
+
+GameManager.prototype.drawTimeTrialBackground = function( g ){
+
+	g.textAlign = 'center';
+	
+	g.font = "100px Courier";
+	
+	g.fillStyle = "green";
+	g.font = "35px Courier";
+
+	g.fillText("UP TO TRHUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
+	g.fillText("NAVIGATE THE OBSTACLES AND AIM FOR THE BEST TIME!", sw/2 - this.so, sh/2 + 100);
+	
+
+}
+
+GameManager.prototype.drawChallengeBackground = function( g ){
+
+	g.textAlign = 'center';
+	
+	g.font = "100px Courier";
+	
+	g.fillStyle = "green";
+	g.font = "35px Courier";
+
+	g.fillText("UP TO TRHUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
+	g.fillText("SURVIVE AS LONG AS YOU CAN AND GET THE BEST SCORE!", sw/2 - this.so, sh/2 + 100);
+	
+
 }
 
 GameManager.prototype.drawPause = function( graphics ){

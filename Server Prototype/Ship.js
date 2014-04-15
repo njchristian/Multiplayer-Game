@@ -1,4 +1,4 @@
-
+var MAX_SPEED = 15;
 
 function Ship(){
 
@@ -29,8 +29,11 @@ Ship.prototype.thrust = function( isMulti ){
 	//console.log("Thrust");
 	
 	this.vx += (Math.cos( this.rotation + PI/2 )*.5);
-	if(this.vx > 15) this.vx = 15;
+	if(this.vx > MAX_SPEED) this.vx = MAX_SPEED;
+	if( this.vx < -MAX_SPEED ) this.vx = -MAX_SPEED
 	this.vy -= (Math.sin( this.rotation + PI/2 )*.5) * multiMulti;
+	if(this.vy > MAX_SPEED) this.vy = MAX_SPEED;
+	if( this.vy < -MAX_SPEED ) this.vy = -MAX_SPEED
 
 }
 

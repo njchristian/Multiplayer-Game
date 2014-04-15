@@ -280,8 +280,8 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.fillText("P: PAUSE",10,300);
 	
 	graphics.font = "25px Courier";
-	graphics.fillText("TIME TRIAL: 5 LIVES, COMPLETE THE LEVELS AS FAST AS YOU CAN",10,400);
-	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN",10,430);
+	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,400);
+	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,430);
 	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,460);
 	
 	graphics.textAlign = 'center';
