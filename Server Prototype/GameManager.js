@@ -5,6 +5,12 @@ var MULTI_RACE = 3;
 var MULTI_CHALLENGE = 4;
 var TUTORIAL = 5;
 
+var T_STAGE1 = 1;
+var T_STAGE2 = 2;
+var T_STAGE3 = 3;
+var T_STAGE4 = 4;
+var T_STAGE5 = 5;
+
 function GameManager( gameObject, g, websocket, userName ){
 
 	this.parentGame = gameObject;
@@ -86,6 +92,7 @@ function GameManager( gameObject, g, websocket, userName ){
 	
 	this.isTutorial = false
 	this.tutorialPause = false;
+	this.tutorialStage = 1;
 	
 }
 
@@ -133,7 +140,12 @@ GameManager.prototype.newGame = function( gm ){
 	this.levelLayout = new Array();
 	this.challengeBuffer = new Array();
 	
-	this.isTutorial = false;
+	this.tutorialStage = 1;
+	if( gm == TUTORIAL ){
+		this.isTutorial = true;
+	}else{
+		this.isTutorial = false;
+	}
 	
 	this.levelGenerator();
 	
@@ -246,13 +258,16 @@ GameManager.prototype.handleUpdate = function( update ){
 
 GameManager.prototype.update = function(){
 
-	if( this.pause || this.gameOver ) return;
+	if( this.pause || this.gameOver || this.tutorialPause ) return;
 	
 	if( this.dead ){
+		this.tutorialStage = 5;
 		updateDeathAnimation();
 		this.so-=this.deathDSO;
 		return;
 	}
+	
+	this.tutorialStage = this.currentLevel+1;
 	
 	if( this.isMulti() ){
 		// send own update
@@ -348,8 +363,9 @@ GameManager.prototype.update = function(){
 			this.currentLevel++;
 			
 			if( this.isTutorial ){
+				this.tutorialStage = this.currentLevel +  1;
 				//moving to a new level is a good time to tell the user something
-				this.tutorialPause = false;
+				this.tutorialPause = true;
 			}
 			
 			//this.generateBulletSet();
@@ -437,6 +453,9 @@ GameManager.prototype.onDeath = function(){
 		this.deathDSO = respawnOffset/(deathAnimationTime*fps);
 	
 		this.dead = true;
+		
+		this.tutorialPause = true;
+		this.tutorialStage = 5;
 		
 		//setTimeout( alive, 3000 );
 		
@@ -554,7 +573,7 @@ GameManager.prototype.drawBackground = function( graphics ){
 		if( this.currentLevel >= this.levelLayout.length - 3){
 			
 			//Draw finish line
-			
+			graphics.lineWidth = 1;
 			graphics.strokeStyle = "red";
 			
 			graphics.beginPath();
@@ -588,6 +607,7 @@ GameManager.prototype.drawBackground = function( graphics ){
 GameManager.prototype.drawBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
+	graphics.lineWidth = 1;
 	
 	var drawArray;
 	var startIndex;
@@ -982,28 +1002,78 @@ GameManager.prototype.drawBullets = function(g){
 	// }
 // };
 
-GameManager.prototype.drawTutorialPause = function( graphics, text ){
+GameManager.prototype.drawTutorialPause = function( graphics ){
 
 	//draw the pause menu
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
 
+	graphics.fillStyle = "green";
+	
 	graphics.textAlign = 'center';
 	
-	graphics.font = "40px Courier";
+	graphics.font = "15px Courier";
 	
-	graphics.fillText("This is where advice for the player goes", sw/2, sh/2);
+	var text = new Array();
+	switch( this.tutorialStage ){
+	
+	case 1:
+		text[0] = "Welcome to Space Escape!";
+		text[1] = "Use the arrow keys to guide your ship";
+		text[2] = "through the course.";
+		text[2] = "Avoid the walls and obstacles!";
+		text[3] = "Press 'p' to continue,";
+		text[4] = "and 'p' to pause at any time";
+		break;
+	case 2:
+		text[0] = "Here comes your first obstacle!";
+		text[1] = "Carefully fly over the top.";
+		text[2] = "Hitting the obstacle will destroy your ship!";
+		break;
+	case 3:
+		text[0] = "This one will be a little more difficult!";
+		text[1] = "Just control your speed, and keep it slow.";
+		text[2] = "";
+		text[3] = "Tip: As you get more experienced,";
+		text[4] = "try turning and thrusting at the same time!";
+		break;
+	case 4:
+		text[0] = "Congratulations!";
+		text[1] = "Fly over the finish line to stop your time";
+		text[2] = "And finish your game.";
+		text[3] = "Now try your hand at time trial,";
+		text[4] = "Or challenge mode if you're up for it!";
+		break;
+	case 5:
+		text[0] = "Watch out!!!";
+		text[1] = "Deaths will slow you down";
+		text[2] = "And in challenge mode will end your game!";
+		text[3] = "";
+		text[4] = "Tip: At first, tap lightly on the keys";
+		text[5] = "to control your speed";
+		break;
+	}
+	
+	for( i in text ){
+	
+		graphics.fillText(text[i], sw/2, sh/2 - 120 + 40*i);
+		
+	}
+	
+	
 	
 	
 	graphics.font = "40px Courier";
 	
 	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	
+	graphics.stroke();
 }	
 
 GameManager.prototype.drawEndGame = function( graphics, won ){
@@ -1095,6 +1165,7 @@ function gameHandleKeyDown(e){
 		if( myGame.gameManager.tutorialPause ){
 			//if the tutorial is paused we want to do something different
 			myGame.gameManager.tutorialPause = false;
+			break;
 		}
 	
 		if( !myGame.gameManager.isMulti() ){

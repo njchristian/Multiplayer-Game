@@ -531,6 +531,8 @@ function initializeTutorial( levels ){
 	levelFactory[10]( levels, false, false, false );
 	levelFactory[9]( levels, false, false, false );
 	makeEnd( levels );
+	
+	levels[levels.length] = new Level();
 
 }
 		

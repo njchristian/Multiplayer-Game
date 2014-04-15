@@ -72,7 +72,7 @@ function goToGame( gm ){
 	var socket = myGame.socket;
 	
 	// race
-	if (gm == 3) {
+	if (gm == MULTI_RACE) {
 		socket.emit('mp_race', { user_name: myGame.name });
 		
 		// handle multiplayer race wait message
@@ -95,7 +95,7 @@ function goToGame( gm ){
 		});
 	}
 	// challenge --------------------------needs finishing TODO
-	else if (gm == 4) {
+	else if (gm == MULTI_CHALLENGE) {
 		socket.emit('mp_ch', { user_name: myGame.name });
 		
 		// handle multiplayer race wait message
@@ -117,13 +117,18 @@ function goToGame( gm ){
 		});
 	}
 	// single player
-	else if (gm == 1) {
+	else if (gm == TIME_TRIAL) {
 		socket.emit('sp_tt', { user_name: myGame.name });
 		myGame.isOnMenu = false;
 		myGame.gameManager.newGame( gm );
 	}
-	else if (gm == 2) {
+	else if (gm == SINGLE_CHALLENGE) {
 		socket.emit('sp_ch', { user_name: myGame.name });
+		myGame.isOnMenu = false;
+		myGame.gameManager.newGame( gm );
+	
+	}else if( gm == TUTORIAL ){
+	
 		myGame.isOnMenu = false;
 		myGame.gameManager.newGame( gm );
 	

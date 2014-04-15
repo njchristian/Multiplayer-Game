@@ -117,6 +117,8 @@ MenuManager.prototype.createMainMenu = function( g ){
 	g.font = "65px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, 600, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions );
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, 600, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores );
+	g.font = "50px Courier";
+	this.mainMenu[6] = new CanvasText( "TUTORIAL", sw/7, sh/2, g.measureText( "TUTORIAL" ).width, 50, true, goToGame, TUTORIAL);
 
 }
 
@@ -232,6 +234,17 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	}else{
 		graphics.fillText("HIGHSCORES", 3*sw/4, 600);
 	}
+	
+	graphics.font = "50px Courier";
+	graphics.strokeStyle ="red";
+	graphics.fillStyle ="red";
+	if( this.mainMenu[6].mouseOn ){
+		graphics.strokeText("TUTORIAL", sw/8, sh/2);
+	}else{
+		graphics.fillText("TUTORIAL", sw/8, sh/2);
+	}
+	
+	graphics.strokeStyle = "green";
 	
 	graphics.beginPath();
 	
@@ -534,6 +547,7 @@ function menuHandleClick(event){
 		
 			if( text.clicked( event.clientX, event.clientY ) ){
 			
+				console.log("Here");
 				text.callback( text.argument );
 				document.body.style.cursor = 'default';
 			

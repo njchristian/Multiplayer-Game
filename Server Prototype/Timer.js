@@ -19,7 +19,7 @@ Timer.prototype.clearTime = function(){
 }
 
 function Update(){
-	if(!myGame.gameManager.pause && !myGame.gameManager.gameOver){
+	if(!myGame.gameManager.pause && !myGame.gameManager.gameOver && !myGame.gameManager.tutorialPause){
 		timer.tenth++;
 		if(timer.tenth==10){
 			timer.tenth=0;
