@@ -452,6 +452,87 @@ function makeLevelNine ( levels, multi, top, isChallenge, index, swOffset ){
 	
 	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset );
 }
+
+levelFactory[9] = makeLevelTen;
+function makeLevelTen (levels, multi, top, isChallenge, index, swOffset ){
+	
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	
+	levels[t].blocks[0] = new Block( new Point( i*sw +sw/2, base + lsh/2 - lbw*2), new Point( i*sw +sw/2 + lbw*2, base + lsh/2), new Point( i*sw +sw/2, base + lsh/2 + lbw*2), new Point( i*sw + sw/2 - lbw*2, base + lsh/2) );
+	levels[t].blocks[1] = new Block( new Point( i*sw + lbw, base + lsh - lbw), new Point ( i*sw + lbw + 1, base + lsh - lbw), new Point( i*sw + sw/4, base + lsh - lbw), new Point ( i*sw + sw/4, base + 2*lsh/3 - lbw));
+	levels[t].blocks[2] = new Block( new Point( i*sw + lbw, base + lbw), new Point ( i*sw + lbw + 1, base + lbw), new Point ( i*sw + sw/4, base + lbw), new Point ( i*sw + sw/4, base + lbw + lsh/3));
+	levels[t].blocks[3] = new Block( new Point( i*sw + sw - lbw, base + lbw), new Point ( i*sw + sw - lbw - 1, base + lbw), new Point ( i*sw + 3*sw/4 - lbw, base + lbw), new Point ( i*sw + 3*sw/4 - lbw, base + lbw + lsh/3));
+	levels[t].blocks[4] = new Block( new Point( i*sw + sw - lbw, base + lsh - lbw), new Point(i*sw + sw - lbw - 1, base + lsh - lbw), new Point ( i*sw + 3*sw/4 - lbw, base + lsh - lbw), new Point (i*sw + 3*sw/4 - lbw, base + 2*lsh/3 - lbw));
+		
+	makeBoundingBlocks ( levels, multi, top, isChallenge, index, swOffset );
+}
+
+levelFactory[10] = makeLevelEleven;
+function makeLevelEleven (levels, multi, top, isChallenge, index, swOffset ){
+
+	var base;
+	if( multi ){
+		if( top ){
+			base = 0;
+		}else{
+			base = sh/2;
+		}
+	}else{
+		base = 0;
+	}
+	
+	var lbw = multi ? .5 * bw : bw;	
+	var lsh = multi ? .5 * sh : sh;
+	
+	if( !isChallenge ) levels[levels.length] = new Level();
+	
+	var i;
+	var t;
+	if( isChallenge ){
+		t = index;
+		i = swOffset;
+	}else{
+		t = levels.length - 1;
+		i = t;
+	}
+	
+	levels[t].blocks[0] = new Block(new Point( i*sw + lbw, base + lsh - lbw), new Point( i*sw + lbw + 1, base + lsh - lbw), new Point( i*sw + sw - lbw, base + lsh - lbw), new Point (i*sw + sw/2, base + lsh/4));
+	
+	makeBoundingBlocks (levels, multi, top, isChallenge, index, swOffset );
+}
+
+function initializeTutorial( levels ){
+
+	makeStart( levels, false, false );
+	levelFactory[10]( levels, false, false, false );
+	levelFactory[9]( levels, false, false, false );
+	makeEnd( levels );
+
+}
 		
 function initializeLevels( levels, multi, top, opLevels){
 		
@@ -498,7 +579,6 @@ function makeChallengeLevel( challengeBuffer, multi, top, index, swOffset ){
 	while ( rand == lastIndex ) {rand = Math.floor((Math.random()*5));}
 	lastIndex = rand;
 	if( index == -1 ) index = 3;
-	console.log(rand);
 	levelFactory[ rand ](challengeBuffer, multi, top, true, index, swOffset);
 
 
