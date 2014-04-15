@@ -432,7 +432,11 @@ GameManager.prototype.respawn = function(){
 			
 	this.ship.rotation = 0;
 	this.ship.xPos = respawnPoint;	
-	this.ship.yPos = sh/4;
+	if( this.isMulti() ){
+		this.ship.yPos = sh/4;
+	}else{
+		this.ship.yPos = sh/2;
+	}
 	this.ship.vx = 0;
 	this.ship.vy = 0;
 
@@ -515,6 +519,36 @@ GameManager.prototype.drawBackground = function( graphics ){
 		}else{
 			this.drawTimeTrialBackground( graphics );
 		}
+	}
+	
+	if( !this.isChallenge() ){
+	
+		if( this.currentLevel >= this.levelLayout.length - 3){
+			
+			//Draw finish line
+			
+			graphics.strokeStyle = "red";
+			
+			graphics.beginPath();
+			
+			var x = (this.levelLayout.length - 1.5) * sw - this.so;
+			
+			graphics.moveTo( x, bw );
+			graphics.lineTo( x, sh-bw );
+			
+			graphics.stroke();
+			
+			graphics.textAlign = 'center';
+	
+			graphics.font = "100px Courier";
+			var y = sh/2;
+			if( this.isMulti() ){
+				y = sh/4;
+			}
+			graphics.strokeText( "FINISH", x, y);
+			
+		}
+	
 	}
 	
 	//graphics.fillStyle = "green";
@@ -936,24 +970,34 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = "100px Courier";
+	graphics.font = "80px Courier";
 	
 	var text;
 	if( won ){
 		text = "YOU WON!";
 	}else{
-		text = "YOU SUCK"; //just for giggles but we should let the loser down softly
+		text = "GOOD GAME!"; //just for giggles but we should let the loser down softly
 	}
 	
-	graphics.strokeText(text, sw/2+50, sh/2+50 );
+	graphics.strokeText(text, sw/2+50, sh/2 - 100 );
 	
 	graphics.fillStyle = "green";
+	
+	graphics.font = "55px Courier";
+	if( this.isChallenge() ){
+		text = "SCORE: " + this.highChallengeScore;
+	}else{
+		text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
+	}
+	
+	graphics.fillText(text, sw/2 + 50, sh/2 + 50);
+	
 	graphics.font = "45px Courier";
 	
 	if( this.endScroll ){
-		graphics.strokeText("Main Menu", sw/2, sh/2 + 175 );
+		graphics.strokeText("Main Menu", sw/2 + 50, sh/2 + 175 );
 	}else{
-		graphics.fillText("Main Menu", sw/2, sh/2 + 175 );
+		graphics.fillText("Main Menu", sw/2 + 50, sh/2 + 175 );
 	}
 	
 }
