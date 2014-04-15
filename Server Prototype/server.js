@@ -397,7 +397,7 @@ waitingPlayer.prototype.clear = function() {
 var express = require('express');
 var app = express();
 app.use( express.static( __dirname) );
-var server = app.listen(10269);
+var server = app.listen(10268);
 
 // The socket.io WebSocket server, running with the node.js server.
 var io = require('socket.io').listen(server);
