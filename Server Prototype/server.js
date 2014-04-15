@@ -10,6 +10,7 @@
 	-rethink addPlayerRating function of HighScores.js
 	-need a way to delete games
 	-timer keeps counting after player wins
+	-clients don't require a re-login when the server goes down, this is probably not an issue
 */
 
 var TT_EASY = 1;
@@ -351,6 +352,20 @@ function GameManager()
 			}
 		}
 	}
+	
+	this.removeGame = function( playerID ) {
+		for( var i = allGames.length - 1; i >= 0; --i)
+		{
+			if( this.allGames[i].player1id === playerId)
+			{
+				this.allGames.splice(i, 1);
+			}
+			if( this.allGames[i].player2id === playerId )
+			{
+				this.allGames.splice(i, 1);
+			}
+		}
+	}
 }
 
 
@@ -368,6 +383,12 @@ waitingPlayer.prototype.setWaitingPlayer = function(name, id) {
 	this.isWaiting = true;
 }
 
+waitingPlayer.prototype.clear = function() {
+	this.userName = "";
+	this.userID = "";
+	this.isWaiting = false;
+}
+
 	
 // ---------------------------------Main---------------------------------------
 
@@ -376,7 +397,7 @@ waitingPlayer.prototype.setWaitingPlayer = function(name, id) {
 var express = require('express');
 var app = express();
 app.use( express.static( __dirname) );
-var server = app.listen(10268);
+var server = app.listen(10269);
 
 // The socket.io WebSocket server, running with the node.js server.
 var io = require('socket.io').listen(server);
@@ -429,7 +450,7 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 			highScores.addNewDistance(new Distance(newHighScore.overallBestDistances[i].playerName, newHighScore.overallBestDistances[i].dist));
 		}
 		for (var i = 0; i < newHighScore.playerRatings.length; ++i) {
-			highScores.addNewRating(new Rating(newHighScore.playerRatings[i].playerName, newHighScore.playerRatings[i].rating));
+			highScores.addNewRating(new RatingItem(newHighScore.playerRatings[i].playerName, newHighScore.playerRatings[i].rating));
 		}
 		//console.log("Sec: " + highScores.overallBestTimes[0].sec);
 		// for ( var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
@@ -460,15 +481,11 @@ function findPlayerIndex(playerName) {
 // and if so will remove them from that waiting list. this is called when the
 // player decides to quit waiting and play SP instead
 function clearAllWaiting(playerName) {
-	if (waitingOnRace.length != 0) {
-		if (waitingOnRace[0] == playerName) {
-			waitingOnRace.length = 0;
-		}
+	if (waitingOnRace.userName == playerName) {
+		waitingOnRace.clear();
 	}
-	if (waitingOnChallenge.length != 0) {
-		if (waitingOnChallenge[0] == playerName) {
-			waitingOnChallenge.length = 0;
-		}
+	if (waitingOnChallenge.userName == playerName) {
+		waitingOnChallenge.clear();
 	}
 }
 
@@ -498,8 +515,8 @@ io.sockets.on(
           client.emit('login_ok');
           // client.broadcast.emits() will send to all clients except the
           // current client. See socket.io FAQ for more examples.
-          client.broadcast.emit('notification',
-                                message.user_name + ' joined the game.'); // might wanna remove this
+          // client.broadcast.emit('notification',
+                                // message.user_name + ' joined the game.'); // might wanna remove this
 			console.log(message.user_name + ' joined the game.');
 			var playerIndex = findPlayerIndex(message.user_name);
 					
@@ -871,8 +888,11 @@ io.sockets.on(
 			//emit to the opponent
 			//client.broadcast.emit('opponentWon', { name : "" } ); 
 			emitOtherPlayer( client.id, 'opponentWon', { name : "" } );
-			// find player
 			
+			// remove the game from the games array
+			gameManager.removeGame(client.id);
+			
+			// find player
 			// update the winning player so that it gains rating
 			var playerIndex = findPlayerIndex(winObject.userName);
 			
@@ -903,7 +923,7 @@ io.sockets.on(
 
 	});
 	
-	// receive a signal that a client has lost their game
+	// receive a signal that a client in challenge has lost their game
 	client.on(
 		'lostGame',
 		// lostObject should have the user name of the player that has lost
@@ -913,7 +933,10 @@ io.sockets.on(
 			//client.broadcast.emit('opponentLost', { name : "" } ); 
 			emitOtherPlayer( client.id, 'opponentLost', { name : "" } ); 
 			
-			// update the winning player so that it gains rating
+			// remove the game from the games array
+			gameManager.removeGame(client.id);
+			
+			// find and update the winning player so that it gains rating
 			var playerIndex = findPlayerIndex(lostObject.userName);
 			
 			// make sure player exists
