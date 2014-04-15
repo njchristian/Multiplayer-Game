@@ -46,9 +46,9 @@ function Time(minutes, seconds, tenths, playerName) {
 Time.prototype.convertToString = function () {
 	// check to see if there are less than 10 seconds
 	// if so then add in a 0 placeholder in the tens spot
-	// if (this.sec < 10) {
-		// return this.min.toString() + ':0' + this.sec.toString() + '.' + this.tenth.toString();
-	// }
+	if (this.sec < 10) {
+		return this.min + ':0' + this.sec + '.' + this.tenth;
+	}
 	// return this.min.toString() + ':' + this.sec.toString() + '.' + this.tenth.toString();
 	return this.min + ':' + this.sec + '.' + this.tenth;
 }
