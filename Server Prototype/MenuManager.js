@@ -42,6 +42,9 @@ function MenuManager( gameObject, g ){
 	for (var i = 0; i < this.playerScores.length; ++i) {
 		this.playerScores[i] = "";
 	}
+	
+	this.isWaiting = false;
+	this.waitAnim = 0;
 }
 
 MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
@@ -168,6 +171,11 @@ MenuManager.prototype.draw = function( graphics ){
 
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
+		
+		if( this.isWaiting ){
+			this.drawWaiting( graphics );
+		}
+		
 	}else if( this.currentScreen == INSTRUCTIONS ){
 		this.drawInstructions(graphics);
 	}else if( this.currentScreen == HIGHSCORES ){
@@ -370,6 +378,40 @@ MenuManager.prototype.instructionShipUpdate = function(){
 	}else if( ship.yPos < -ship.height ){
 		ship.yPos = sh + ship.height;
 	}
+	
+}
+
+MenuManager.prototype.drawWaiting = function( graphics ){
+
+	//draw the pause menu
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'left';
+	
+	graphics.font = "60px Courier";
+	graphics.fillStyle = "green";
+	
+	var w = graphics.measureText( "Waiting...").width/2;
+	
+	if (this.waitAnim < fps/4){
+		graphics.fillText("Waiting", sw/2-w, sh/2);
+	}else if (this.waitAnim < fps/2){
+		graphics.fillText("Waiting.", sw/2-w, sh/2);
+	}else if (this.waitAnim < 3*fps/4){
+		graphics.fillText("Waiting..", sw/2-w, sh/2);
+	}else{
+		graphics.fillText("Waiting...", sw/2-w, sh/2);
+	}
+	this.waitAnim = (this.waitAnim+1)%fps;
 	
 }
 
