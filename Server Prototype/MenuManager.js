@@ -188,7 +188,6 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//Draw main menu
 	
-	
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="red";
 	graphics.textAlign = 'center';
@@ -196,13 +195,13 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.lineWidth = 1;
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("SPACE ESCAPE",sw/2, sh/12); //was 75
 	
 	graphics.lineWidth = 2;
-	graphics.font = "80px Courier";
+	graphics.font = sh/9+"px Courier";
 	graphics.strokeStyle ="green";
 	
 	
@@ -211,7 +210,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*6.25); // was 385
 	
-	graphics.font = "60px Courier";
+	graphics.font = sh/10+"px Courier";
 	graphics.lineWidth = 1;
 	
 	if( this.mainMenu[0].mouseOn ){
@@ -246,7 +245,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("ONLINE CHALLENGE", sw/2, (sh/12)*8.55);
 	}
 	
-	graphics.font = "65px Courier";
+	graphics.font = sh/11+"px Courier";
 	
 	if( this.mainMenu[4].mouseOn ){
 		
@@ -264,7 +263,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("HIGHSCORES", 3*sw/4, (sh/12)*10.25);
 	}
 	
-	graphics.font = "50px Courier";
+	graphics.font = sh/15+"px Courier";
 	graphics.strokeStyle ="red";
 	graphics.fillStyle ="red";
 	if( this.mainMenu[6].mouseOn ){
