@@ -679,8 +679,10 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.font = "40px Courier";
 	graphics.textAlign = 'right';
 	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
-	graphics.strokeText("Progress: " + (this.raceProgress)-1 + "%",sw,bw/2);
-	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))))-1 + "%",sw,sh/2+bw/2); 
+	// graphics.strokeText("Progress: " + (this.raceProgress)-1 + "%",sw,bw/2);
+	// graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))))-1 + "%",sw,sh/2+bw/2); 
+	graphics.strokeText("Progress: " + (this.raceProgress) + "%",sw,bw/2);
+	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
 }
 
 GameManager.prototype.drawChallengeScore = function( graphics ){
