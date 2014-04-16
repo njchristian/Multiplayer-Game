@@ -27,5 +27,5 @@
 {"user_name":"Can","bestTimes":[{"min":1,"sec":3,"tenth":0,"player":"Can"}],"bestDistances":[]}
 {"user_name":"c","bestTimes":[],"bestDistances":[]}
 {"user_name":"Lonswag","bestTimes":[],"bestDistances":[{"playerName":"Lonswag","dist":594},{"playerName":"Lonswag","dist":117},{"playerName":"Lonswag","dist":58},{"playerName":"Lonswag","dist":1.6196268209318574},{"playerName":"Lonswag","dist":0.06567844925883694},{"playerName":"Lonswag","dist":0},{"playerName":"Lonswag","dist":0}]}
-{"user_name":"chris","bestTimes":[],"bestDistances":[]}
+{"user_name":"chris","bestTimes":[],"bestDistances":[{"playerName":"chris","dist":73},{"playerName":"chris","dist":0},{"playerName":"chris","dist":0},{"playerName":"chris","dist":0},{"playerName":"chris","dist":0},{"playerName":"chris","dist":0},{"playerName":"chris","dist":0}]}
 {"user_name":"loca","bestTimes":[],"bestDistances":[]}

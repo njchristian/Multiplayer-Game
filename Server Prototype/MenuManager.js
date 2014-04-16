@@ -110,7 +110,7 @@ MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 
 MenuManager.prototype.createMainMenu = function( g ){
 
-	g.font = "60px Courier";
+	g.font = sh/10+"px Courier";
 	
 	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL ); // was 235
 	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
@@ -119,17 +119,17 @@ MenuManager.prototype.createMainMenu = function( g ){
 	this.mainMenu[2] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*7.45, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); // was 460
 	this.mainMenu[3] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*8.55, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); // was 530
 	
-	g.font = "65px Courier";
+	g.font = sh/11+"px Courier";
 	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, (sh/12)*10.25, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions ); // 600
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, (sh/12)*10.25, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores ); // 600
-	g.font = "50px Courier";
+	g.font = sh/15+"px Courier";
 	this.mainMenu[6] = new CanvasText( "TUTORIAL", sw/7, sh/2, g.measureText( "TUTORIAL" ).width, 50, true, goToGame, TUTORIAL);
 
 }
 
 MenuManager.prototype.createInstructionMenu = function( g ){
 
-	g.font = "65px Courier";
+	g.font = sh/10+"px Courier";
 	
 	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 
@@ -137,11 +137,11 @@ MenuManager.prototype.createInstructionMenu = function( g ){
 
 MenuManager.prototype.createHighscoreMenu = function( g ){
 
-	g.font = "65px Courier";
+	g.font = sh/10+"px Courier";
 	
 	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 	
-	g.font = "35px Courier";
+	g.font = sh/20+"px Courier";
 	
 	var w = g.measureText("Challenge").width;
 
@@ -423,12 +423,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.textAlign = 'center';
 	graphics.textBaseline = 'middle';
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("HIGHSCORES",sw/2,sh/12); // was 75
 	
-	graphics.font = "65px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	if( this.highscoreMenu[0].mouseOn ){
 		
@@ -448,7 +448,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.lineTo(9*sw/10, (sh/10)*2.25); // 170
 	graphics.stroke();
 	
-	graphics.font = "45px Courier";
+	graphics.font = sh/15+"px Courier";
 	
 	graphics.lineWidth = 1;
 	
@@ -467,7 +467,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	//
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/20+"px Courier";
 	
 	var styleText;
 	switch (this.hsStyle){
@@ -500,7 +500,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	
 	//Output names
-	graphics.font = "30px Courier";
+	graphics.font = sh/20+"px Courier";
 	graphics.textAlign = 'left';
 	var i = 0;
 	
@@ -536,14 +536,14 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.textAlign = 'left';
 	
-	graphics.font = "35px Courier";
+	graphics.font = sh/20+"px Courier";
 	
 	
-	graphics.fillText("Time Trial:", 20, (sh/10)*7.75); // 560
-	graphics.fillText("Challenge", 325, (sh/10)*7.75); // 560
-	graphics.fillText("Easy", 20, (sh/10)*8.25); // 595
-	graphics.fillText("Medium", 20, (sh/10)*8.75); // 630
-	graphics.fillText("Hard", 150, (sh/10)*8.25); // 595
+	graphics.fillText("Time Trial:", 20, (sh/10)*8.75); // 560
+	graphics.fillText("Challenge", 325, (sh/10)*8.75); // 560
+	graphics.fillText("Easy", 20, (sh/10)*9.25); // 595
+	graphics.fillText("Medium", 20, (sh/10)*9.75); // 630
+	graphics.fillText("Hard", 150, (sh/10)*9.25); // 595
 	
 	graphics.textAlign = 'center';
 }

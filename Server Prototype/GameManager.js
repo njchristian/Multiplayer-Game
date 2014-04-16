@@ -79,14 +79,14 @@ function GameManager( gameObject, g, websocket, userName ){
 	
 	this.deathDSO;
 	
-	g.font = "65px Courier";
+	g.font = sh/10+"px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
 	this.rtmScroll = false;
 	
 	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
 	this.reScroll = false
 	
-	g.font = "45px Courier";
+	g.font = sh/15+"px Courier";
 	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
 	this.endScroll = false;
 	
@@ -593,7 +593,7 @@ GameManager.prototype.drawBackground = function( graphics ){
 			
 			graphics.textAlign = 'center';
 	
-			graphics.font = "100px Courier";
+			graphics.font = sh/7+"px Courier";
 			var y = sh/2;
 			if( this.isMulti() ){
 				y = sh/4;
@@ -676,7 +676,7 @@ GameManager.prototype.drawBlocks = function( graphics ){
 
 GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'right';
 	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
 	// graphics.strokeText("Progress: " + (this.raceProgress)-1 + "%",sw,bw/2);
@@ -687,7 +687,7 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 
 GameManager.prototype.drawChallengeScore = function( graphics ){
 	graphics.strokeStyle = "white";
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'right';
 	var score = Math.floor((((this.ship.xPos)/sw)*100)-50);
 	if(score > this.highChallengeScore){
@@ -698,7 +698,7 @@ GameManager.prototype.drawChallengeScore = function( graphics ){
 
 GameManager.prototype.drawTimer = function( graphics ){
 	graphics.strokeStyle = "white";
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'center';
 	if(timer.min==0){		
 		if(timer.sec==0){
@@ -725,7 +725,7 @@ GameManager.prototype.drawTimer = function( graphics ){
 
 GameManager.prototype.drawDeaths = function ( graphics ){
 	graphics.strokeStyle = "white";
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'right';
 	graphics.strokeText("Deaths: " + this.deathCounter, sw,bw/2);
 }
@@ -894,10 +894,10 @@ GameManager.prototype.drawTimeTrialBackground = function( g ){
 
 	g.textAlign = 'center';
 	
-	g.font = "100px Courier";
+	g.font = sh/7+"px Courier";
 	
 	g.fillStyle = "green";
-	g.font = "35px Courier";
+	g.font = sh/25+"px Courier";
 
 	g.fillText("UP TO THRUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
 	g.fillText("NAVIGATE THE OBSTACLES AND AIM FOR THE BEST TIME!", sw/2 - this.so, sh/2 + 100);
@@ -909,13 +909,13 @@ GameManager.prototype.drawChallengeBackground = function( g ){
 
 	g.textAlign = 'center';
 	
-	g.font = "100px Courier";
+	g.font = sh/7+"px Courier";
 	
 	g.fillStyle = "green";
-	g.font = "35px Courier";
+	g.font = sh/25+"px Courier";
 
-	g.fillText("UP TO THRUST - LEFT/RIGHT TO TURN", sw/2 - this.so, sh/2 - 100);
-	g.fillText("SURVIVE AS LONG AS YOU CAN AND GET THE BEST SCORE!", sw/2 - this.so, sh/2 + 100);
+	g.fillText("UP TO THRUST - LEFT/RIGHT TO TURN", (sw*.75) - this.so, sh/2 - 100);
+	g.fillText("SURVIVE AS LONG AS YOU CAN AND GET THE BEST SCORE!", (sw*.75) - this.so, sh/2 + 100);
 	
 
 }
@@ -936,12 +936,12 @@ GameManager.prototype.drawPause = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = "100px Courier";
+	graphics.font = sh/7+"px Courier";
 	
 	graphics.strokeText("PAUSED", sw/2, sh/2 - 100);
 	
 	graphics.fillStyle = "green";
-	graphics.font = "65px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	if( this.rtmScroll ){
 		graphics.strokeText("MAIN MENU", sw/2, sh/2 );
@@ -955,7 +955,7 @@ GameManager.prototype.drawPause = function( graphics ){
 		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
 	}
 	
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	
 	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
 	
@@ -989,7 +989,7 @@ GameManager.prototype.drawBullets = function(g){
 	
 	// graphics.textAlign = 'center';
 	
-	// graphics.font = "100px Courier";
+	// graphics.font = sh/7+"px Courier";
 	
 	// var text;
 	// //if( won ){
@@ -1001,7 +1001,7 @@ GameManager.prototype.drawBullets = function(g){
 	// graphics.strokeText(text, sw/2+50, sh/2+50 );
 	
 	// graphics.fillStyle = "green";
-	// graphics.font = "45px Courier";
+	// graphics.font = sh/15+"px Courier";
 	
 	// if( this.endScroll ){
 		// graphics.strokeText("Main Menu", sw/2, sh/2 + 175 );
@@ -1026,7 +1026,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = "15px Courier";
+	graphics.font = sh/30+"px Courier";
 	
 	var text = new Array();
 	switch( this.tutorialStage ){
@@ -1077,7 +1077,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	
 	
-	graphics.font = "40px Courier";
+	graphics.font = sh/15+"px Courier";
 	
 	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
 	
@@ -1100,7 +1100,7 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = "80px Courier";
+	graphics.font = sh/9+"px Courier";
 	
 	var text;
 	if( won ){
@@ -1113,7 +1113,7 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	graphics.fillStyle = "green";
 	
-	graphics.font = "55px Courier";
+	graphics.font = sh/13+"px Courier";
 	if( this.isChallenge() ){
 		text = "SCORE: " + this.highChallengeScore;
 	}else{
@@ -1122,7 +1122,7 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	
 	graphics.fillText(text, sw/2 + 50, sh/2 + 50);
 	
-	graphics.font = "45px Courier";
+	graphics.font = sh/15+"px Courier";
 	
 	if( this.endScroll ){
 		graphics.strokeText("Main Menu", sw/2 + 50, sh/2 + 175 );
