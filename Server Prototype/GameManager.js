@@ -593,7 +593,7 @@ GameManager.prototype.drawBackground = function( graphics ){
 			
 			graphics.textAlign = 'center';
 	
-			graphics.font = sh/7+"px Courier";
+			graphics.font = sh/5+"px Courier";
 			var y = sh/2;
 			if( this.isMulti() ){
 				y = sh/4;
@@ -926,11 +926,11 @@ GameManager.prototype.drawPause = function( graphics ){
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.strokeRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.lineWidth = 1;
 	
@@ -1016,17 +1016,17 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.strokeRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 
 	graphics.fillStyle = "green";
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = sh/30+"px Courier";
+	graphics.font = sh/35+"px Courier";
 	
 	var text = new Array();
 	switch( this.tutorialStage ){
@@ -1090,11 +1090,11 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	graphics.strokeRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.lineWidth = 1;
 	
