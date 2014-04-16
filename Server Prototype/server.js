@@ -354,13 +354,13 @@ function GameManager()
 	}
 	
 	this.removeGame = function( playerID ) {
-		for( var i = allGames.length - 1; i >= 0; --i)
+		for( var i = this.allGames.length - 1; i >= 0; --i)
 		{
-			if( this.allGames[i].player1id === playerId)
+			if( this.allGames[i].player1id === playerID)
 			{
 				this.allGames.splice(i, 1);
 			}
-			if( this.allGames[i].player2id === playerId )
+			if( this.allGames[i].player2id === playerID )
 			{
 				this.allGames.splice(i, 1);
 			}
@@ -889,9 +889,6 @@ io.sockets.on(
 			//client.broadcast.emit('opponentWon', { name : "" } ); 
 			emitOtherPlayer( client.id, 'opponentWon', { name : "" } );
 			
-			// remove the game from the games array
-			gameManager.removeGame(client.id);
-			
 			// find player
 			// update the winning player so that it gains rating
 			var playerIndex = findPlayerIndex(winObject.userName);
@@ -920,6 +917,10 @@ io.sockets.on(
 			}	
 
 			players[otherPlayerIndex].updateMPRating(-10);	
+			
+			// remove the game from the games array
+			console.log('Remove game');
+			gameManager.removeGame(client.id);
 
 	});
 	
@@ -932,9 +933,6 @@ io.sockets.on(
 					//emit to the opponent
 			//client.broadcast.emit('opponentLost', { name : "" } ); 
 			emitOtherPlayer( client.id, 'opponentLost', { name : "" } ); 
-			
-			// remove the game from the games array
-			gameManager.removeGame(client.id);
 			
 			// find and update the winning player so that it gains rating
 			var playerIndex = findPlayerIndex(lostObject.userName);
@@ -963,6 +961,10 @@ io.sockets.on(
 			}	
 
 			players[otherPlayerIndex].updateMPRating(10);
+			
+			// remove the game from the games array
+			console.log('Remove game');
+			gameManager.removeGame(client.id);
 
 	});
 	
