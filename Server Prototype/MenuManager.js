@@ -303,35 +303,35 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.textAlign = 'center';
 	graphics.textBaseline = 'middle';
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("INSTRUCTIONS",sw/2, (sh/12)); // was 75
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/25+"px Courier";
 	
 	graphics.fillText("MOVE THROUGH THE OBSTACLES WITH YOUR SHIP!",sw/2, (sh/10)*2); // 150
 	
 	graphics.textAlign = 'left';
-	graphics.font = "40px Courier";
+	graphics.font = sh/20+"px Courier";
 
 	graphics.strokeText("CONTROLS",10, (sh/10)*3); // 210
 	graphics.strokeText("GAME MODES",10, (sh/10)*6); // 370
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/25+"px Courier";
 
 	graphics.fillText("UP ARROW: THRUST SHIP",10,(sh/10)*3.5); // 240
 	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,(sh/10)*4); // 270
 	graphics.fillText("P: PAUSE",10,(sh/10)*4.5); // 300
 	
-	graphics.font = "25px Courier";
+	graphics.font = sh/25+"px Courier";
 	
 	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,(sh/10)*6.5); // 400
 	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,(sh/10)*7); // 430
 	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,(sh/10)*7.5); // 460
 	
 	graphics.textAlign = 'center';
-	graphics.font = "65px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	if( this.instructionMenu[0].mouseOn ){
 		
@@ -386,17 +386,17 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.strokeRect( sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.lineWidth = 1;
 	
 	graphics.textAlign = 'left';
 	
-	graphics.font = "60px Courier";
+	graphics.font = sh/11+"px Courier";
 	graphics.fillStyle = "green";
 	
 	var w = graphics.measureText( "Waiting...").width/2;
