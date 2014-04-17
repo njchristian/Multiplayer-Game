@@ -121,7 +121,7 @@ MenuManager.prototype.createMainMenu = function( g ){
 
 	g.font = sh/8+"px Courier";
 	
-	this.mainMenu[0] = new CanvasText( "SINGLE PLAYER", sw/2, (sh/12)*5.25, g.measureText( "SINGLE PLAYER" ).width, 60, true, toSPMenu );
+	this.mainMenu[0] = new CanvasText( "SINGLE PLAYER", sw/2, (sh/12)*5.25, g.measureText( "SINGLE PLAYER" ).width, 65, true, toSPMenu );
 	// this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL ); // was 235
 	//this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
 	
@@ -171,18 +171,18 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 MenuManager.prototype.createSPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
-	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*5, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
+	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*4.5, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL );
 	this.singlePlayerMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*6, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
-	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
 }
 
 // create the sub menu for the multi player modes
 MenuManager.prototype.createMPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
-	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*5, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); 
+	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*4.5, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); 
 	this.multiPlayerMenu[1] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*6, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); 
-	this.multiPlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+	this.multiPlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
 }
 
 //draw the single player mode menu
@@ -205,9 +205,9 @@ MenuManager.prototype.drawSPMenu = function( graphics ) {
 	graphics.fillStyle = "green";
 	
 	if ( this.singlePlayerMenu[0].mouseOn ) {
-		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*5);
+		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*4.5);
 	} else {
-		graphics.fillText("TIME TRIAL", sw/2, (sh/12)*5);
+		graphics.fillText("TIME TRIAL", sw/2, (sh/12)*4.5);
 	}
 	
 	if ( this.singlePlayerMenu[1].mouseOn ) {
@@ -217,9 +217,9 @@ MenuManager.prototype.drawSPMenu = function( graphics ) {
 	}
 		
 	if ( this.singlePlayerMenu[2].mouseOn ) {
-		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7);
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7.5);
 	} else {
-		graphics.fillText("Back to Menu", sw/2, (sh/12)*7);
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7.5);
 	}	
 		
 }
@@ -243,9 +243,9 @@ MenuManager.prototype.drawMPMenu = function( graphics ) {
 	graphics.fillStyle = "green";
 	
 	if ( this.multiPlayerMenu[0].mouseOn ) {
-		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*5);
+		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*4.5);
 	} else {
-		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*5);
+		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*4.5);
 	}
 	
 	if ( this.multiPlayerMenu[1].mouseOn ) {
@@ -255,9 +255,9 @@ MenuManager.prototype.drawMPMenu = function( graphics ) {
 	}
 		
 	if ( this.multiPlayerMenu[2].mouseOn ) {
-		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7);
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7.5);
 	} else {
-		graphics.fillText("Back to Menu", sw/2, (sh/12)*7);
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7.5);
 	}	
 }
 
