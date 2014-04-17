@@ -787,14 +787,16 @@ function menuHandleClick(event){
 	
 		case MAIN_MENU:
 			if (myGame.menuManager.onSPMenu) {
-				menu = myGame.menuManager.singlePlayerMenu;
+				if( myGame.menuManager.selectingTTD ){
+					menu = myGame.menuManager.difficultyMenu;
+				}else{
+					menu = myGame.menuManager.singlePlayerMenu;
+				}
 			}
 			else if (myGame.menuManager.onMPMenu) {
 				menu = myGame.menuManager.multiPlayerMenu;
 			}
-			else if( myGame.menuManager.selectingTTD ){
-				menu = myGame.menuManager.difficultyMenu;
-			}else{
+			else{
 				menu = myGame.menuManager.mainMenu;
 			}
 			break;
@@ -872,16 +874,19 @@ function menuHandleScroll( event ){
 	
 		case MAIN_MENU:
 			if (myGame.menuManager.onSPMenu) {
-				menu = myGame.menuManager.singlePlayerMenu;
+				if( myGame.menuManager.selectingTTD ){
+					menu = myGame.menuManager.difficultyMenu;
+				}else{
+					menu = myGame.menuManager.singlePlayerMenu;
+				}
 			}
 			else if (myGame.menuManager.onMPMenu) {
 				menu = myGame.menuManager.multiPlayerMenu;
 			}
-			else if( myGame.menuManager.selectingTTD ){
-				menu = myGame.menuManager.difficultyMenu;
-			}else{
+			else{
 				menu = myGame.menuManager.mainMenu;
-			}			break;
+			}			
+			break;
 		
 		case INSTRUCTIONS:
 			menu = myGame.menuManager.instructionMenu;
