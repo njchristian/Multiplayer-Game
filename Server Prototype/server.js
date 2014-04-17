@@ -970,7 +970,8 @@ io.sockets.on(
 	
 	//the client is done now write his stuff to the file
 	client.on('endgame', function(name)
-	{			
+	{		
+			clearAllWaiting(name.user_name);
 			fs.appendFileSync(name.user_name + ".txt", name.user_name + " quit.\n");
 			console.log("Wrote to data.txt file\n");
 			fs.writeFileSync("./data.txt","");
