@@ -44,6 +44,11 @@ html {
   background-color: black;
 }
 
+#disconnect {
+  display: none;
+  height: 100%;
+  background-color: black;
+}
 
 </style>
 
@@ -120,6 +125,7 @@ html {
 			// Hide the warning section and show the login section.
 			
 			$('#gameCanvas').css('display', 'none');
+			$('#disconnect').css('display', 'none');
 			$('#login_section').css('display', 'block');
 			
 			//set the values of the Canvas
@@ -186,6 +192,7 @@ html {
 					console.log("Lost connection with the server");
 					myGame.gameManager.onDeath();
 					$('#gameCanvas').css('display', 'none');
+					$('#disconnect').css('display', 'block');
 			});
 			
 			$('#login').click(function() {
@@ -219,6 +226,10 @@ html {
 		<p id="your_name">Your name: 
 		<input id="name" type="text" autofocus="autofocus"></input>
 		<input id="login" type="button" value="Log In" disabled="true"></input></p>
+	</div>
+	
+	<div id="disconnect">
+		<div id="status">You lost connection to our server</div>
 	</div>
 
     <canvas id="gameCanvas" ><!--width="1000" height="650">-->
