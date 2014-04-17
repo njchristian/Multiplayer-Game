@@ -326,7 +326,7 @@ function activeGame(player1, p1Name, player2, p2Name, gameMode)
 		else
 			return this.player1Name;
 	}
-}
+};
 
 //manages all of the active games
 function GameManager()
@@ -351,22 +351,39 @@ function GameManager()
 				return this.allGames[game];
 			}
 		}
-	}
+		return null;
+	};
 	
 	this.removeGame = function( playerID ) {
-		for( var i = this.allGames.length - 1; i >= 0; --i)
-		{
-			if( this.allGames[i].player1id === playerID)
+	var index;
+		for( var game in this.allGames)
 			{
-				this.allGames.splice(i, 1);
+				if( this.allGames[game].player1id === playerID)
+				{
+					index = this.allGames.indexOf( this.allGames[game] );
+					this.allGames.splice(index, 1);
+				}
+				else if( this.allGames[game].player2id === playerID )
+				{
+					index = this.allGames.indexOf( this.allGames[game] );
+					this.allGames.splice(index, 1);
+				}
 			}
-			if( this.allGames[i].player2id === playerID )
-			{
-				this.allGames.splice(i, 1);
-			}
-		}
-	}
-}
+		// for( var i = this.allGames.length - 1; i >= 0; --i)
+		// {
+			// if( this.allGames[i].player1id === playerID)
+			// {
+				// this.allGames.splice(i, 1);
+				// console.log("removed a game");
+			// }
+			// else if( this.allGames[i].player2id === playerID )
+			// {
+				// this.allGames.splice(i, 1);
+				// console.log("removed a game");
+			// }
+		// }
+	};
+};
 
 
 function waitingPlayer() {
@@ -732,6 +749,12 @@ io.sockets.on(
 		'disconnect',
 		function() {
 			console.log("Lost connection with the client");
+			if( gameManager.findGame( client.id ) )
+			{
+				emitOtherPlayer( client.id , 'opponentLeftGame', 'opponentLeftGame' );
+				//gameManager.removeGame(client.id);
+			}
+			
 	});
 	
 	// HIGH SCORE Messages
