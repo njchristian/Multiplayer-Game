@@ -806,7 +806,15 @@ function menuHandleScroll( event ){
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
-			menu = myGame.menuManager.mainMenu;
+			if (myGame.menuManager.onSPMenu) {
+				menu = myGame.menuManager.singlePlayerMenu;
+			}
+			else if (myGame.menuManager.onMPMenu) {
+				menu = myGame.menuManager.multiPlayerMenu;
+			}
+			else {
+				menu = myGame.menuManager.mainMenu;
+			}
 			break;
 		
 		case INSTRUCTIONS:
