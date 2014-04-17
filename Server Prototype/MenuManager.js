@@ -24,10 +24,12 @@ function MenuManager( gameObject, g ){
 	this.highscoreMenu = new Array();
 	this.createHighscoreMenu( g );
 	
-	this.difficultyMenu = new Array();
-	this.createDifficultyMenu( g );
+	this.singlePlayerMenu = new Array();
+	this.createSPMenu( g );
 	
-	this.instructionShip = new Ship();
+	this.multiPlayerMenu = new Array();
+	this.createMPMenu( g );	this.difficultyMenu = new Array();
+	this.createDifficultyMenu( g );	this.instructionShip = new Ship();
 	
 	this.leftTurn = false;
 	this.rightTurn = false;
@@ -48,9 +50,8 @@ function MenuManager( gameObject, g ){
 	
 	this.isWaiting = false;
 	this.waitAnim = 0;
-	
-	this.selectingTTD = false;
-}
+	this.onSPMenu = false;
+	this.onMPMenu = false;	this.selectingTTD = false;}
 
 MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 		
@@ -115,20 +116,21 @@ MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 
 MenuManager.prototype.createMainMenu = function( g ){
 
-	g.font = "60px Courier";
+	g.font = sh/8+"px Courier";
 	
-	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, selectDifficulty, TIME_TRIAL ); // was 235
-	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
+	this.mainMenu[0] = new CanvasText( "SINGLE PLAYER", sw/2, (sh/12)*5.25, g.measureText( "SINGLE PLAYER" ).width, 65, true, toSPMenu );
+	// this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL ); // was 235
+	//this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
 	
 	
-	this.mainMenu[2] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*7.45, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); // was 460
-	this.mainMenu[3] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*8.55, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); // was 530
+	this.mainMenu[1] = new CanvasText( "MULTIPLAYER", sw/2, (sh/12)*7.25, g.measureText( "MULTIPLAYER" ).width, 60, true, toMPMenu ); // was 460
+	// this.mainMenu[2] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*8.55, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); // was 530
 	
-	g.font = "65px Courier";
-	this.mainMenu[4] = new CanvasText( "INSTRUCTIONS", sw/4, (sh/12)*10.25, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions ); // 600
-	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, (sh/12)*10.25, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores ); // 600
-	g.font = "50px Courier";
-	this.mainMenu[6] = new CanvasText( "TUTORIAL", sw/7, sh/2, g.measureText( "TUTORIAL" ).width, 50, true, goToGame, TUTORIAL);
+	g.font = sh/10+"px Courier";
+	this.mainMenu[2] = new CanvasText( "INSTRUCTIONS", sw/4, (sh/12)*10, g.measureText( "INSTRUCTIONS" ).width, 65, true, toInstructions ); // 600
+	this.mainMenu[3] = new CanvasText( "HIGHSCORES", 3*sw/4, (sh/12)*10, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores ); // 600
+	g.font = sh/8+"px Courier";
+	this.mainMenu[4] = new CanvasText( "TUTORIAL", sw/2, (sh/12)*3.25, g.measureText( "TUTORIAL" ).width, 60, true, goToGame, TUTORIAL);
 
 }
 
@@ -157,7 +159,7 @@ MenuManager.prototype.createDifficultyMenu = function( g ){
 
 MenuManager.prototype.createInstructionMenu = function( g ){
 
-	g.font = "65px Courier";
+	g.font = sh/10+"px Courier";
 	
 	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 
@@ -165,11 +167,11 @@ MenuManager.prototype.createInstructionMenu = function( g ){
 
 MenuManager.prototype.createHighscoreMenu = function( g ){
 
-	g.font = "65px Courier";
+	g.font = sh/10+"px Courier";
 	
 	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
 	
-	g.font = "35px Courier";
+	g.font = sh/20+"px Courier";
 	
 	var w = g.measureText("Challenge").width;
 
@@ -183,6 +185,102 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, (sh/10)*8.25, w, 35, true, setHighscoreStyle, TT_HARD); // 595
 	
 }
+
+
+// create the sub menu for the single player modes
+MenuManager.prototype.createSPMenu = function( g ) {
+	g.font = sh/12+"px Courier";
+	
+	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*4.5, g.measureText( "TIME TRIAL" ).width, 60, true, selectDifficulty, TIME_TRIAL );
+	this.singlePlayerMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*6, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
+	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+}
+
+// create the sub menu for the multi player modes
+MenuManager.prototype.createMPMenu = function( g ) {
+	g.font = sh/12+"px Courier";
+	
+	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*4.5, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); 
+	this.multiPlayerMenu[1] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*6, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); 
+	this.multiPlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+}
+
+//draw the single player mode menu
+MenuManager.prototype.drawSPMenu = function( graphics ) {
+	
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = sh/12+"px Courier";
+	graphics.fillStyle = "green";
+	
+	if ( this.singlePlayerMenu[0].mouseOn ) {
+		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*4.5);
+	} else {
+		graphics.fillText("TIME TRIAL", sw/2, (sh/12)*4.5);
+	}
+	
+	if ( this.singlePlayerMenu[1].mouseOn ) {
+		graphics.strokeText("CHALLENGE", sw/2, (sh/12)*6);
+	} else {
+		graphics.fillText("CHALLENGE", sw/2, (sh/12)*6);
+	}
+		
+	if ( this.singlePlayerMenu[2].mouseOn ) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7.5);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7.5);
+	}	
+		
+}
+
+// draw the multiplayer mode menu
+MenuManager.prototype.drawMPMenu = function( graphics ) {
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = sh/12+"px Courier";
+	graphics.fillStyle = "green";
+	
+	if ( this.multiPlayerMenu[0].mouseOn ) {
+		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*4.5);
+	} else {
+		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*4.5);
+	}
+	
+	if ( this.multiPlayerMenu[1].mouseOn ) {
+		graphics.strokeText("ONLINE CHALLENGE", sw/2, (sh/12)*6);
+	} else {
+		graphics.fillText("ONLINE CHALLENGE", sw/2, (sh/12)*6);
+	}
+		
+	if ( this.multiPlayerMenu[2].mouseOn ) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7.5);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7.5);
+	}	
+}
+
 
 MenuManager.prototype.update = function(){
 
@@ -199,6 +297,13 @@ MenuManager.prototype.draw = function( graphics ){
 
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
+		
+		if (this.onSPMenu) {
+			//console.log("I'm suppose to draw the SP menu now");
+			this.drawSPMenu( graphics );
+		} else if(this.onMPMenu) {
+			this.drawMPMenu( graphics );
+		}
 		
 		if( this.isWaiting ){
 			this.drawWaiting( graphics );
@@ -218,7 +323,6 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//Draw main menu
 	
-	
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="red";
 	graphics.textAlign = 'center';
@@ -226,100 +330,87 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	graphics.lineWidth = 1;
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("SPACE ESCAPE",sw/2, sh/12); //was 75
 	
 	graphics.lineWidth = 2;
-	graphics.font = "80px Courier";
+	graphics.font = sh/8+"px Courier";
 	graphics.strokeStyle ="green";
 	
 	
-	graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*2.5); // was 160
+	//graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*2.5); // was 160
 	
 	
-	graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*6.25); // was 385
+	//graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*6.25); // was 385
 	
-	graphics.font = "60px Courier";
+	//graphics.font = sh/11+"px Courier";
+	
+	
+	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+		
+		graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*5.25); // was 235
+	}else{
+	
+		graphics.fillText("SINGLE PLAYER", sw/2, (sh/12)*5.25); // was 235
+	}
+	
+	
+	if( this.mainMenu[1].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+		
+		graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*7.25); // was 460
+	}else{
+		
+		graphics.fillText("MULTIPLAYER", sw/2, (sh/12)*7.25);
+	}
+	
+	
+	graphics.font = sh/10+"px Courier";
 	graphics.lineWidth = 1;
 	
-	if( this.mainMenu[0].mouseOn ){
+	if( this.mainMenu[2].mouseOn && !this.onSPMenu && !this.onMPMenu ){
 		
-		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*3.75); // was 235
-	}else{
-	
-		graphics.fillText("TIME TRIAL", sw/2, (sh/12)*3.75); // was 235
-	}
-	
-	if( this.mainMenu[1].mouseOn ){
-		
-		graphics.strokeText("CHALLENGE", sw/2, (sh/12)*4.85); // was 305
+		graphics.strokeText("INSTRUCTIONS", sw/4, (sh/12)*10); // was 600
 	}else{
 		
-		graphics.fillText("CHALLENGE", sw/2, (sh/12)*4.85);
+		graphics.fillText("INSTRUCTIONS", sw/4, (sh/12)*10);
 	}
 	
-	if( this.mainMenu[2].mouseOn ){
-		
-		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*7.45); // was 460
+	if( this.mainMenu[3].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	
+		graphics.strokeText("HIGHSCORES", 3*sw/4, (sh/12)*10); // was 600
 	}else{
 		
-		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*7.45);
+		graphics.fillText("HIGHSCORES", 3*sw/4, (sh/12)*10);
 	}
 	
-	if( this.mainMenu[3].mouseOn ){
-		
-		graphics.strokeText("ONLINE CHALLENGE", sw/2, (sh/12)*8.55); // was 530
-	}else{
-		
-		graphics.fillText("ONLINE CHALLENGE", sw/2, (sh/12)*8.55);
-	}
-	
-	graphics.font = "65px Courier";
-	
-	if( this.mainMenu[4].mouseOn ){
-		
-		graphics.strokeText("INSTRUCTIONS", sw/4, (sh/12)*10.25); // was 600
-	}else{
-		
-		graphics.fillText("INSTRUCTIONS", sw/4, (sh/12)*10.25);
-	}
-	
-	if( this.mainMenu[5].mouseOn ){
-	
-		graphics.strokeText("HIGHSCORES", 3*sw/4, (sh/12)*10.25); // was 600
-	}else{
-		
-		graphics.fillText("HIGHSCORES", 3*sw/4, (sh/12)*10.25);
-	}
-	
-	graphics.font = "50px Courier";
+	graphics.font = sh/8+"px Courier";
 	graphics.strokeStyle ="red";
 	graphics.fillStyle ="red";
-	if( this.mainMenu[6].mouseOn ){
-		graphics.strokeText("TUTORIAL", sw/8, sh/2);
+	if( this.mainMenu[4].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+		graphics.strokeText("TUTORIAL", sw/2, (sh/12)*3.25);
 	}else{
-		graphics.fillText("TUTORIAL", sw/8, sh/2);
+		graphics.fillText("TUTORIAL", sw/2, (sh/12)*3.25);
 	}
 	
 	graphics.strokeStyle = "green";
 	
 	graphics.beginPath();
 	
-	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.moveTo( 7*sw/8, sh/2 );
 	graphics.lineTo( sw, sh/8 );
 	graphics.stroke();
 	
-	graphics.moveTo( 3*sw/4, sh/2 );
+	graphics.moveTo( 7*sw/8, sh/2 );
 	graphics.lineTo( sw, 7*sh/8 );
 	graphics.stroke();
 	
-	graphics.moveTo( sw/4, sh/2 );
+	graphics.moveTo( sw/8, sh/2 );
 	graphics.lineTo( 0, sh/8 );
 	graphics.stroke();
 	
-	graphics.moveTo( sw/4, sh/2 );
+	graphics.moveTo( sw/8, sh/2 );
 	graphics.lineTo( 0, 7*sh/8 );
 	graphics.stroke();
 	
@@ -334,35 +425,35 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.textAlign = 'center';
 	graphics.textBaseline = 'middle';
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("INSTRUCTIONS",sw/2, (sh/12)); // was 75
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/25+"px Courier";
 	
 	graphics.fillText("MOVE THROUGH THE OBSTACLES WITH YOUR SHIP!",sw/2, (sh/10)*2); // 150
 	
 	graphics.textAlign = 'left';
-	graphics.font = "40px Courier";
+	graphics.font = sh/20+"px Courier";
 
 	graphics.strokeText("CONTROLS",10, (sh/10)*3); // 210
 	graphics.strokeText("GAME MODES",10, (sh/10)*6); // 370
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/25+"px Courier";
 
 	graphics.fillText("UP ARROW: THRUST SHIP",10,(sh/10)*3.5); // 240
 	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,(sh/10)*4); // 270
 	graphics.fillText("P: PAUSE",10,(sh/10)*4.5); // 300
 	
-	graphics.font = "25px Courier";
+	graphics.font = sh/25+"px Courier";
 	
 	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,(sh/10)*6.5); // 400
 	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,(sh/10)*7); // 430
 	graphics.fillText("MULTIPLAYER: COMPETE IN A RACE OR CHALLENGE WITH ANOTHER PLAYER",10,(sh/10)*7.5); // 460
 	
 	graphics.textAlign = 'center';
-	graphics.font = "65px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	if( this.instructionMenu[0].mouseOn ){
 		
@@ -413,21 +504,21 @@ MenuManager.prototype.instructionShipUpdate = function(){
 
 MenuManager.prototype.drawWaiting = function( graphics ){
 
-	//draw the pause menu
+	//draw the waiting screen
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
-	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.strokeRect( sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.fillStyle = "black";
 	
-	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
 	
 	graphics.lineWidth = 1;
 	
 	graphics.textAlign = 'left';
 	
-	graphics.font = "60px Courier";
+	graphics.font = sh/11+"px Courier";
 	graphics.fillStyle = "green";
 	
 	var w = graphics.measureText( "Waiting...").width/2;
@@ -495,12 +586,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.textAlign = 'center';
 	graphics.textBaseline = 'middle';
 	
-	graphics.font = "120px Courier";
+	graphics.font = sh/5+"px Courier";
 	
 	
 	graphics.strokeText("HIGHSCORES",sw/2,sh/12); // was 75
 	
-	graphics.font = "65px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	if( this.highscoreMenu[0].mouseOn ){
 		
@@ -520,7 +611,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.lineTo(9*sw/10, (sh/10)*2.25); // 170
 	graphics.stroke();
 	
-	graphics.font = "45px Courier";
+	graphics.font = sh/15+"px Courier";
 	
 	graphics.lineWidth = 1;
 	
@@ -539,7 +630,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	//
 	
-	graphics.font = "30px Courier";
+	graphics.font = sh/20+"px Courier";
 	
 	var styleText;
 	switch (this.hsStyle){
@@ -572,7 +663,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	
 	//Output names
-	graphics.font = "30px Courier";
+	graphics.font = sh/20+"px Courier";
 	graphics.textAlign = 'left';
 	var i = 0;
 	
@@ -608,14 +699,14 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.textAlign = 'left';
 	
-	graphics.font = "35px Courier";
+	graphics.font = sh/20+"px Courier";
 	
 	
-	graphics.fillText("Time Trial:", 20, (sh/10)*7.75); // 560
-	graphics.fillText("Challenge", 325, (sh/10)*7.75); // 560
-	graphics.fillText("Easy", 20, (sh/10)*8.25); // 595
-	graphics.fillText("Medium", 20, (sh/10)*8.75); // 630
-	graphics.fillText("Hard", 150, (sh/10)*8.25); // 595
+	graphics.fillText("Time Trial:", 20, (sh/10)*8.75); // 560
+	graphics.fillText("Challenge", 325, (sh/10)*8.75); // 560
+	graphics.fillText("Easy", 20, (sh/10)*9.25); // 595
+	graphics.fillText("Medium", 20, (sh/10)*9.75); // 630
+	graphics.fillText("Hard", 150, (sh/10)*9.25); // 595
 	
 	graphics.textAlign = 'center';
 }
@@ -670,6 +761,22 @@ function toHighscores(){
 
 }
 
+
+function toSPMenu() {
+	//console.log("in toSPMenu");
+	myGame.menuManager.onSPMenu = true;
+}
+
+function toMPMenu() {
+	myGame.menuManager.onMPMenu = true;
+}
+
+function backToMenu() {
+	myGame.menuManager.onSPMenu = false;
+	myGame.menuManager.onMPMenu = false;
+}
+
+
 function menuHandleClick(event){
 	
 	if( myGame.isOnMenu ){
@@ -679,7 +786,13 @@ function menuHandleClick(event){
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
-			if( myGame.menuManager.selectingTTD ){
+			if (myGame.menuManager.onSPMenu) {
+				menu = myGame.menuManager.singlePlayerMenu;
+			}
+			else if (myGame.menuManager.onMPMenu) {
+				menu = myGame.menuManager.multiPlayerMenu;
+			}
+			else if( myGame.menuManager.selectingTTD ){
 				menu = myGame.menuManager.difficultyMenu;
 			}else{
 				menu = myGame.menuManager.mainMenu;
@@ -758,13 +871,17 @@ function menuHandleScroll( event ){
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
-		
-			if( myGame.menuManager.selectingTTD ){
+			if (myGame.menuManager.onSPMenu) {
+				menu = myGame.menuManager.singlePlayerMenu;
+			}
+			else if (myGame.menuManager.onMPMenu) {
+				menu = myGame.menuManager.multiPlayerMenu;
+			}
+			else if( myGame.menuManager.selectingTTD ){
 				menu = myGame.menuManager.difficultyMenu;
 			}else{
 				menu = myGame.menuManager.mainMenu;
-			}
-			break;
+			}			break;
 		
 		case INSTRUCTIONS:
 			menu = myGame.menuManager.instructionMenu;

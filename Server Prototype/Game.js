@@ -137,6 +137,9 @@ function goToGame( gm, difficulty ){
 		myGame.gameManager.newGame( gm );
 	
 	}
+	
+	myGame.menuManager.onSPMenu = false;
+	myGame.menuManager.onMPMenu = false;
 }
 
 Game.prototype.update = function(){

@@ -1,4 +1,5 @@
-var MAX_SPEED = 15;
+var MAX_SPEED = 20;
+var SHIP_HEIGHT;
 
 function Ship(){
 
@@ -7,7 +8,7 @@ function Ship(){
 	this.xPos = 0;
 	this.yPos = 0; 
 	this.rotation = 0;
-	this.height = 15;
+	this.height = SHIP_HEIGHT;
 
 	this.vx = 0;
 	this.vy = 0;
