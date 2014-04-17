@@ -728,6 +728,12 @@ io.sockets.on(
 		}
 	});	
 	
+	client.on(
+		'disconnect',
+		function() {
+			console.log("Lost connection with the client");
+	});
+	
 	// HIGH SCORE Messages
 	// high scores request - returns the players best times, best distances, 
 	// and MP rating
