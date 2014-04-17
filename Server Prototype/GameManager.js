@@ -1247,6 +1247,6 @@ function goToMenu(){
 
 function restart(){
 
-	myGame.gameManager.newGame( myGame.gameManager.gameMode );
+	myGame.gameManager.newGame( myGame.gameManager.gameMode, myGame.gameManager.difficulty );
 
 }
