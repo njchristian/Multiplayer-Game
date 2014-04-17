@@ -749,7 +749,7 @@ io.sockets.on(
 		'disconnect',
 		function() {
 			console.log("Lost connection with the client");
-			if( gameManager.findGame( client.id ) )
+			if( gameManager.findGame( client.id ) != null )
 			{
 				emitOtherPlayer( client.id , 'opponentLeftGame', 'opponentLeftGame' );
 				//gameManager.removeGame(client.id);

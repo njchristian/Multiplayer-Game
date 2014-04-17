@@ -315,6 +315,16 @@ GameManager.prototype.update = function(){
 				}
 		});	
 		
+		this.socket.on(
+			'opponentLeftGame',
+			function(name) {
+				if(name){
+				console.log("opponentLeftGame");
+				this.socket.emit('endgame',{ user_name: name }); //quick fix dont kill me
+				//user left menu
+				}
+		});
+		
 	}
 	
 
