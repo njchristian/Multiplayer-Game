@@ -94,9 +94,11 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.tutorialPause = false;
 	this.tutorialStage = 1;
 	
+	this.difficulty
+	
 }
 
-GameManager.prototype.newGame = function( gm ){
+GameManager.prototype.newGame = function( gm, difficulty ){
 
 	console.log("New Game");
 	timer.clearTime();
@@ -115,6 +117,11 @@ GameManager.prototype.newGame = function( gm ){
 	this.thrust = false;
 	this.leftTurn = false;
 	this.rightTurn = false;
+	
+	if( gm == TIME_TRIAL ){
+		console.log( "Game Manager: " + difficulty);
+		this.difficulty = difficulty;
+	}
 	
 	this.challengeSV = 2;
 	
@@ -176,7 +183,11 @@ GameManager.prototype.levelGenerator = function(){
 
 GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLevels ){
 
-	initializeLevels( this.levelLayout, multi, top, opLevels );
+	if( !this.isMulti() ){
+		initializeLevels( this.levelLayout, multi, top, opLevels, this.difficulty );
+	}else{
+		initializeLevels( this.levelLayout, multi, top, opLevels );
+	}
 
 }
 
@@ -195,12 +206,6 @@ GameManager.prototype.initChallengeBuffer = function(){
 	//initialize the challenge level buffer
 	initChallengeBuffer( this.challengeBuffer, multi, multi );
 		
-}
-
-GameManager.prototype.generateChallengeLevel = function(){
-
-	//Create a new challenge level in the challenge buffer
-
 }
 
 GameManager.prototype.draw = function( graphics ){
@@ -355,10 +360,10 @@ GameManager.prototype.update = function(){
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
 			this.challengeSV+=.2;
-			this.currentLevel = (this.currentLevel + 1)%4;
+			
 			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 			//
-			
+			this.currentLevel = (this.currentLevel + 1)%4;
 			//console.log( "Now in level: " + this.currentLevel );
 		}else{
 			this.currentLevel++;

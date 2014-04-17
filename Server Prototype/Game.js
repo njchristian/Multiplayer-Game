@@ -67,7 +67,7 @@ Game.prototype.returnToMenu = function(){
 
 
 
-function goToGame( gm ){
+function goToGame( gm, difficulty ){
 	
 	var socket = myGame.socket;
 	
@@ -122,7 +122,9 @@ function goToGame( gm ){
 	else if (gm == TIME_TRIAL) {
 		socket.emit('sp_tt', { user_name: myGame.name });
 		myGame.isOnMenu = false;
-		myGame.gameManager.newGame( gm );
+		myGame.menuManager.selectingTTD = false;
+		console.log("Game: " + difficulty);
+		myGame.gameManager.newGame( gm, difficulty );
 	}
 	else if (gm == SINGLE_CHALLENGE) {
 		socket.emit('sp_ch', { user_name: myGame.name });

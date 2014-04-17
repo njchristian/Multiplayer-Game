@@ -24,6 +24,9 @@ function MenuManager( gameObject, g ){
 	this.highscoreMenu = new Array();
 	this.createHighscoreMenu( g );
 	
+	this.difficultyMenu = new Array();
+	this.createDifficultyMenu( g );
+	
 	this.instructionShip = new Ship();
 	
 	this.leftTurn = false;
@@ -45,6 +48,8 @@ function MenuManager( gameObject, g ){
 	
 	this.isWaiting = false;
 	this.waitAnim = 0;
+	
+	this.selectingTTD = false;
 }
 
 MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
@@ -112,7 +117,7 @@ MenuManager.prototype.createMainMenu = function( g ){
 
 	g.font = "60px Courier";
 	
-	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, goToGame, TIME_TRIAL ); // was 235
+	this.mainMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*3.75, g.measureText( "TIME TRIAL" ).width, 60, true, selectDifficulty, TIME_TRIAL ); // was 235
 	this.mainMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*4.85, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE ); // was 305
 	
 	
@@ -124,6 +129,29 @@ MenuManager.prototype.createMainMenu = function( g ){
 	this.mainMenu[5] = new CanvasText( "HIGHSCORES", 3*sw/4, (sh/12)*10.25, g.measureText( "HIGHSCORES" ).width, 65, true, toHighscores ); // 600
 	g.font = "50px Courier";
 	this.mainMenu[6] = new CanvasText( "TUTORIAL", sw/7, sh/2, g.measureText( "TUTORIAL" ).width, 50, true, goToGame, TUTORIAL);
+
+}
+
+function selectDifficulty( ){
+
+	myGame.menuManager.selectingTTD = true;
+
+}
+
+function goToTimeTrial( difficulty ){
+
+	console.log("MenuManager: " + difficulty);
+	goToGame( TIME_TRIAL, difficulty );
+
+}
+
+MenuManager.prototype.createDifficultyMenu = function( g ){
+
+	g.font = "100px Courier";
+	
+	this.difficultyMenu[0] = new CanvasText( "EASY", sw/2, sh/2 - 150, g.measureText( "EASY" ).width, 100, true, goToTimeTrial,  1); // 600
+	this.difficultyMenu[1] = new CanvasText( "MEDIUM", sw/2, sh/2, g.measureText( "MEDIUM" ).width, 100, true, goToTimeTrial,  2); // 600
+	this.difficultyMenu[2] = new CanvasText( "HARD", sw/2, sh/2 + 150, g.measureText( "HARD" ).width, 100, true, goToTimeTrial,  3); // 600
 
 }
 
@@ -174,6 +202,8 @@ MenuManager.prototype.draw = function( graphics ){
 		
 		if( this.isWaiting ){
 			this.drawWaiting( graphics );
+		}else if( this.selectingTTD ){
+			this.drawSelectTTD( graphics );
 		}
 		
 	}else if( this.currentScreen == INSTRUCTIONS ){
@@ -415,6 +445,47 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	
 }
 
+
+MenuManager.prototype.drawSelectTTD = function( graphics ){
+
+	//draw the pause menu
+	graphics.lineWidth = 3;
+	
+	graphics.strokeStyle = "green";
+	graphics.strokeRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.fillStyle = "black";
+	
+	graphics.fillRect( sw/2 - 200, sh/2 - 200, 400, 400 );
+	
+	graphics.lineWidth = 1;
+	
+	graphics.textAlign = 'center';
+	
+	graphics.font = "100px Courier";
+	
+	graphics.fillStyle = "green";
+	
+	if(this.difficultyMenu[0].mouseOn){
+		graphics.strokeText("Easy", sw/2, sh/2 - 150);
+	}else{
+		graphics.fillText("Easy", sw/2, sh/2 - 150);
+	}
+	
+	if(this.difficultyMenu[1].mouseOn){
+		graphics.strokeText("Medium", sw/2, sh/2);
+	}else{
+		graphics.fillText("Medium", sw/2, sh/2);
+	}
+	
+	if(this.difficultyMenu[2].mouseOn){
+		graphics.strokeText("Hard", sw/2, sh/2 + 150);
+	}else{
+		graphics.fillText("Hard", sw/2, sh/2 + 150);
+	}
+	
+}
+
 MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
@@ -608,7 +679,11 @@ function menuHandleClick(event){
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
-			menu = myGame.menuManager.mainMenu;
+			if( myGame.menuManager.selectingTTD ){
+				menu = myGame.menuManager.difficultyMenu;
+			}else{
+				menu = myGame.menuManager.mainMenu;
+			}
 			break;
 		
 		case INSTRUCTIONS:
@@ -683,7 +758,12 @@ function menuHandleScroll( event ){
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
-			menu = myGame.menuManager.mainMenu;
+		
+			if( myGame.menuManager.selectingTTD ){
+				menu = myGame.menuManager.difficultyMenu;
+			}else{
+				menu = myGame.menuManager.mainMenu;
+			}
 			break;
 		
 		case INSTRUCTIONS:
