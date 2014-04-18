@@ -1,1 +1,2 @@
 {"user_name":"Taylor","bestEasyTimes":[{"min":1,"sec":0,"tenth":0,"player":"Taylor"}],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
+{"user_name":"chris","bestEasyTimes":[{"min":0,"sec":58,"tenth":3,"player":"chris"},{"min":1,"sec":2,"tenth":3,"player":"chris"}],"bestMedTimes":[{"min":1,"sec":57,"tenth":3,"player":"chris"}],"bestHardTimes":[{"min":3,"sec":15,"tenth":1,"player":"chris"}],"bestDistances":[{"playerName":"chris","dist":254}],"multiplayerRating":0}

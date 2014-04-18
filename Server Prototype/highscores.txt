@@ -1,1 +1,1 @@
-{"overallBestEasyTimes":[{"min":1,"sec":0,"tenth":0,"player":"Taylor"}],"overallBestMedTimes":[],"overallBestHardTimes":[],"overallBestDistances":[],"playerRatings":[]}
+{"overallBestEasyTimes":[{"min":0,"sec":58,"tenth":3,"player":"chris"},{"min":1,"sec":0,"tenth":0,"player":"Taylor"},{"min":1,"sec":2,"tenth":3,"player":"chris"}],"overallBestMedTimes":[{"min":1,"sec":57,"tenth":3,"player":"chris"}],"overallBestHardTimes":[{"min":3,"sec":15,"tenth":1,"player":"chris"}],"overallBestDistances":[{"playerName":"chris","dist":254}],"playerRatings":[]}
