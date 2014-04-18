@@ -548,13 +548,13 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 		highScores = new HighScores();
 		// highScores[highScores.length - 1] = newHighScore;
 		for (var i = 0; i < newHighScore.overallBestEasyTimes.length; ++i) {
-			highScores.addNewTime(new Time(newHighScore.overallBestEasyTimes[i].min, newHighScore.overallBestEasyTimes[i].sec, newHighScore.overallBestEasyTimes[i].tenth, newHighScore.overallBestEasyTimes[i].player));
+			highScores.addNewEasyTime(new Time(newHighScore.overallBestEasyTimes[i].min, newHighScore.overallBestEasyTimes[i].sec, newHighScore.overallBestEasyTimes[i].tenth, newHighScore.overallBestEasyTimes[i].player));
 		}
 		for (var i = 0; i < newHighScore.overallBestMedTimes.length; ++i) {
-			highScores.addNewTime(new Time(newHighScore.overallBestMedTimes[i].min, newHighScore.overallBestMedTimes[i].sec, newHighScore.overallBestMedTimes[i].tenth, newHighScore.overallBestMedTimes[i].player));
+			highScores.addNewMedTime(new Time(newHighScore.overallBestMedTimes[i].min, newHighScore.overallBestMedTimes[i].sec, newHighScore.overallBestMedTimes[i].tenth, newHighScore.overallBestMedTimes[i].player));
 		}
 		for (var i = 0; i < newHighScore.overallBestHardTimes.length; ++i) {
-			highScores.addNewTime(new Time(newHighScore.overallBestHardTimes[i].min, newHighScore.overallBestHardTimes[i].sec, newHighScore.overallBestHardTimes[i].tenth, newHighScore.overallBestHardTimes[i].player));
+			highScores.addNewHardTime(new Time(newHighScore.overallBestHardTimes[i].min, newHighScore.overallBestHardTimes[i].sec, newHighScore.overallBestHardTimes[i].tenth, newHighScore.overallBestHardTimes[i].player));
 		}
 		for (var i = 0; i < newHighScore.overallBestDistances.length; ++i) {
 			highScores.addNewDistance(new Distance(newHighScore.overallBestDistances[i].playerName, newHighScore.overallBestDistances[i].dist));
