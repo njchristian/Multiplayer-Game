@@ -105,6 +105,7 @@ function goToGame( gm, difficulty ){
 			'waitForChallenge',
 			function(message) {
 				if (message) {
+					myGame.menuManager.isWaiting = true;
 					console.log('waiting for opponent');
 				}
 		});
@@ -113,6 +114,7 @@ function goToGame( gm, difficulty ){
 			'opponentForChallenge',
 			function(message) {
 				//if (message) {
+					myGame.menuManager.isWaiting = false;
 					myGame.isOnMenu = false;
 					myGame.gameManager.newGame( gm );
 				//}

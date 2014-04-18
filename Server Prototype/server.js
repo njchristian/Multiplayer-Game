@@ -233,10 +233,19 @@ HighScores.prototype.addNewRating = function(playerName, rating) {
 		}
 	}
 }
+
+
+HighScores.prototype.updateRatings = function() {
+	for (var player in players) {
+		this.addNewRating(player.userName, player.multiplayerRating);
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Semi-random global variable in order to reference in Player.js:
 
 var highScores = new HighScores(); // array for the high scores
+var players = []; // array of all the players
 
 // ------------------------Player.js-------------------------------------------	
 
@@ -372,7 +381,8 @@ Player.prototype.addNewDistance = function(distance) {
 
 Player.prototype.updateMPRating = function(rating) {
 	this.multiplayerRating += rating;
-	highScores.addNewRating(this.userName, rating);	
+	//highScores.addNewRating(this.userName, rating);	
+	highScores.updateRatings();
 }
 
 // -----------------------GameManager.js---------------------------------------
@@ -509,7 +519,7 @@ var url = require("url")
 // Allows access to local file system.
 var fs = require('fs')
 
-var players = []; // array of all the players
+//var players = []; // array of all the players
 //var highScores = []; // array for the high scores -- moved above the player.js part
 
 var waitingOnRace = new waitingPlayer(); // stores players waiting for multiplayer race mode
@@ -821,6 +831,13 @@ io.sockets.on(
 			
 	});	
 
+	client.on(
+		'stopWaiting',
+		function(stopWaiting) {
+			if(stopWaiting && stopWaiting.userName) {
+				clearAllWaiting(stopWaiting.userName);
+			}
+	});	
 	
 	client.on(
 		'deathByWall',

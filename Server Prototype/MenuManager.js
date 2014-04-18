@@ -28,8 +28,16 @@ function MenuManager( gameObject, g ){
 	this.createSPMenu( g );
 	
 	this.multiPlayerMenu = new Array();
-	this.createMPMenu( g );	this.difficultyMenu = new Array();
-	this.createDifficultyMenu( g );	this.instructionShip = new Ship();
+	this.createMPMenu( g );	
+	
+	this.difficultyMenu = new Array();
+	
+	this.waitingScreen = new Array();
+	this.createWaitingScreen( g );
+	
+	this.createDifficultyMenu( g );	
+	
+	this.instructionShip = new Ship();
 	
 	this.leftTurn = false;
 	this.rightTurn = false;
@@ -37,7 +45,8 @@ function MenuManager( gameObject, g ){
 	
 	this.thrustC = 0;
 	
-	this.hsStyle = TT_EASY;
+	//this.hsStyle = TT_EASY;
+	this.hsStyle = 0; // zero means no mode selected yet
 	
 	this.playerNames = new Array(10);
 	for (var i = 0; i < this.playerNames.length; ++i) {
@@ -51,7 +60,10 @@ function MenuManager( gameObject, g ){
 	this.isWaiting = false;
 	this.waitAnim = 0;
 	this.onSPMenu = false;
-	this.onMPMenu = false;	this.selectingTTD = false;}
+	this.onMPMenu = false;	
+	this.selectingTTD = false;
+}
+
 
 MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 		
@@ -150,6 +162,12 @@ function goToTimeTrial( difficulty ){
 	console.log("MenuManager: " + difficulty);
 	goToGame( TIME_TRIAL, difficulty );
 
+}
+
+MenuManager.prototype.createWaitingScreen = function( g ){
+	g.font = sh/11+"px Courier";
+	
+	this.waitingScreen[0] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7, g.measureText( "Back to Menu" ).width, sh/11, true, toMainMenu );
 }
 
 MenuManager.prototype.createDifficultyMenu = function( g ){
@@ -306,7 +324,6 @@ MenuManager.prototype.draw = function( graphics ){
 
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
-		
 		if (this.onSPMenu) {
 			//console.log("I'm suppose to draw the SP menu now");
 			this.drawSPMenu( graphics );
@@ -315,6 +332,7 @@ MenuManager.prototype.draw = function( graphics ){
 		}
 		
 		if( this.isWaiting ){
+			//console.log("Waiting");
 			this.drawWaiting( graphics );
 		}else if( this.selectingTTD ){
 			this.drawSelectTTD( graphics );
@@ -357,7 +375,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	//graphics.font = sh/11+"px Courier";
 	
 	
-	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*5.25); // was 235
 	}else{
@@ -366,7 +384,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	}
 	
 	
-	if( this.mainMenu[1].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[1].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*7.25); // was 460
 	}else{
@@ -378,7 +396,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	graphics.font = sh/10.25+"px Courier";
 	// graphics.lineWidth = 1;
 	
-	if( this.mainMenu[2].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[2].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("INSTRUCTIONS", sw/4, (sh/12)*10); // was 600
 	}else{
@@ -386,7 +404,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("INSTRUCTIONS", sw/4, (sh/12)*10);
 	}
 	
-	if( this.mainMenu[3].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[3].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 	
 		graphics.strokeText("HIGHSCORES", 3*sw/4, (sh/12)*10); // was 600
 	}else{
@@ -397,7 +415,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	graphics.font = sh/8+"px Courier";
 	// graphics.strokeStyle ="red";
 	// graphics.fillStyle ="red";
-	if( this.mainMenu[4].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[4].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		graphics.strokeText("TUTORIAL", sw/2, (sh/12)*3.25);
 	}else{
 		graphics.fillText("TUTORIAL", sw/2, (sh/12)*3.25);
@@ -455,7 +473,7 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,(sh/10)*4); // 270
 	graphics.fillText("P: PAUSE",10,(sh/10)*4.5); // 300
 	
-	graphics.font = sh/25+"px Courier";
+	graphics.font = sh/33+"px Courier";
 	
 	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,(sh/10)*6.5); // 400
 	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,(sh/10)*7); // 430
@@ -533,14 +551,23 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	var w = graphics.measureText( "Waiting...").width/2;
 	
 	if (this.waitAnim < fps/4){
-		graphics.fillText("Waiting", sw/2-w, sh/2);
+		graphics.fillText("Waiting", sw/2-w, (sh/12)*5);
 	}else if (this.waitAnim < fps/2){
-		graphics.fillText("Waiting.", sw/2-w, sh/2);
+		graphics.fillText("Waiting.", sw/2-w, (sh/12)*5);
 	}else if (this.waitAnim < 3*fps/4){
-		graphics.fillText("Waiting..", sw/2-w, sh/2);
+		graphics.fillText("Waiting..", sw/2-w, (sh/12)*5);
 	}else{
-		graphics.fillText("Waiting...", sw/2-w, sh/2);
+		graphics.fillText("Waiting...", sw/2-w, (sh/12)*5);
 	}
+	
+	graphics.textAlign = 'center';
+	
+	if (this.waitingScreen[0].mouseOn) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7);
+	}
+	
 	this.waitAnim = (this.waitAnim+1)%fps;
 	
 }
@@ -663,7 +690,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	case CHALLENGE:
 		styleText = "Challenge";
 		break;
-		
+	default:
+		styleText = "";
+		break;
 	}
 	
 	graphics.textAlign = 'center';
@@ -773,8 +802,15 @@ MenuManager.prototype.setTimeHighScores = function(data) {
 
 function toMainMenu(){
 
+	if (myGame.menuManager.isWaiting) {
+		myGame.socket.emit('stopWaiting', { userName: myGame.name } );
+		myGame.menuManager.onMPMenu = false;
+		myGame.menuManager.isWaiting = false;
+	}
+	
 	if (myGame.menuManager.currentScreen == HIGHSCORES) {
 		myGame.menuManager.clearHighScores();
+		myGame.menuManager.hsStyle = 0;
 	}
 	myGame.menuManager.currentScreen = MAIN_MENU;
 
@@ -833,7 +869,10 @@ function menuHandleClick(event){
 				}
 			}
 			else if (myGame.menuManager.onMPMenu) {
-				menu = myGame.menuManager.multiPlayerMenu;
+					menu = myGame.menuManager.multiPlayerMenu;
+			}
+			else if ( myGame.menuManager.isWaiting ) {
+					menu = myGame.menuManager.waitingScreen;
 			}
 			else{
 				menu = myGame.menuManager.mainMenu;
@@ -922,6 +961,9 @@ function menuHandleScroll( event ){
 			else if (myGame.menuManager.onMPMenu) {
 				menu = myGame.menuManager.multiPlayerMenu;
 			}
+			else if ( myGame.menuManager.isWaiting ) {
+					menu = myGame.menuManager.waitingScreen;
+				}
 			else{
 				menu = myGame.menuManager.mainMenu;
 			}			
