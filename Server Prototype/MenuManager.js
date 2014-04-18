@@ -842,6 +842,7 @@ function toSPMenu() {
 	myGame.menuManager.onSPMenu = true;
 }
 
+
 function toMPMenu() {
 	myGame.menuManager.onMPMenu = true;
 }

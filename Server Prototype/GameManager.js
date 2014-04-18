@@ -93,6 +93,7 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.isTutorial = false
 	this.tutorialPause = false;
 	this.tutorialStage = 1;
+	this.playerLeft = false;
 	
 	this.difficulty
 	
@@ -240,7 +241,7 @@ GameManager.prototype.draw = function( graphics ){
 	}
 	
 	if( this.gameOver ){ 
-		this.drawEndGame( graphics, this.winner );
+		this.drawEndGame( graphics, this.winner, this.playerLeft );
 		return;
 	}
 	
@@ -319,8 +320,8 @@ GameManager.prototype.update = function(){
 			'opponentLeftGame',
 			function(name) {
 				if(name){
-				console.log("opponentLeftGame");
-				this.socket.emit('endgame',{ user_name: name }); //quick fix dont kill me
+					console.log("opponentLeftGame");
+					myGame.gameManager.opponentLeft();
 				//user left menu
 				}
 		});
@@ -530,6 +531,22 @@ GameManager.prototype.onWin = function( ){
 	this.winner = true;
 	//this.parentGame.returnToMenu(); //??
 }
+
+GameManager.prototype.opponentLeft = function( ){
+	
+	this.playerLeft = true;
+	this.gameOver = true;
+	
+	if( this.isMulti() && this.gameMode == MULTI_RACE){
+		console.log("Player Left");
+		
+		//this.socket.emit('wonGame', { userName : this.name } );
+	}
+	
+	//this.winner = true;
+	//this.parentGame.returnToMenu(); //??
+	
+};
 
 GameManager.prototype.onLoss = function(){
 	this.gameOver = true;
@@ -1099,7 +1116,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	graphics.stroke();
 }	
 
-GameManager.prototype.drawEndGame = function( graphics, won ){
+GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 
 	//draw the pause menu
 	graphics.lineWidth = 3;
@@ -1118,18 +1135,33 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	graphics.font = sh/9+"px Courier";
 	
 	var text;
-	if( won ){
+	
+	if(playerLeft){
+		text = "OPPONENT";
+	}
+	else if( won ){
 		text = "YOU WON!";
 	}else{
-		text = "GOOD GAME!"; //just for giggles but we should let the loser down softly
+		text = "GOOD GAME!";
 	}
 	
 	graphics.strokeText(text, sw/2+50, sh/2 - 100 );
 	
 	graphics.fillStyle = "green";
+	if( playerLeft ){
+		graphics.lineWidth = 1;
+		graphics.textAlign = 'center';
+		graphics.font = sh/9+"px Courier";
+	}
+	else{
+		graphics.font = sh/13+"px Courier";
+	}
 	
-	graphics.font = sh/13+"px Courier";
-	if( this.isChallenge() ){
+	
+	if ( playerLeft ){
+		text = "LEFT";
+	}
+	else if( this.isChallenge() ){
 		text = "SCORE: " + this.highChallengeScore;
 	}else{
 		text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
