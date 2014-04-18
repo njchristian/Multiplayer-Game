@@ -688,7 +688,10 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		var text = "";
 		text = text + (i+1) + ". " + this.playerNames[i];
 		
-		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		//make sure not to draw on the highscore buttons
+		if( ( (sh/10)*8 ) > ( (sh/10)*2.6 + 35*(i+1) ) ) { 
+			graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		}
 	}
 	
 	
