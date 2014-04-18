@@ -112,30 +112,80 @@ function ratingCompareGreaterThan(r1, r2) {
 // ---------------------HighScores.js------------------------------------------
 
 function HighScores() {
-	this.overallBestTimes = [];
+	this.overallBestEasyTimes = [];
+	this.overallBestMedTimes = [];
+	this.overallBestHardTimes = [];
 	this.overallBestDistances = [];
 	this.playerRatings = [];
 }
 
-HighScores.prototype.addNewTime = function(time) {
+HighScores.prototype.addNewEasyTime = function(time) {
 	// Stores the top 10 times
 	
 	// So if there are less than 10 times, just store it
-	if (this.overallBestTimes.length < 10) {
-		this.overallBestTimes[this.overallBestTimes.length] = time;
+	if (this.overallBestEasyTimes.length < 10) {
+		this.overallBestEasyTimes[this.overallBestEasyTimes.length] = time;
 		// sort in descending order
-		this.overallBestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		this.overallBestEasyTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
 		console.log("added a new time");
 	}
 	else {
 		// assume it is sorted in descending order, therefore the slowest time 
 		// is the last one
-		if (timeCompareLessThan(time, this.overallBestTimes[this.overallBestTimes.length - 1])) {
+		if (timeCompareLessThan(time, this.overallBestEasyTimes[this.overallBestEasyTimes.length - 1])) {
 			// replace the slowest time with the new time
-			this.overallBestTimes[this.overallBestTimes.length - 1] = time;
+			this.overallBestEasyTimes[this.overallBestEasyTimes.length - 1] = time;
 			
 			// sort in descending order
-			this.overallBestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			this.overallBestEasyTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+}
+
+HighScores.prototype.addNewMedTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.overallBestMedTimes.length < 10) {
+		this.overallBestMedTimes[this.overallBestMedTimes.length] = time;
+		// sort in descending order
+		this.overallBestMedTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		console.log("added a new time");
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.overallBestMedTimes[this.overallBestMedTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.overallBestMedTimes[this.overallBestMedTimes.length - 1] = time;
+			
+			// sort in descending order
+			this.overallBestMedTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+}
+
+HighScores.prototype.addNewHardTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.overallBestHardTimes.length < 10) {
+		this.overallBestHardTimes[this.overallBestHardTimes.length] = time;
+		// sort in descending order
+		this.overallBestHardTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		console.log("added a new time");
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.overallBestHardTimes[this.overallBestHardTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.overallBestHardTimes[this.overallBestHardTimes.length - 1] = time;
+			
+			// sort in descending order
+			this.overallBestHardTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
@@ -193,9 +243,10 @@ var highScores = new HighScores(); // array for the high scores
 function Player(name) {
 	this.userName = name;
 	this.gameMode = 0; // 0 signifies no game mode selected yet
-	//this.highScores = [];
-	// potential alternative to highScores
-	this.bestTimes = []; // best times from time trial
+	
+	this.bestEasyTimes = []; // best times from time trial easy
+	this.bestMedTimes = [];
+	this.bestHardTimes = [];
 	this.bestDistances = []; // furtherest distances from challenge mode
 	this.multiplayerRating = 0;
 }
@@ -209,48 +260,80 @@ Player.prototype.setGameMode = function(mode) {
 }
 
 
-// Player.prototype.addHighScore = function(score) {
-	// // Stores the top 5 scores
-	
-	// // So if there are less than 5 scores, just store it
-	// if (this.highScores.length < 5) {
-		// this.highScores[this.highScores.length] = score;
-		// // sort in descending order
-		// this.highScore.sort(function(a, b) {return b-a});
-	// }
-	// // else there are already 5 scores, so we need to remove the lowest
-	// else {
-		// // assume it is sorted in descending order, therefore the lowest score is the last one
-		// if (score > this.highScores[this.highScores.length - 1]) {
-			// // replace the lowest score with the new score
-			// this.highScores[this.highScores.length - 1] = score;
-			// // sort in descending order
-			// this.highScore.sort(function(a, b) {return b-a});
-		// }
-		// // else the new score isn't as high as any of the saved high scores
-	// }
-// }
-
-Player.prototype.addNewTime = function(time) {
+Player.prototype.addNewEasyTime = function(time) {
 	// Stores the top 10 times
 	
 	// So if there are less than 10 times, just store it
-	if (this.bestTimes.length < 10) {
-		this.bestTimes[this.bestTimes.length] = time;
+	if (this.bestEasyTimes.length < 10) {
+		this.bestEasyTimes[this.bestEasyTimes.length] = time;
 		// sort in descending order
-		this.bestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
-		highScores.addNewTime(time);
+		this.bestEasyTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		highScores.addNewEasyTime(time);
 	}
 	else {
 		// assume it is sorted in descending order, therefore the slowest time 
 		// is the last one
-		if (timeCompareLessThan(time, this.bestTimes[this.bestTimes.length - 1])) {
+		if (timeCompareLessThan(time, this.bestEasyTimes[this.bestEasyTimes.length - 1])) {
 			// replace the slowest time with the new time
-			this.bestTimes[this.bestTimes.length - 1] = time;
+			this.bestEasyTimes[this.bestEasyTimes.length - 1] = time;
 			// sort in descending order
-			this.bestTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			this.bestEasyTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
 			
-			highScores.addNewTime(time);
+			highScores.addNewEasyTime(time);
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+	
+}
+
+
+Player.prototype.addNewMedTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.bestMedTimes.length < 10) {
+		this.bestMedTimes[this.bestMedTimes.length] = time;
+		// sort in descending order
+		this.bestMedTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		highScores.addNewMedTime(time);
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.bestMedTimes[this.bestMedTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.bestMedTimes[this.bestMedTimes.length - 1] = time;
+			// sort in descending order
+			this.bestMedTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			
+			highScores.addNewMedTime(time);
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+	
+}
+
+
+Player.prototype.addNewHardTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.bestHardTimes.length < 10) {
+		this.bestHardTimes[this.bestHardTimes.length] = time;
+		// sort in descending order
+		this.bestHardTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		highScores.addNewHardTime(time);
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.bestHardTimes[this.bestHardTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.bestHardTimes[this.bestHardTimes.length - 1] = time;
+			// sort in descending order
+			this.bestHardTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			
+			highScores.addNewHardTime(time);
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
@@ -440,14 +523,18 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 	if (line != "") {
 		var newPlayer = JSON.parse(line);
 		players[players.length] = new Player(newPlayer.user_name);
-		// for ( var i = 0; i < newPlayer.highScores.length; ++i) {
-			// players[players.length - 1 ].addHighScore( newPlayer.highScores[i]); // i think this wrong
-		// }
-		for ( var i = 0; i < newPlayer.bestTimes.length; ++i) {
-			players[players.length - 1 ].addNewTime( newPlayer.bestTimes[i]); // i think this wrong
+		
+		for ( var i = 0; i < newPlayer.bestEasyTimes.length; ++i) {
+			players[players.length - 1 ].addNewEasyTime( newPlayer.bestEasyTimes[i]); 
+		}
+		for ( var i = 0; i < newPlayer.bestMedTimes.length; ++i) {
+			players[players.length - 1 ].addNewMedTime( newPlayer.bestMedTimes[i]); 
+		}
+		for ( var i = 0; i < newPlayer.bestHardTimes.length; ++i) {
+			players[players.length - 1 ].addNewHardTime( newPlayer.bestHardTimes[i]); 
 		}
 		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-			players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); // i think this wrong
+			players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); 
 		}
 	}
 	//adds to the file
@@ -460,8 +547,14 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 		var newHighScore = JSON.parse(line);
 		highScores = new HighScores();
 		// highScores[highScores.length - 1] = newHighScore;
-		for (var i = 0; i < newHighScore.overallBestTimes.length; ++i) {
-			highScores.addNewTime(new Time(newHighScore.overallBestTimes[i].min, newHighScore.overallBestTimes[i].sec, newHighScore.overallBestTimes[i].tenth, newHighScore.overallBestTimes[i].player));
+		for (var i = 0; i < newHighScore.overallBestEasyTimes.length; ++i) {
+			highScores.addNewTime(new Time(newHighScore.overallBestEasyTimes[i].min, newHighScore.overallBestEasyTimes[i].sec, newHighScore.overallBestEasyTimes[i].tenth, newHighScore.overallBestEasyTimes[i].player));
+		}
+		for (var i = 0; i < newHighScore.overallBestMedTimes.length; ++i) {
+			highScores.addNewTime(new Time(newHighScore.overallBestMedTimes[i].min, newHighScore.overallBestMedTimes[i].sec, newHighScore.overallBestMedTimes[i].tenth, newHighScore.overallBestMedTimes[i].player));
+		}
+		for (var i = 0; i < newHighScore.overallBestHardTimes.length; ++i) {
+			highScores.addNewTime(new Time(newHighScore.overallBestHardTimes[i].min, newHighScore.overallBestHardTimes[i].sec, newHighScore.overallBestHardTimes[i].tenth, newHighScore.overallBestHardTimes[i].player));
 		}
 		for (var i = 0; i < newHighScore.overallBestDistances.length; ++i) {
 			highScores.addNewDistance(new Distance(newHighScore.overallBestDistances[i].playerName, newHighScore.overallBestDistances[i].dist));
@@ -766,51 +859,53 @@ io.sockets.on(
 		function(highScoresRequest) {
 			// var playerIndex = findPlayerIndex(highScoreRequest.userName);
 			// //var highScores = players[playerIndex].getHighScores();
-			console.log(highScoresRequest.scoreType);
-			console.log("length is: " + highScores.overallBestDistances.length);
-			if (highScoresRequest.scoreType == CHALLENGE) {
+			//console.log(highScoresRequest.scoreType);
+			//console.log("length is: " + highScores.overallBestDistances.length);
+			
+			// Look at the score type of the request and return the appropriate top 10 values
+			if (highScoresRequest.scoreType == TT_EASY) {
+				var times = [];
+				for (var i = 0; i < highScores.overallBestEasyTimes.length; ++i) {
+					console.log("Min: " + highScores.overallBestEasyTimes[i].min);
+					console.log("Sec: " + highScores.overallBestEasyTimes[i].sec);
+					var temp = new StringTime(highScores.overallBestEasyTimes[i].player, highScores.overallBestEasyTimes[i].convertToString());
+					times[times.length] = temp;
+				}
+				client.emit('highScoresResponse', {scores: times});
+			}
+			else if (highScoresRequest.scoreType == TT_MEDIUM) {
+				var times = [];
+				for (var i = 0; i < highScores.overallBestMedTimes.length; ++i) {
+					console.log("Min: " + highScores.overallBestMedTimes[i].min);
+					console.log("Sec: " + highScores.overallBestMedTimes[i].sec);
+					var temp = new StringTime(highScores.overallBestMedTimes[i].player, highScores.overallBestMedTimes[i].convertToString());
+					times[times.length] = temp;
+				}
+				client.emit('highScoresResponse', {scores: times});
+			}
+			else if (highScoresRequest.scoreType == TT_HARD) {
+				var times = [];
+				for (var i = 0; i < highScores.overallBestHardTimes.length; ++i) {
+					console.log("Min: " + highScores.overallBestHardTimes[i].min);
+					console.log("Sec: " + highScores.overallBestHardTimes[i].sec);
+					var temp = new StringTime(highScores.overallBestHardTimes[i].player, highScores.overallBestHardTimes[i].convertToString());
+					times[times.length] = temp;
+				}
+				client.emit('highScoresResponse', {scores: times});
+			}
+			else if (highScoresRequest.scoreType == CHALLENGE) {
 				for (var i = 0; i < highScores.overallBestDistances.length; ++i) {
 					console.log(highScores.overallBestDistances[i].dist);
 				}
 				client.emit('highScoresResponse', {scores: highScores.overallBestDistances });
 			}
 			else {
-				var times = [];
-				for (var i = 0; i < highScores.overallBestTimes.length; ++i) {
-					console.log("Min: " + highScores.overallBestTimes[i].min);
-					console.log("Sec: " + highScores.overallBestTimes[i].sec);
-					var temp = new StringTime(highScores.overallBestTimes[i].player, highScores.overallBestTimes[i].convertToString());
-					times[times.length] = temp;
-				}
-				client.emit('highScoresResponse', {scores: times});
+				console.log("Somehow there was an invalid scoreType in a highScoreRequest");
 			}
-				// playerDistances : players[playerIndex].bestDistances, 
-				// playerMPRating : players[playersIndex].multiplayerRating } );
+	
 	});		
 	
-	// new high score
-	client.on(
-		'newHighScore',
-		// highScoreObject should contain the user name (userName) and 
-		// a new high score (highScore);
-		function(highScoreObject) {
-			if (highScoreObject) {
-				// find player
-				var playerIndex = findPlayerIndex(highScoreObject.userName);
-				
-				// make sure player exists
-				if (playerIndex == -1) {
-					client.emit('error', 'User name not found!');
-					console.log('User name not found!');
-					return;
-				}
-				players[playerIndex].addHighScore(highScoreObject.highScore);
-			}
-			else {
-				console.log('error setting new high score');
-			}
-	});	
-	
+		
 	// new time
 	client.on(
 		'newTime',
@@ -835,7 +930,19 @@ io.sockets.on(
 				// add the new time
 				// players[playerIndex].addNewTime(timeObject.time);
 				var time = new Time(timeObject.min, timeObject.sec, timeObject.tenth, timeObject.userName);
-				players[playerIndex].addNewTime(time);
+				if (timeObject.difficulty == 1) {
+					players[playerIndex].addNewEasyTime(time);
+				}
+				else if (timeObject.difficulty == 2) {
+					players[playerIndex].addNewMedTime(time);
+				}
+				else if (timeObject.difficulty == 3) {
+					players[playerIndex].addNewHardTime(time);
+				}
+				else {
+					console.log('error setting new time');
+				}
+				
 			}
 			else {
 				console.log('error setting new time'); //debug check
@@ -868,6 +975,7 @@ io.sockets.on(
 			}
 	});	
 	
+	// this probably won't be used
 	client.on(
 		'ratingUpdate',
 		// ratingObject should contain the user name (userName) and the
@@ -1008,12 +1116,12 @@ io.sockets.on(
 			for ( var j = 0; j < players.length; ++j)
 			{
 				player = players[ j ];
-				var json = { user_name: player.userName, highScores: player.highScores, bestTimes: player.bestTimes, bestDistances: player.bestDistances };
+				var json = { user_name: player.userName, bestEasyTimes: player.bestEasyTimes, bestMedTimes: player.bestMedTimes, bestHardTimes: player.bestHardTimes, bestDistances: player.bestDistances, multiplayerRating: player.multiplayerRating };
 				var line = JSON.stringify(json);	
 				fs.appendFileSync("./data.txt", line.toString() + "\n");
 			}
 			
-			var highScoreJSON = { overallBestTimes: highScores.overallBestTimes, overallBestDistances: highScores.overallBestDistances, playerRatings: highScores.playerRatings };
+			var highScoreJSON = { overallBestEasyTimes: highScores.overallBestEasyTimes, overallBestMedTimes: highScores.overallBestMedTimes, overallBestHardTimes: highScores.overallBestHardTimes, overallBestDistances: highScores.overallBestDistances, playerRatings: highScores.playerRatings };
 			var line2 = JSON.stringify(highScoreJSON);
 			fs.writeFileSync("./highscores.txt", line2.toString());
 	});

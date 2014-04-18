@@ -523,7 +523,7 @@ GameManager.prototype.onWin = function( ){
 		console.log("Sending time");
 		// console.log("name: " + this.name);
 		// console.log("time: " + timer.min);
-		this.socket.emit('newTime', { userName: this.name, min: timer.min, sec: timer.sec, tenth: timer.tenth });
+		this.socket.emit('newTime', { userName: this.name, min: timer.min, sec: timer.sec, tenth: timer.tenth, difficulty: this.difficulty });
 	}
 
 	
