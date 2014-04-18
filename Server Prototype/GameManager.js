@@ -1116,46 +1116,6 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	graphics.stroke();
 }	
 
-GameManager.prototype.drawPlayerLeftGame = function( graphics ){
-
-	//draw the pause menu
-	graphics.lineWidth = 3;
-	
-	graphics.strokeStyle = "green";
-	graphics.strokeRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
-	
-	graphics.fillStyle = "black";
-	
-	graphics.fillRect(  sw/2 - sw/4, sh/2 - sh/4, sw/2, sh/2 );
-	
-	graphics.lineWidth = 1;
-	
-	graphics.textAlign = 'center';
-	
-	graphics.font = sh/9+"px Courier";
-	
-	var text;
-	text = "OPPONENT";
-	
-	graphics.strokeText(text, sw/2+50, sh/2 - 100 );
-	
-	graphics.fillStyle = "green";
-	
-	graphics.font = sh/9+"px Courier";
-	text = "LEFT"
-	
-	graphics.fillText(text, sw/2 + 50, sh/2 + 50);
-	
-	graphics.font = sh/15+"px Courier";
-	
-	if( this.endScroll ){
-		graphics.strokeText("Main Menu", sw/2 + 50, sh/2 + 175 );
-	}else{
-		graphics.fillText("Main Menu", sw/2 + 50, sh/2 + 175 );
-	}
-	
-}
-
 GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 
 	//draw the pause menu
