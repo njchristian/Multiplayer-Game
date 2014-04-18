@@ -140,6 +140,11 @@ function selectDifficulty( ){
 
 }
 
+function unselectDifficulty( ) {
+	
+	myGame.menuManager.selectingTTD = false;
+}
+
 function goToTimeTrial( difficulty ){
 
 	console.log("MenuManager: " + difficulty);
@@ -149,11 +154,15 @@ function goToTimeTrial( difficulty ){
 
 MenuManager.prototype.createDifficultyMenu = function( g ){
 
-	g.font = sh/9+"px Courier";
+	g.font = sh/10+"px Courier";
 	
-	this.difficultyMenu[0] = new CanvasText( "EASY", sw/2, (sh/12)*4.5, g.measureText( "EASY" ).width, sh/9, true, goToTimeTrial,  1); // 600
-	this.difficultyMenu[1] = new CanvasText( "MEDIUM", sw/2, (sh/12)*6, g.measureText( "MEDIUM" ).width, sh/9, true, goToTimeTrial,  2); // 600
-	this.difficultyMenu[2] = new CanvasText( "HARD", sw/2, (sh/12)*7.5, g.measureText( "HARD" ).width, sh/9, true, goToTimeTrial,  3); // 600
+	this.difficultyMenu[0] = new CanvasText( "EASY", sw/2, (sh/12)*4, g.measureText( "EASY" ).width, sh/10, true, goToTimeTrial,  1); // 600
+	this.difficultyMenu[1] = new CanvasText( "MEDIUM", sw/2, (sh/12)*5.5, g.measureText( "MEDIUM" ).width, sh/10, true, goToTimeTrial,  2); // 600
+	this.difficultyMenu[2] = new CanvasText( "HARD", sw/2, (sh/12)*7, g.measureText( "HARD" ).width, sh/10, true, goToTimeTrial,  3); // 600
+	
+	g.font = sh/12+"px Courier";
+	
+	this.difficultyMenu[3] = new CanvasText( "Back to Menu", sw/2, (sh/12)*8.25, g.measureText( "Back to Menu").width, sh/12, true, unselectDifficulty);
 
 }
 
@@ -553,26 +562,34 @@ MenuManager.prototype.drawSelectTTD = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = sh/9+"px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	graphics.fillStyle = "green";
 	
 	if(this.difficultyMenu[0].mouseOn){
-		graphics.strokeText("Easy", sw/2, (sh/12)*4.5);
+		graphics.strokeText("Easy", sw/2, (sh/12)*4);
 	}else{
-		graphics.fillText("Easy", sw/2, (sh/12)*4.5);
+		graphics.fillText("Easy", sw/2, (sh/12)*4);
 	}
 	
 	if(this.difficultyMenu[1].mouseOn){
-		graphics.strokeText("Medium", sw/2, (sh/12)*6);
+		graphics.strokeText("Medium", sw/2, (sh/12)*5.5);
 	}else{
-		graphics.fillText("Medium", sw/2, (sh/12)*6);
+		graphics.fillText("Medium", sw/2, (sh/12)*5.5);
 	}
 	
 	if(this.difficultyMenu[2].mouseOn){
-		graphics.strokeText("Hard", sw/2, (sh/12)*7.5);
+		graphics.strokeText("Hard", sw/2, (sh/12)*7);
 	}else{
-		graphics.fillText("Hard", sw/2, (sh/12)*7.5);
+		graphics.fillText("Hard", sw/2, (sh/12)*7);
+	}
+	
+	graphics.font = sh/12+"px Courier";
+	
+	if(this.difficultyMenu[3].mouseOn) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*8.25);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*8.25);
 	}
 	
 }
