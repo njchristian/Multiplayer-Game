@@ -17,6 +17,13 @@ var TT_EASY = 1;
 var TT_MEDIUM = 2;
 var TT_HARD = 3;
 var CHALLENGE = 4;
+var RATING = 5;
+
+// Semi-random global variable in order to reference in Player.js:
+
+var highScores = new HighScores(); // array for the high scores
+var players = []; // array of all the players
+
 
 // var fs = require('fs');
 // var vm = require('vm');
@@ -213,12 +220,12 @@ HighScores.prototype.addNewDistance = function(distance) {
 	}
 }
 
-HighScores.prototype.addNewRating = function(playerName, rating) { 
+HighScores.prototype.addNewRating = function(rating) { 
 	// Stores the top 10 ratings
 	
 	// So if there are less than 10 top ratings, just store it
 	if (this.playerRatings.length < 10) {
-		this.playerRatings[this.playerRatings.length] = new RatingItem(playerName, rating);
+		this.playerRatings[this.playerRatings.length] = rating;
 		// sort in descending order
 		this.playerRatings.sort(function(a, b) {return ratingCompareGreaterThan(a, b)});
 	}
@@ -227,7 +234,7 @@ HighScores.prototype.addNewRating = function(playerName, rating) {
 		// lowest rating is in the last slot
 		if (rating > this.playerRatings[this.playerRatings.length - 1].rating) {
 			// replace the lowest rating with the new one
-			this.playerRatings[this.playerRatings.length - 1] = new RatingItem(playerName, rating);
+			this.playerRatings[this.playerRatings.length - 1] = rating;
 			// sort in descending order
 			this.playerRatings.sort(function(a, b) {return ratingCompareGreaterThan(a, b)});
 		}
@@ -237,15 +244,12 @@ HighScores.prototype.addNewRating = function(playerName, rating) {
 
 HighScores.prototype.updateRatings = function() {
 	for (var player in players) {
-		this.addNewRating(player.userName, player.multiplayerRating);
+		var rating = new RatingItem(player.userName, player.multiplayerRating);
+		this.addNewRating(rating);
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Semi-random global variable in order to reference in Player.js:
-
-var highScores = new HighScores(); // array for the high scores
-var players = []; // array of all the players
 
 // ------------------------Player.js-------------------------------------------	
 
@@ -582,6 +586,8 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 		// }
 	}
 });
+
+highScores.updateRatings();
 
 
 // ------------- HELPER FUNCTIONS ---------------------------------------------
@@ -922,6 +928,12 @@ io.sockets.on(
 					}
 					client.emit('highScoresResponse', {scores: highScores.overallBestDistances });
 				}
+				else if (highScoresRequest.scoreType == RATING) {
+					for (var i = 0; i < highScores.playerRatings.length; ++i) {
+						console.log(highScores.playerRatings[i].rating);
+					}
+					client.emit('highScoresResponse', { scores: highScores.playerRatings } );
+				}
 				else {
 					console.log("Somehow there was an invalid scoreType in a highScoresRequest");
 				}
@@ -963,6 +975,12 @@ io.sockets.on(
 				}
 				else if (highScoresRequest.scoreType == CHALLENGE) {
 					client.emit('highScoresResponse', {scores: players[playerIndex].bestDistances});
+				}
+				else if (highScoresRequest.scoreType == RATING) {
+					var rating = [];
+					rating[ rating.length ] = new RatingItem( players[playerIndex].userName ,players[playerIndex].multiplayerRating );
+					console.log("Rating: " + rating[0].rating);
+					client.emit('highScoresResponse', { scores: rating } );
 				}
 				else {
 					console.log("Somehow there was an invalid scoreType in a highScoreRequest");

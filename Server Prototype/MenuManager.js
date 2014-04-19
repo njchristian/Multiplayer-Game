@@ -6,6 +6,7 @@ var TT_EASY = 1;
 var TT_MEDIUM = 2;
 var TT_HARD = 3;
 var CHALLENGE = 4;
+var RATING = 5;
 
 
 //Pass the parent game object, and a graphics object to measure text with
@@ -209,7 +210,7 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	
 	var w = g.measureText("Challenge").width;
 
-	this.highscoreMenu[1] = new CanvasText( "Challenge", sw/4.25, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, CHALLENGE); // 650
+	this.highscoreMenu[1] = new CanvasText( "Challenge", sw/8, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, CHALLENGE); // 650
 	var w = g.measureText("Easy").width; 
 	this.highscoreMenu[2] = new CanvasText( "Easy", sw/3.8, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_EASY); // 595
 	var w = g.measureText("Medium").width;
@@ -220,6 +221,8 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	
 	this.highscoreMenu[5] = new CanvasText( "Personal", sw/8, (sh/10)*9.6, g.measureText( "Personal" ).width, sh/20, true, setHSPersonal);
 	this.highscoreMenu[6] = new CanvasText( "Overall", sw/2.5, (sh/10)*9.6, g.measureText( "Overall" ).width, sh/20, true, setHSOverall);
+	
+	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/2.5, (sh/10)*8.8, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
 	
 }
 
@@ -688,12 +691,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.strokeText("Player", sw/5, (sh/10)*2.65); // 150
 	
 	
-	//
-	if( this.hsStyle == CHALLENGE ){
-		
+	// 
+	if ( this.hsStyle == CHALLENGE ) {
 		graphics.strokeText("Score", 4*sw/5, (sh/10)*2.65); // 150
-	}else{
-	
+	} else if ( this.hsStyle == RATING ) {
+		graphics.strokeText("Rating", 4*sw/5, (sh/10)*2.65);
+	} else {
 		graphics.strokeText("Time", 4*sw/5, (sh/10)*2.65); // 150
 	}
 	
@@ -716,6 +719,8 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	case CHALLENGE:
 		styleText = "Challenge";
 		break;
+	case RATING:
+		styleText = "MP Ratings";
 	default:
 		styleText = "";
 		break;
@@ -779,9 +784,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.fillText("Time Trial:", sw/9, (sh/10)*8); // 560
 	
 	if( this.highscoreMenu[1].mouseOn ){
-		graphics.strokeText("Challenge", sw/4.25, (sh/10)*8.8); // 560
+		graphics.strokeText("Challenge", sw/8, (sh/10)*8.8); // 560
 	} else {
-		graphics.fillText("Challenge", sw/4.25, (sh/10)*8.8); // 560
+		graphics.fillText("Challenge", sw/8, (sh/10)*8.8); // 560
 	}
 	
 	if( this.highscoreMenu[2].mouseOn ){
@@ -814,6 +819,11 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		graphics.fillText("Overall", sw/2.5, (sh/10)*9.6);
 	}
 	
+	if( this.highscoreMenu[7].mouseOn ) {
+		graphics.strokeText("MP Ratings", sw/2.5, (sh/10)*8.8);
+	} else {
+		graphics.fillText("MP Ratings", sw/2.5, (sh/10)*8.8);
+	}
 }
 
 MenuManager.prototype.clearHighScores = function() {
@@ -824,6 +834,23 @@ MenuManager.prototype.clearHighScores = function() {
 			this.playerNames[i] = " - ";
 		}
 		this.playerScores[i] = " - ";
+	}
+}
+
+MenuManager.prototype.setRatings = function(data) {
+	for (var i = 0; i < 10; ++i) {
+		console.log("ith rating: " + data[i].rating);
+		if(data[i] != null) { // should this be null or undefined??
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].rating;
+		} else {
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
@@ -1119,6 +1146,11 @@ function setHighscoreStyle( style ){
 					if (style == CHALLENGE) {
 						myGame.menuManager.clearHighScores();
 						myGame.menuManager.setDistanceHighScores(data.scores);
+					}
+					else if (style == RATING) {
+						console.log("Rating response");
+						myGame.menuManager.clearHighScores();
+						myGame.menuManager.setRatings(data.scores);
 					}
 					else {
 						myGame.menuManager.clearHighScores();
