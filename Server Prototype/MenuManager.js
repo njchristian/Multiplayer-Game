@@ -53,11 +53,15 @@ function MenuManager( gameObject, g ){
 	
 	this.playerNames = new Array(10);
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		this.playerNames[i] = "";
+		if (i == 9) {
+			this.playerNames[i] = "- ";
+		} else {
+			this.playerNames[i] = " - ";
+		}
 	}
 	this.playerScores = new Array(10);
 	for (var i = 0; i < this.playerScores.length; ++i) {
-		this.playerScores[i] = "";
+		this.playerScores[i] = " - ";
 	}
 	
 	this.isWaiting = false;
@@ -826,7 +830,11 @@ MenuManager.prototype.setDistanceHighScores = function(data) {
 			this.playerScores[i] = data[i].dist;
 			console.log("dist: " + data[i].dist);
 		} else {
-			this.playerNames[i] = " - ";
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
 			this.playerScores[i] = " - ";
 		}
 	}
@@ -838,7 +846,11 @@ MenuManager.prototype.setTimeHighScores = function(data) {
 			this.playerNames[i] = data[i].playerName;
 			this.playerScores[i] = data[i].time;
 		} else {
-			this.playerNames[i] = " - ";
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
 			this.playerScores[i] = " - ";
 		}
 	}
