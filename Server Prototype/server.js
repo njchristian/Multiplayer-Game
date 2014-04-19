@@ -537,17 +537,18 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 		players[players.length] = new Player(newPlayer.user_name);
 		
 		for ( var i = 0; i < newPlayer.bestEasyTimes.length; ++i) {
-			players[players.length - 1 ].addNewEasyTime( newPlayer.bestEasyTimes[i]); 
+			players[players.length - 1 ].addNewEasyTime( new Time( newPlayer.bestEasyTimes[i].min, newPlayer.bestEasyTimes[i].sec, newPlayer.bestEasyTimes[i].tenth, newPlayer.bestEasyTimes[i].player ) ); 
 		}
 		for ( var i = 0; i < newPlayer.bestMedTimes.length; ++i) {
-			players[players.length - 1 ].addNewMedTime( newPlayer.bestMedTimes[i]); 
+			players[players.length - 1 ].addNewMedTime( new Time( newPlayer.bestMedTimes[i].min, newPlayer.bestMedTimes[i].sec, newPlayer.bestMedTimes[i].tenth, newPlayer.bestMedTimes[i].player ) ); 
 		}
 		for ( var i = 0; i < newPlayer.bestHardTimes.length; ++i) {
-			players[players.length - 1 ].addNewHardTime( newPlayer.bestHardTimes[i]); 
+			players[players.length - 1 ].addNewHardTime( new Time( newPlayer.bestHardTimes[i].min, newPlayer.bestHardTimes[i].sec, newPlayer.bestHardTimes[i].tenth, newPlayer.bestHardTimes[i].player ) ); 
 		}
 		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
-			players[players.length - 1 ].addNewDistance( newPlayer.bestDistances[i]); 
+			players[players.length - 1 ].addNewDistance( new Distance( newPlayer.bestDistances[i].playerName, newPlayer.bestDistances[i].dist ) ); 
 		}
+		players[players.length - 1 ].multiplayerRating = newPlayer.multiplayerRating;
 	}
 	//adds to the file
 	//var line = JSON.stringify(newPlayer);
@@ -878,48 +879,94 @@ io.sockets.on(
 		function(highScoresRequest) {
 			// var playerIndex = findPlayerIndex(highScoreRequest.userName);
 			// //var highScores = players[playerIndex].getHighScores();
-			//console.log(highScoresRequest.scoreType);
+			console.log(highScoresRequest.scoreType);
+			console.log(highScoresRequest.isOverall);
+			console.log(highScoresRequest.userName);
 			//console.log("length is: " + highScores.overallBestDistances.length);
 			
 			// Look at the score type of the request and return the appropriate top 10 values
-			if (highScoresRequest.scoreType == TT_EASY) {
-				var times = [];
-				for (var i = 0; i < highScores.overallBestEasyTimes.length; ++i) {
-					console.log("Min: " + highScores.overallBestEasyTimes[i].min);
-					console.log("Sec: " + highScores.overallBestEasyTimes[i].sec);
-					var temp = new StringTime(highScores.overallBestEasyTimes[i].player, highScores.overallBestEasyTimes[i].convertToString());
-					times[times.length] = temp;
+			if (highScoresRequest.isOverall == true) {
+				if (highScoresRequest.scoreType == TT_EASY) {
+					var times = [];
+					for (var i = 0; i < highScores.overallBestEasyTimes.length; ++i) {
+						console.log("Min: " + highScores.overallBestEasyTimes[i].min);
+						console.log("Sec: " + highScores.overallBestEasyTimes[i].sec);
+						var temp = new StringTime(highScores.overallBestEasyTimes[i].player, highScores.overallBestEasyTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
 				}
-				client.emit('highScoresResponse', {scores: times});
-			}
-			else if (highScoresRequest.scoreType == TT_MEDIUM) {
-				var times = [];
-				for (var i = 0; i < highScores.overallBestMedTimes.length; ++i) {
-					console.log("Min: " + highScores.overallBestMedTimes[i].min);
-					console.log("Sec: " + highScores.overallBestMedTimes[i].sec);
-					var temp = new StringTime(highScores.overallBestMedTimes[i].player, highScores.overallBestMedTimes[i].convertToString());
-					times[times.length] = temp;
+				else if (highScoresRequest.scoreType == TT_MEDIUM) {
+					var times = [];
+					for (var i = 0; i < highScores.overallBestMedTimes.length; ++i) {
+						console.log("Min: " + highScores.overallBestMedTimes[i].min);
+						console.log("Sec: " + highScores.overallBestMedTimes[i].sec);
+						var temp = new StringTime(highScores.overallBestMedTimes[i].player, highScores.overallBestMedTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
 				}
-				client.emit('highScoresResponse', {scores: times});
-			}
-			else if (highScoresRequest.scoreType == TT_HARD) {
-				var times = [];
-				for (var i = 0; i < highScores.overallBestHardTimes.length; ++i) {
-					console.log("Min: " + highScores.overallBestHardTimes[i].min);
-					console.log("Sec: " + highScores.overallBestHardTimes[i].sec);
-					var temp = new StringTime(highScores.overallBestHardTimes[i].player, highScores.overallBestHardTimes[i].convertToString());
-					times[times.length] = temp;
+				else if (highScoresRequest.scoreType == TT_HARD) {
+					var times = [];
+					for (var i = 0; i < highScores.overallBestHardTimes.length; ++i) {
+						console.log("Min: " + highScores.overallBestHardTimes[i].min);
+						console.log("Sec: " + highScores.overallBestHardTimes[i].sec);
+						var temp = new StringTime(highScores.overallBestHardTimes[i].player, highScores.overallBestHardTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
 				}
-				client.emit('highScoresResponse', {scores: times});
-			}
-			else if (highScoresRequest.scoreType == CHALLENGE) {
-				for (var i = 0; i < highScores.overallBestDistances.length; ++i) {
-					console.log(highScores.overallBestDistances[i].dist);
+				else if (highScoresRequest.scoreType == CHALLENGE) {
+					for (var i = 0; i < highScores.overallBestDistances.length; ++i) {
+						console.log(highScores.overallBestDistances[i].dist);
+					}
+					client.emit('highScoresResponse', {scores: highScores.overallBestDistances });
 				}
-				client.emit('highScoresResponse', {scores: highScores.overallBestDistances });
+				else {
+					console.log("Somehow there was an invalid scoreType in a highScoresRequest");
+				}
 			}
+			// else the user wants individual data
 			else {
-				console.log("Somehow there was an invalid scoreType in a highScoreRequest");
+				// find player
+				var playerIndex = findPlayerIndex(highScoresRequest.userName);
+				
+				// make sure player exists
+				if (playerIndex == -1) {
+					client.emit('error', 'User name not found!');
+					return;
+				}
+				
+				if (highScoresRequest.scoreType == TT_EASY) {
+					var times = [];
+					for (var i = 0; i < players[playerIndex].bestEasyTimes.length; ++i) {
+						var temp = new StringTime(players[playerIndex].bestEasyTimes[i].player, players[playerIndex].bestEasyTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
+				}
+				else if (highScoresRequest.scoreType == TT_MEDIUM) {
+					var times = [];
+					for (var i = 0; i < players[playerIndex].bestMedTimes.length; ++i) {
+						var temp = new StringTime(players[playerIndex].bestMedTimes[i].player, players[playerIndex].bestMedTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
+				}
+				else if (highScoresRequest.scoreType == TT_HARD) {
+					var times = [];
+					for (var i = 0; i < players[playerIndex].bestHardTimes.length; ++i) {
+						var temp = new StringTime(players[playerIndex].bestHardTimes[i].player, players[playerIndex].bestHardTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
+				}
+				else if (highScoresRequest.scoreType == CHALLENGE) {
+					client.emit('highScoresResponse', {scores: players[playerIndex].bestDistances});
+				}
+				else {
+					console.log("Somehow there was an invalid scoreType in a highScoreRequest");
+				}
 			}
 	
 	});		

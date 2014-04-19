@@ -1,2 +1,7 @@
 {"user_name":"Taylor","bestEasyTimes":[{"min":1,"sec":0,"tenth":0,"player":"Taylor"}],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
 {"user_name":"chris","bestEasyTimes":[{"min":0,"sec":58,"tenth":3,"player":"chris"},{"min":1,"sec":2,"tenth":3,"player":"chris"}],"bestMedTimes":[{"min":1,"sec":57,"tenth":3,"player":"chris"}],"bestHardTimes":[{"min":3,"sec":15,"tenth":1,"player":"chris"}],"bestDistances":[{"playerName":"chris","dist":254}],"multiplayerRating":0}
+{"user_name":"ttt","bestEasyTimes":[{"min":1,"sec":20,"tenth":3,"player":"ttt"}],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
+{"user_name":"tt","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
+{"user_name":"t","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
+{"user_name":"ttttt","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":0}
+{"user_name":"taylor","bestEasyTimes":[{"min":0,"sec":17,"tenth":0,"player":"taylor"},{"min":0,"sec":18,"tenth":7,"player":"taylor"}],"bestMedTimes":[{"min":0,"sec":17,"tenth":2,"player":"taylor"},{"min":0,"sec":19,"tenth":3,"player":"taylor"}],"bestHardTimes":[{"min":0,"sec":12,"tenth":5,"player":"taylor"},{"min":0,"sec":18,"tenth":7,"player":"taylor"}],"bestDistances":[{"playerName":"taylor","dist":325},{"playerName":"taylor","dist":194}],"multiplayerRating":0}

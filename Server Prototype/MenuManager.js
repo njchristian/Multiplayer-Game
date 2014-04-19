@@ -48,6 +48,9 @@ function MenuManager( gameObject, g ){
 	//this.hsStyle = TT_EASY;
 	this.hsStyle = 0; // zero means no mode selected yet
 	
+	// true for showing overall high scores; false for showing individual
+	this.hsIsOverall = true; 
+	
 	this.playerNames = new Array(10);
 	for (var i = 0; i < this.playerNames.length; ++i) {
 		this.playerNames[i] = "";
@@ -202,17 +205,28 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	
 	var w = g.measureText("Challenge").width;
 
-	this.highscoreMenu[1] = new CanvasText( "Challenge", sw/3, (sh/10)*8, w, sh/20, true, setHighscoreStyle, CHALLENGE); // 650
+	this.highscoreMenu[1] = new CanvasText( "Challenge", sw/4.25, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, CHALLENGE); // 650
 	var w = g.measureText("Easy").width; 
-	this.highscoreMenu[2] = new CanvasText( "Easy", sw/9, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, TT_EASY); // 595
+	this.highscoreMenu[2] = new CanvasText( "Easy", sw/3.8, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_EASY); // 595
 	var w = g.measureText("Medium").width;
 	
-	this.highscoreMenu[3] = new CanvasText( "Medium", sw/9, (sh/10)*9.6, w, sh/20, true, setHighscoreStyle, TT_MEDIUM); // 630
+	this.highscoreMenu[3] = new CanvasText( "Medium", sw/2.4, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_MEDIUM); // 630
 	var w = g.measureText("Hard").width; 
-	this.highscoreMenu[4] = new CanvasText( "Hard", sw/3, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, TT_HARD); // 595
+	this.highscoreMenu[4] = new CanvasText( "Hard", (sw/16)*9, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_HARD); // 595
+	
+	this.highscoreMenu[5] = new CanvasText( "Personal", sw/8, (sh/10)*9.6, g.measureText( "Personal" ).width, sh/20, true, setHSPersonal);
+	this.highscoreMenu[6] = new CanvasText( "Overall", sw/2.5, (sh/10)*9.6, g.measureText( "Overall" ).width, sh/20, true, setHSOverall);
 	
 }
 
+function setHSOverall() {
+	myGame.menuManager.hsIsOverall = true;
+	setHighscoreStyle(myGame.menuManager.hsStyle);
+}
+function setHSPersonal() {
+	myGame.menuManager.hsIsOverall = false;
+	setHighscoreStyle(myGame.menuManager.hsStyle);
+}
 
 // create the sub menu for the single player modes
 MenuManager.prototype.createSPMenu = function( g ) {
@@ -650,25 +664,33 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.beginPath();
 	
-	graphics.moveTo(sw/10, (sh/10)*2.25); // 170
-	graphics.lineTo(9*sw/10, (sh/10)*2.25); // 170
+	graphics.moveTo(sw/10, (sh/10)*3); // 170
+	graphics.lineTo(9*sw/10, (sh/10)*3); // 170
 	graphics.stroke();
+	
+	
+	
+	graphics.lineWidth = 1;
+	graphics.font = sh/12+"px Courier";
+	
+	if (this.hsIsOverall) {
+		graphics.strokeText("(Overall)", sw/2, (sh/10)*1.9); 
+	} else {
+		graphics.strokeText("(Personal)", sw/2, (sh/10)*1.9);
+	}
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.lineWidth = 1;
-	
-	
-	graphics.strokeText("Player", sw/5, (sh/10)*1.9); // 150
+	graphics.strokeText("Player", sw/5, (sh/10)*2.65); // 150
 	
 	
 	//
 	if( this.hsStyle == CHALLENGE ){
 		
-		graphics.strokeText("Score", 4*sw/5, (sh/10)*1.9); // 150
+		graphics.strokeText("Score", 4*sw/5, (sh/10)*2.65); // 150
 	}else{
 	
-		graphics.strokeText("Time", 4*sw/5, (sh/10)*1.9); // 150
+		graphics.strokeText("Time", 4*sw/5, (sh/10)*2.65); // 150
 	}
 	
 	//
@@ -697,7 +719,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.fillText(styleText, sw/2, (sh/10)*1.9); // 150
+	graphics.fillText(styleText, sw/2, (sh/10)*2.65); // 150
 	
 	
 	//populate this array...
@@ -718,8 +740,8 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		text = text + (i+1) + ". " + this.playerNames[i];
 		
 		//make sure not to draw on the highscore buttons
-		if( ( (sh/10)*8 ) > ( (sh/10)*2.6 + 35*(i+1) ) ) { 
-			graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		if( ( (sh/10)*8 ) > ( (sh/10)*3.6 + 35*(i+1) ) ) { 
+			graphics.strokeText(text, sw/10, (sh/10)*3.35 + 35*i); // was 210 + 35*i
 		}
 	}
 	
@@ -728,7 +750,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		var text = "";
 		
 		text = text + (j+1) + ". ..."; // this got broken somehow
-		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
+		graphics.strokeText(text, sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
 	
 	graphics.textAlign = 'right';
@@ -736,13 +758,13 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	for( i = 0; i < this.playerScores.length; ++i){
 		var text = this.playerScores[i];
 	
-		graphics.strokeText(text, 9*sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		graphics.strokeText(text, 9*sw/10, (sh/10)*3.35 + 35*i); // was 210 + 35*i
 	}
 	
 	
 	for( var j = i; j < 10; ++j ){
 		
-		graphics.strokeText("...", 9*sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
+		graphics.strokeText("...", 9*sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
 	
 	//graphics.textAlign = 'left';
@@ -753,29 +775,40 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.fillText("Time Trial:", sw/9, (sh/10)*8); // 560
 	
 	if( this.highscoreMenu[1].mouseOn ){
-		graphics.strokeText("Challenge", sw/3, (sh/10)*8); // 560
+		graphics.strokeText("Challenge", sw/4.25, (sh/10)*8.8); // 560
 	} else {
-		graphics.fillText("Challenge", sw/3, (sh/10)*8); // 560
+		graphics.fillText("Challenge", sw/4.25, (sh/10)*8.8); // 560
 	}
 	
 	if( this.highscoreMenu[2].mouseOn ){
-		graphics.strokeText("Easy", sw/9, (sh/10)*8.8); // 595
+		graphics.strokeText("Easy", sw/3.8, (sh/10)*8); // 595
 	} else {
-		graphics.fillText("Easy", sw/9, (sh/10)*8.8); // 595
+		graphics.fillText("Easy", sw/3.8, (sh/10)*8); // 595
 	}
 	
 	if( this.highscoreMenu[3].mouseOn ){
-		graphics.strokeText("Medium", sw/9, (sh/10)*9.60); // 630
+		graphics.strokeText("Medium", sw/2.4, (sh/10)*8); // 630
 	} else {
-		graphics.fillText("Medium", sw/9, (sh/10)*9.60); // 630
+		graphics.fillText("Medium", sw/2.4, (sh/10)*8); // 630
 	}
 	
 	if( this.highscoreMenu[4].mouseOn ){
-		graphics.strokeText("Hard", sw/3, (sh/10)*8.8); // 595
+		graphics.strokeText("Hard", (sw/16)*9, (sh/10)*8); // 595
 	} else {
-		graphics.fillText("Hard", sw/3, (sh/10)*8.8); // 595
+		graphics.fillText("Hard", (sw/16)*9, (sh/10)*8); // 595
 	}
 	
+	if( this.highscoreMenu[5].mouseOn ){
+		graphics.strokeText("Personal", sw/8, (sh/10)*9.6);
+	} else {
+		graphics.fillText("Personal", sw/8, (sh/10)*9.6);
+	}
+	
+	if( this.highscoreMenu[6].mouseOn ){
+		graphics.strokeText("Overall", sw/2.5, (sh/10)*9.6);
+	} else {
+		graphics.fillText("Overall", sw/2.5, (sh/10)*9.6);
+	}
 	
 }
 
@@ -1049,7 +1082,7 @@ function menuHandleScroll( event ){
 function setHighscoreStyle( style ){
 
 	myGame.menuManager.hsStyle = style;
-	socket.emit('highScoresRequest', { scoreType: style });
+	socket.emit('highScoresRequest', { scoreType: style, isOverall: myGame.menuManager.hsIsOverall, userName: myGame.name });
 	
 	socket.on(
 			'highScoresResponse',
