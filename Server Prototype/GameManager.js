@@ -156,6 +156,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	}
 	
 	this.levelGenerator();
+	this.playerLeft = false;
 	
 	//document.addEventListener('keydown', gameHandleKeyDown);
 	//document.addEventListener('keyup', gameHandleKeyUp);
@@ -540,7 +541,6 @@ GameManager.prototype.opponentLeft = function( ){
 	if( this.isMulti() && this.gameMode == MULTI_RACE){
 		console.log("Player Left");
 		
-		//this.socket.emit('wonGame', { userName : this.name } );
 	}
 	
 	//this.winner = true;

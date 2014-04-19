@@ -391,8 +391,10 @@ Player.prototype.updateMPRating = function(rating) {
 function emitOtherPlayer( myid , msg, value )
 {
 	var game = gameManager.findGame( myid );
-	var otherPlayer = game.otherPlayer( myid );
-	io.sockets.socket( otherPlayer ).emit( msg, value );
+	if( game !== null ){
+		var otherPlayer = game.otherPlayer( myid );
+		io.sockets.socket( otherPlayer ).emit( msg, value );
+	}
 };
 
 //class to hold games
@@ -859,10 +861,10 @@ io.sockets.on(
 		'disconnect',
 		function() {
 			console.log("Lost connection with the client");
-			if( gameManager.findGame( client.id ) != null )
+			if( gameManager.findGame( client.id ) !== null )
 			{
 				emitOtherPlayer( client.id , 'opponentLeftGame', 'opponentLeftGame' );
-				//gameManager.removeGame(client.id);
+				gameManager.removeGame(client.id);
 			}
 			
 	});
@@ -1074,7 +1076,7 @@ io.sockets.on(
 			
 			// remove the game from the games array
 			console.log('Remove game');
-			gameManager.removeGame(client.id);
+			//gameManager.removeGame(client.id);
 
 	});
 	
