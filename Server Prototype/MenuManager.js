@@ -820,16 +820,27 @@ MenuManager.prototype.clearHighScores = function() {
 }
 
 MenuManager.prototype.setDistanceHighScores = function(data) {
-	for (var i = 0; i < data.length; ++i) {
-		this.playerNames[i] = data[i].playerName;
-		this.playerScores[i] = data[i].dist;
+	for (var i = 0; i < 10; ++i) {
+		if(data[i] != null) { // should this be null or undefined??
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].dist;
+			console.log("dist: " + data[i].dist);
+		} else {
+			this.playerNames[i] = " - ";
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
 MenuManager.prototype.setTimeHighScores = function(data) {
-	for (var i = 0; i < data.length; ++i) {
-		this.playerNames[i] = data[i].playerName;
-		this.playerScores[i] = data[i].time;
+	for (var i = 0; i < 10; ++i) {
+		if (data[i] != null) {
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].time;
+		} else {
+			this.playerNames[i] = " - ";
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
