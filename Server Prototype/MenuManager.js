@@ -744,9 +744,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		text = text + (i+1) + ". " + this.playerNames[i];
 		
 		//make sure not to draw on the highscore buttons
-		if( ( (sh/10)*8 ) > ( (sh/10)*3.6 + 35*(i+1) ) ) { 
-			graphics.strokeText(text, sw/10, (sh/10)*3.35 + 35*i); // was 210 + 35*i
-		}
+		//if( ( (sh/10)*8 ) > ( (sh/10)*3.6 + 35*(i+1) ) ) { 
+			graphics.strokeText(text, sw/10, (sh/10)*3.35 + (sh/23)*i); // was 210 + 35*i
+		//}
 	}
 	
 	
@@ -762,7 +762,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	for( i = 0; i < this.playerScores.length; ++i){
 		var text = this.playerScores[i];
 	
-		graphics.strokeText(text, 9*sw/10, (sh/10)*3.35 + 35*i); // was 210 + 35*i
+		graphics.strokeText(text, 9*sw/10, (sh/10)*3.35 + (sh/23)*i); // was 210 + 35*i
 	}
 	
 	
