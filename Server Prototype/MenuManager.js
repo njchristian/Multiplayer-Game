@@ -818,8 +818,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 
 MenuManager.prototype.clearHighScores = function() {
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		this.playerNames[i] = "";
-		this.playerScores[i] = "";
+		if ( i == 9 ) {
+			this.playerNames[i] = "- ";
+		} else {
+			this.playerNames[i] = " - ";
+		}
+		this.playerScores[i] = " - ";
 	}
 }
 
