@@ -278,7 +278,7 @@ GameManager.prototype.update = function(){
 	
 	if( this.isMulti() ){
 		// send own update
-		this.socket.emit('update', { xPosition: this.ship.xPos, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
+		this.socket.emit('update', { xPosition: this.ship.xPos/sw, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
 	
 		// get update object from other player
 		this.socket.on(
@@ -287,7 +287,7 @@ GameManager.prototype.update = function(){
 				if (update) {
 					//console.log('update x position is: ' + update.xPosition );
 						//var u = JSON.parse( update );
-						myGame.gameManager.opShip.xPos = update.xPosition;
+						myGame.gameManager.opShip.xPos = update.xPosition * sw;
 						myGame.gameManager.opShip.yPos = update.yPosition + sh/2;
 						myGame.gameManager.opShip.rotation = update.rotation;
 						
@@ -710,11 +710,11 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'right';
-	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
+	this.raceProgress = Math.floor(100*((this.ship.xPos-(sw/2))/(((this.levelLayout.length-1)*sw)-sw)))
 	// graphics.strokeText("Progress: " + (this.raceProgress)-1 + "%",sw,bw/2);
 	// graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))))-1 + "%",sw,sh/2+bw/2); 
 	graphics.strokeText("Progress: " + (this.raceProgress) + "%",sw,bw/2);
-	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
+	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-(sw/2))/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
 }
 
 GameManager.prototype.drawChallengeScore = function( graphics ){
