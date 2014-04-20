@@ -126,6 +126,7 @@ function HighScores() {
 	this.playerRatings = [];
 }
 
+
 HighScores.prototype.addNewEasyTime = function(time) {
 	// Stores the top 10 times
 	
@@ -149,6 +150,7 @@ HighScores.prototype.addNewEasyTime = function(time) {
 		// else the new time isn't as fast as any of the saved times
 	}
 }
+
 
 HighScores.prototype.addNewMedTime = function(time) {
 	// Stores the top 10 times
@@ -174,6 +176,7 @@ HighScores.prototype.addNewMedTime = function(time) {
 	}
 }
 
+
 HighScores.prototype.addNewHardTime = function(time) {
 	// Stores the top 10 times
 	
@@ -198,6 +201,7 @@ HighScores.prototype.addNewHardTime = function(time) {
 	}
 }
 
+
 HighScores.prototype.addNewDistance = function(distance) {
 	// Stores the top 10 longest distances in challenge mode
 	
@@ -219,6 +223,7 @@ HighScores.prototype.addNewDistance = function(distance) {
 		// else the new distance isn't as far as any of the saved distances
 	}
 }
+
 
 HighScores.prototype.addNewRating = function(rating) { 
 	// Stores the top 10 ratings
@@ -243,8 +248,16 @@ HighScores.prototype.addNewRating = function(rating) {
 
 
 HighScores.prototype.updateRatings = function() {
-	for (var player in players) {
-		var rating = new RatingItem(player.userName, player.multiplayerRating);
+	// empty the current scores (because scores in there 
+	// might have gone down and not be top 10 anymore)
+	this.playerRatings.length = 0;
+	
+	// Add new ratings, the addNewRating function will keep the top 10
+	for (var i = 0; i < players.length; ++i) {
+		console.log("Player rating: " + players[i].multiplayerRating);
+		var rating = new RatingItem(players[i].userName, players[i].multiplayerRating);
+		console.log("Adding a new rating of value: " + rating.rating);
+		console.log("From player: " + rating.playerName);
 		this.addNewRating(rating);
 	}
 }
@@ -385,7 +398,8 @@ Player.prototype.addNewDistance = function(distance) {
 
 Player.prototype.updateMPRating = function(rating) {
 	this.multiplayerRating += rating;
-	//highScores.addNewRating(this.userName, rating);	
+	//highScores.addNewRating(this.userName, rating);
+	console.log("Updated a rating to: " + this.multiplayerRating);	
 	highScores.updateRatings();
 }
 
