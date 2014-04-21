@@ -80,14 +80,14 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.deathDSO;
 	
 	g.font = sh/10+"px Courier";
-	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
+	this.rtmText = new CanvasText( "MAIN MENU", sw/2, (sh/12)*5.5, g.measureText( "MAIN MENU" ).width, sh/10, true, goToMenu );
 	this.rtmScroll = false;
 	
-	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
+	this.reText = new CanvasText( "RESTART", sw/2, (sh/12)*7.1, g.measureText( "RESTART" ).width, sh/10, true, restart );
 	this.reScroll = false
 	
 	g.font = sh/15+"px Courier";
-	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
+	this.endRTM = new CanvasText( "MAIN MENU", sw/2, (sh/12)*8, g.measureText( "MAIN MENU" ).width, sh/15, true, goToMenu );
 	this.endScroll = false;
 	
 	this.isTutorial = false
@@ -970,26 +970,26 @@ GameManager.prototype.drawPause = function( graphics ){
 	
 	graphics.font = sh/7+"px Courier";
 	
-	graphics.strokeText("PAUSED", sw/2, sh/2 - 100);
+	graphics.strokeText("PAUSED", sw/2, (sh/12)*4);
 	
 	graphics.fillStyle = "green";
 	graphics.font = sh/10+"px Courier";
 	
 	if( this.rtmScroll ){
-		graphics.strokeText("MAIN MENU", sw/2, sh/2 );
+		graphics.strokeText("MAIN MENU", sw/2, (sh/12)*5.5 );
 	}else{
-		graphics.fillText("MAIN MENU", sw/2, sh/2 );
+		graphics.fillText("MAIN MENU", sw/2, (sh/12)*5.5 );
 	}
 	
 	if( this.reScroll ){
-		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
+		graphics.strokeText("RESTART", sw/2, (sh/12)*7.1 );
 	}else{
-		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+		graphics.fillText("RESTART", sw/2, (sh/12)*7.1 );
 	}
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	graphics.fillText("'P' TO CONTINUE", sw/2, (sh/12)*8.5 );
 	
 }
 
@@ -1102,7 +1102,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	for( i in text ){
 	
-		graphics.fillText(text[i], sw/2, sh/2 - 120 + 40*i);
+		graphics.fillText(text[i], sw/2, (sh/12)*4 + (sh/20)*i);
 		
 	}
 	
@@ -1111,7 +1111,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	graphics.fillText("'P' TO CONTINUE", sw/2, (sh/12)*8 );
 	
 	graphics.stroke();
 }	
@@ -1145,7 +1145,7 @@ GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 		text = "GOOD GAME!";
 	}
 	
-	graphics.strokeText(text, sw/2+50, sh/2 - 100 );
+	graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	
 	graphics.fillStyle = "green";
 	if( playerLeft ){
@@ -1164,17 +1164,21 @@ GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 	else if( this.isChallenge() ){
 		text = "SCORE: " + this.highChallengeScore;
 	}else{
-		text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
+		if (timer.sec < 10) {
+			text = "TIME: " + timer.min+":0"+timer.sec+"."+timer.tenth;
+		} else {
+			text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
+		}
 	}
 	
-	graphics.fillText(text, sw/2 + 50, sh/2 + 50);
+	graphics.fillText(text, sw/2, sh/2);
 	
 	graphics.font = sh/15+"px Courier";
 	
 	if( this.endScroll ){
-		graphics.strokeText("Main Menu", sw/2 + 50, sh/2 + 175 );
+		graphics.strokeText("Main Menu", sw/2, (sh/12)*8 );
 	}else{
-		graphics.fillText("Main Menu", sw/2 + 50, sh/2 + 175 );
+		graphics.fillText("Main Menu", sw/2, (sh/12)*8 );
 	}
 	
 }
