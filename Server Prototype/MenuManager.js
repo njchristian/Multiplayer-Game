@@ -727,6 +727,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		break;
 	case RATING:
 		styleText = "MP Ratings";
+		break;
 	default:
 		styleText = "";
 		break;
