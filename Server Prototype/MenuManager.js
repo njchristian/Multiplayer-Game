@@ -845,8 +845,8 @@ MenuManager.prototype.clearHighScores = function() {
 
 MenuManager.prototype.setRatings = function(data) {
 	for (var i = 0; i < 10; ++i) {
-		console.log("ith rating: " + data[i].rating);
-		if(data[i] != null) { // should this be null or undefined??
+		//console.log("ith rating: " + data[i].rating);
+		if(data[i] !== null && data[i] !== undefined) { // should this be null or undefined??
 			this.playerNames[i] = data[i].playerName;
 			this.playerScores[i] = data[i].rating;
 		} else {
@@ -862,7 +862,7 @@ MenuManager.prototype.setRatings = function(data) {
 
 MenuManager.prototype.setDistanceHighScores = function(data) {
 	for (var i = 0; i < 10; ++i) {
-		if(data[i] != null) { // should this be null or undefined??
+		if(data[i] !== null && data[i] !== undefined) { 
 			this.playerNames[i] = data[i].playerName;
 			this.playerScores[i] = data[i].dist;
 			console.log("dist: " + data[i].dist);
@@ -879,9 +879,10 @@ MenuManager.prototype.setDistanceHighScores = function(data) {
 
 MenuManager.prototype.setTimeHighScores = function(data) {
 	for (var i = 0; i < 10; ++i) {
-		if (data[i] != null) {
+		if (data[i] !== null && data[i] !== undefined) {
 			this.playerNames[i] = data[i].playerName;
 			this.playerScores[i] = data[i].time;
+			console.log("time: " + data[i].time);
 		} else {
 			if ( i == 9 ) {
 				this.playerNames[i] = "- ";
