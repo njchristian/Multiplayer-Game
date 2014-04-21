@@ -224,6 +224,8 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	
 	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/8, (sh/10)*9.6, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
 	
+	this.highscoreMenu[8] = new CanvasText( "Online Race", (sw/12)*10, sh/10*8, g.measureText( "Online Race" ).width, sh/20, true); // need to add the function to call and all that jazz
+	
 }
 
 function setHSOverall() {
@@ -823,6 +825,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		graphics.strokeText("MP Ratings", sw/8, (sh/10)*9.6);
 	} else {
 		graphics.fillText("MP Ratings", sw/8, (sh/10)*9.6);
+	}
+	
+	if( this.highscoreMenu[8].mouseOn ){
+		graphics.strokeText("Online Race", (sw/12)*10, (sh/10)*8); // 595
+	} else {
+		graphics.fillText("Online Race", (sw/12)*10, (sh/10)*8); // 595
 	}
 	
 	//graphics.textAlign = 'center';
