@@ -6,6 +6,7 @@ var TT_EASY = 1;
 var TT_MEDIUM = 2;
 var TT_HARD = 3;
 var CHALLENGE = 4;
+var RATING = 5;
 
 
 //Pass the parent game object, and a graphics object to measure text with
@@ -28,8 +29,16 @@ function MenuManager( gameObject, g ){
 	this.createSPMenu( g );
 	
 	this.multiPlayerMenu = new Array();
-	this.createMPMenu( g );	this.difficultyMenu = new Array();
-	this.createDifficultyMenu( g );	this.instructionShip = new Ship();
+	this.createMPMenu( g );	
+	
+	this.difficultyMenu = new Array();
+	
+	this.waitingScreen = new Array();
+	this.createWaitingScreen( g );
+	
+	this.createDifficultyMenu( g );	
+	
+	this.instructionShip = new Ship();
 	
 	this.leftTurn = false;
 	this.rightTurn = false;
@@ -37,21 +46,32 @@ function MenuManager( gameObject, g ){
 	
 	this.thrustC = 0;
 	
-	this.hsStyle = TT_EASY;
+	//this.hsStyle = TT_EASY;
+	this.hsStyle = 0; // zero means no mode selected yet
+	
+	// true for showing overall high scores; false for showing individual
+	this.hsIsOverall = true; 
 	
 	this.playerNames = new Array(10);
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		this.playerNames[i] = "";
+		if (i == 9) {
+			this.playerNames[i] = "- ";
+		} else {
+			this.playerNames[i] = " - ";
+		}
 	}
 	this.playerScores = new Array(10);
 	for (var i = 0; i < this.playerScores.length; ++i) {
-		this.playerScores[i] = "";
+		this.playerScores[i] = " - ";
 	}
 	
 	this.isWaiting = false;
 	this.waitAnim = 0;
 	this.onSPMenu = false;
-	this.onMPMenu = false;	this.selectingTTD = false;}
+	this.onMPMenu = false;	
+	this.selectingTTD = false;
+}
+
 
 MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 		
@@ -140,6 +160,11 @@ function selectDifficulty( ){
 
 }
 
+function unselectDifficulty( ) {
+	
+	myGame.menuManager.selectingTTD = false;
+}
+
 function goToTimeTrial( difficulty ){
 
 	console.log("MenuManager: " + difficulty);
@@ -147,13 +172,23 @@ function goToTimeTrial( difficulty ){
 
 }
 
+MenuManager.prototype.createWaitingScreen = function( g ){
+	g.font = sh/11+"px Courier";
+	
+	this.waitingScreen[0] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7, g.measureText( "Back to Menu" ).width, sh/11, true, toMainMenu );
+}
+
 MenuManager.prototype.createDifficultyMenu = function( g ){
 
-	g.font = sh/9+"px Courier";
+	g.font = sh/10+"px Courier";
 	
-	this.difficultyMenu[0] = new CanvasText( "EASY", sw/2, (sh/12)*4.5, g.measureText( "EASY" ).width, sh/9, true, goToTimeTrial,  1); // 600
-	this.difficultyMenu[1] = new CanvasText( "MEDIUM", sw/2, (sh/12)*6, g.measureText( "MEDIUM" ).width, sh/9, true, goToTimeTrial,  2); // 600
-	this.difficultyMenu[2] = new CanvasText( "HARD", sw/2, (sh/12)*7.5, g.measureText( "HARD" ).width, sh/9, true, goToTimeTrial,  3); // 600
+	this.difficultyMenu[0] = new CanvasText( "EASY", sw/2, (sh/12)*4, g.measureText( "EASY" ).width, sh/10, true, goToTimeTrial,  1); // 600
+	this.difficultyMenu[1] = new CanvasText( "MEDIUM", sw/2, (sh/12)*5.5, g.measureText( "MEDIUM" ).width, sh/10, true, goToTimeTrial,  2); // 600
+	this.difficultyMenu[2] = new CanvasText( "HARD", sw/2, (sh/12)*7, g.measureText( "HARD" ).width, sh/10, true, goToTimeTrial,  3); // 600
+	
+	g.font = sh/12+"px Courier";
+	
+	this.difficultyMenu[3] = new CanvasText( "Back to Menu", sw/2, (sh/12)*8.25, g.measureText( "Back to Menu").width, sh/12, true, unselectDifficulty);
 
 }
 
@@ -161,7 +196,7 @@ MenuManager.prototype.createInstructionMenu = function( g ){
 
 	g.font = sh/10+"px Courier";
 	
-	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
+	this.instructionMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, sh/10, true, toMainMenu ); // 600
 
 }
 
@@ -169,40 +204,55 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 
 	g.font = sh/10+"px Courier";
 	
-	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, 65, true, toMainMenu ); // 600
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, sh/10, true, toMainMenu ); // 600
 	
 	g.font = sh/20+"px Courier";
 	
 	var w = g.measureText("Challenge").width;
 
-	this.highscoreMenu[1] = new CanvasText( "Challenge", 325 + w/2, (sh/10)*7.75, w, 35, true, setHighscoreStyle, CHALLENGE); // 650
+	this.highscoreMenu[1] = new CanvasText( "Challenge", sw/8, (sh/10)*8.8, w, sh/20, true, setHighscoreStyle, CHALLENGE); // 650
 	var w = g.measureText("Easy").width; 
-	this.highscoreMenu[2] = new CanvasText( "Easy", 20 + w/2, (sh/10)*8.25, w, 35, true, setHighscoreStyle, TT_EASY); // 595
+	this.highscoreMenu[2] = new CanvasText( "Easy", sw/3.5, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_EASY); // 595
 	var w = g.measureText("Medium").width;
 	
-	this.highscoreMenu[3] = new CanvasText( "Medium", 20 + w/2, (sh/10)*8.75, w, 35, true, setHighscoreStyle, TT_MEDIUM); // 630
+	this.highscoreMenu[3] = new CanvasText( "Medium", sw/2.2, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_MEDIUM); // 630
 	var w = g.measureText("Hard").width; 
-	this.highscoreMenu[4] = new CanvasText( "Hard", 150 + w/2, (sh/10)*8.25, w, 35, true, setHighscoreStyle, TT_HARD); // 595
+	this.highscoreMenu[4] = new CanvasText( "Hard", (sw/16)*10, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_HARD); // 595
+	
+	this.highscoreMenu[5] = new CanvasText( "Personal", sw/8, (sh/10)*9.6, g.measureText( "Personal" ).width, sh/20, true, setHSPersonal);
+	this.highscoreMenu[6] = new CanvasText( "Overall", sw/2.5, (sh/10)*9.6, g.measureText( "Overall" ).width, sh/20, true, setHSOverall);
+	
+	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/2.5, (sh/10)*8.8, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
 	
 }
 
+function setHSOverall() {
+	myGame.menuManager.hsIsOverall = true;
+	setHighscoreStyle(myGame.menuManager.hsStyle);
+}
+function setHSPersonal() {
+	myGame.menuManager.hsIsOverall = false;
+	setHighscoreStyle(myGame.menuManager.hsStyle);
+}
 
 // create the sub menu for the single player modes
 MenuManager.prototype.createSPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
-	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*4.5, g.measureText( "TIME TRIAL" ).width, 60, true, selectDifficulty, TIME_TRIAL );
-	this.singlePlayerMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*6, g.measureText( "CHALLENGE" ).width, 60, true, goToGame, SINGLE_CHALLENGE );
-	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*4.5, g.measureText( "TIME TRIAL" ).width, sh/12, true, selectDifficulty, TIME_TRIAL );
+	this.singlePlayerMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*6, g.measureText( "CHALLENGE" ).width, sh/12, true, goToGame, SINGLE_CHALLENGE );
+	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, sh/12, true, backToMenu );
 }
 
 // create the sub menu for the multi player modes
 MenuManager.prototype.createMPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
-	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*4.5, g.measureText( "ONLINE RACE" ).width, 60, true, goToGame, MULTI_RACE ); 
-	this.multiPlayerMenu[1] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*6, g.measureText( "ONLINE CHALLENGE" ).width, 60, true, goToGame, MULTI_CHALLENGE); 
-	this.multiPlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, 60, true, backToMenu );
+	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*4.5, g.measureText( "ONLINE RACE" ).width, sh/12, true, goToGame, MULTI_RACE ); 
+	g.font = sh/14+"px Courier";
+	this.multiPlayerMenu[1] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*6, g.measureText( "ONLINE CHALLENGE" ).width, sh/14, true, goToGame, MULTI_CHALLENGE); 
+	g.font = sh/12+"px Courier";
+	this.multiPlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, sh/12, true, backToMenu );
 }
 
 //draw the single player mode menu
@@ -268,11 +318,15 @@ MenuManager.prototype.drawMPMenu = function( graphics ) {
 		graphics.fillText("ONLINE RACE", sw/2, (sh/12)*4.5);
 	}
 	
+	graphics.font = sh/14+"px Courier";
+	
 	if ( this.multiPlayerMenu[1].mouseOn ) {
 		graphics.strokeText("ONLINE CHALLENGE", sw/2, (sh/12)*6);
 	} else {
 		graphics.fillText("ONLINE CHALLENGE", sw/2, (sh/12)*6);
 	}
+		
+	graphics.font = sh/12+"px Courier";	
 		
 	if ( this.multiPlayerMenu[2].mouseOn ) {
 		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7.5);
@@ -297,7 +351,6 @@ MenuManager.prototype.draw = function( graphics ){
 
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
-		
 		if (this.onSPMenu) {
 			//console.log("I'm suppose to draw the SP menu now");
 			this.drawSPMenu( graphics );
@@ -306,6 +359,7 @@ MenuManager.prototype.draw = function( graphics ){
 		}
 		
 		if( this.isWaiting ){
+			//console.log("Waiting");
 			this.drawWaiting( graphics );
 		}else if( this.selectingTTD ){
 			this.drawSelectTTD( graphics );
@@ -348,7 +402,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	//graphics.font = sh/11+"px Courier";
 	
 	
-	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*5.25); // was 235
 	}else{
@@ -357,7 +411,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	}
 	
 	
-	if( this.mainMenu[1].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[1].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("MULTIPLAYER", sw/2, (sh/12)*7.25); // was 460
 	}else{
@@ -369,7 +423,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	graphics.font = sh/10.25+"px Courier";
 	// graphics.lineWidth = 1;
 	
-	if( this.mainMenu[2].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[2].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("INSTRUCTIONS", sw/4, (sh/12)*10); // was 600
 	}else{
@@ -377,7 +431,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 		graphics.fillText("INSTRUCTIONS", sw/4, (sh/12)*10);
 	}
 	
-	if( this.mainMenu[3].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[3].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 	
 		graphics.strokeText("HIGHSCORES", 3*sw/4, (sh/12)*10); // was 600
 	}else{
@@ -388,7 +442,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	graphics.font = sh/8+"px Courier";
 	// graphics.strokeStyle ="red";
 	// graphics.fillStyle ="red";
-	if( this.mainMenu[4].mouseOn && !this.onSPMenu && !this.onMPMenu ){
+	if( this.mainMenu[4].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		graphics.strokeText("TUTORIAL", sw/2, (sh/12)*3.25);
 	}else{
 		graphics.fillText("TUTORIAL", sw/2, (sh/12)*3.25);
@@ -446,7 +500,7 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.fillText("LEFT/RIGHT ARROWS: ROTATE SHIP",10,(sh/10)*4); // 270
 	graphics.fillText("P: PAUSE",10,(sh/10)*4.5); // 300
 	
-	graphics.font = sh/25+"px Courier";
+	graphics.font = sh/33+"px Courier";
 	
 	graphics.fillText("TIME TRIAL: RACE THROUGH THE LEVELS TO COMPLETE THE COURSE AS FAST AS YOU CAN!",10,(sh/10)*6.5); // 400
 	graphics.fillText("CHALLENGE: 1 LIFE, GO AS FAR AS YOU CAN AND DON'T BLINK!",10,(sh/10)*7); // 430
@@ -524,14 +578,23 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	var w = graphics.measureText( "Waiting...").width/2;
 	
 	if (this.waitAnim < fps/4){
-		graphics.fillText("Waiting", sw/2-w, sh/2);
+		graphics.fillText("Waiting", sw/2-w, (sh/12)*5);
 	}else if (this.waitAnim < fps/2){
-		graphics.fillText("Waiting.", sw/2-w, sh/2);
+		graphics.fillText("Waiting.", sw/2-w, (sh/12)*5);
 	}else if (this.waitAnim < 3*fps/4){
-		graphics.fillText("Waiting..", sw/2-w, sh/2);
+		graphics.fillText("Waiting..", sw/2-w, (sh/12)*5);
 	}else{
-		graphics.fillText("Waiting...", sw/2-w, sh/2);
+		graphics.fillText("Waiting...", sw/2-w, (sh/12)*5);
 	}
+	
+	graphics.textAlign = 'center';
+	
+	if (this.waitingScreen[0].mouseOn) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*7);
+	}
+	
 	this.waitAnim = (this.waitAnim+1)%fps;
 	
 }
@@ -553,26 +616,34 @@ MenuManager.prototype.drawSelectTTD = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
-	graphics.font = sh/9+"px Courier";
+	graphics.font = sh/10+"px Courier";
 	
 	graphics.fillStyle = "green";
 	
 	if(this.difficultyMenu[0].mouseOn){
-		graphics.strokeText("Easy", sw/2, (sh/12)*4.5);
+		graphics.strokeText("Easy", sw/2, (sh/12)*4);
 	}else{
-		graphics.fillText("Easy", sw/2, (sh/12)*4.5);
+		graphics.fillText("Easy", sw/2, (sh/12)*4);
 	}
 	
 	if(this.difficultyMenu[1].mouseOn){
-		graphics.strokeText("Medium", sw/2, (sh/12)*6);
+		graphics.strokeText("Medium", sw/2, (sh/12)*5.5);
 	}else{
-		graphics.fillText("Medium", sw/2, (sh/12)*6);
+		graphics.fillText("Medium", sw/2, (sh/12)*5.5);
 	}
 	
 	if(this.difficultyMenu[2].mouseOn){
-		graphics.strokeText("Hard", sw/2, (sh/12)*7.5);
+		graphics.strokeText("Hard", sw/2, (sh/12)*7);
 	}else{
-		graphics.fillText("Hard", sw/2, (sh/12)*7.5);
+		graphics.fillText("Hard", sw/2, (sh/12)*7);
+	}
+	
+	graphics.font = sh/12+"px Courier";
+	
+	if(this.difficultyMenu[3].mouseOn) {
+		graphics.strokeText("Back to Menu", sw/2, (sh/12)*8.25);
+	} else {
+		graphics.fillText("Back to Menu", sw/2, (sh/12)*8.25);
 	}
 	
 }
@@ -580,7 +651,6 @@ MenuManager.prototype.drawSelectTTD = function( graphics ){
 MenuManager.prototype.drawHighscores = function( graphics ){
 
 	//Draw highscores
-	//Draw instructions
 	graphics.fillStyle ="green";
 	graphics.strokeStyle ="green";
 	graphics.textAlign = 'center';
@@ -607,25 +677,33 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.beginPath();
 	
-	graphics.moveTo(sw/10, (sh/10)*2.25); // 170
-	graphics.lineTo(9*sw/10, (sh/10)*2.25); // 170
+	graphics.moveTo(sw/10, (sh/10)*3); // 170
+	graphics.lineTo(9*sw/10, (sh/10)*3); // 170
 	graphics.stroke();
+	
+	
+	
+	graphics.lineWidth = 1;
+	graphics.font = sh/12+"px Courier";
+	
+	if (this.hsIsOverall) {
+		graphics.strokeText("(Overall)", sw/2, (sh/10)*1.9); 
+	} else {
+		graphics.strokeText("(Personal)", sw/2, (sh/10)*1.9);
+	}
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.lineWidth = 1;
+	graphics.strokeText("Player", sw/5, (sh/10)*2.65); // 150
 	
 	
-	graphics.strokeText("Player", sw/5, (sh/10)*1.9); // 150
-	
-	
-	//
-	if( this.hsStyle == CHALLENGE ){
-		
-		graphics.strokeText("Score", 4*sw/5, (sh/10)*1.9); // 150
-	}else{
-	
-		graphics.strokeText("Time", 4*sw/5, (sh/10)*1.9); // 150
+	// 
+	if ( this.hsStyle == CHALLENGE ) {
+		graphics.strokeText("Score", 4*sw/5, (sh/10)*2.65); // 150
+	} else if ( this.hsStyle == RATING ) {
+		graphics.strokeText("Rating", 4*sw/5, (sh/10)*2.65);
+	} else {
+		graphics.strokeText("Time", 4*sw/5, (sh/10)*2.65); // 150
 	}
 	
 	//
@@ -647,12 +725,17 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	case CHALLENGE:
 		styleText = "Challenge";
 		break;
-		
+	case RATING:
+		styleText = "MP Ratings";
+		break;
+	default:
+		styleText = "";
+		break;
 	}
 	
 	graphics.textAlign = 'center';
 	
-	graphics.fillText(styleText, sw/2, (sh/10)*1.9); // 150
+	graphics.fillText(styleText, sw/2, (sh/10)*2.65); // 150
 	
 	
 	//populate this array...
@@ -672,7 +755,10 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		var text = "";
 		text = text + (i+1) + ". " + this.playerNames[i];
 		
-		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		//make sure not to draw on the highscore buttons
+		//if( ( (sh/10)*8 ) > ( (sh/10)*3.6 + 35*(i+1) ) ) { 
+			graphics.strokeText(text, sw/10, (sh/10)*3.35 + (sh/23)*i); // was 210 + 35*i
+		//}
 	}
 	
 	
@@ -680,7 +766,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		var text = "";
 		
 		text = text + (j+1) + ". ..."; // this got broken somehow
-		graphics.strokeText(text, sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
+		graphics.strokeText(text, sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
 	
 	graphics.textAlign = 'right';
@@ -688,54 +774,138 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	for( i = 0; i < this.playerScores.length; ++i){
 		var text = this.playerScores[i];
 	
-		graphics.strokeText(text, 9*sw/10, (sh/10)*2.6 + 35*i); // was 210 + 35*i
+		graphics.strokeText(text, 9*sw/10, (sh/10)*3.35 + (sh/23)*i); // was 210 + 35*i
 	}
 	
 	
 	for( var j = i; j < 10; ++j ){
 		
-		graphics.strokeText("...", 9*sw/10, (sh/10)*2.6 + 35*j); // was 210 + 35*i
+		graphics.strokeText("...", 9*sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
 	
-	graphics.textAlign = 'left';
-	
+	//graphics.textAlign = 'left';
+	graphics.textAlign = 'center';
 	graphics.font = sh/20+"px Courier";
 	
 	
-	graphics.fillText("Time Trial:", 20, (sh/10)*8.75); // 560
-	graphics.fillText("Challenge", 325, (sh/10)*8.75); // 560
-	graphics.fillText("Easy", 20, (sh/10)*9.25); // 595
-	graphics.fillText("Medium", 20, (sh/10)*9.75); // 630
-	graphics.fillText("Hard", 150, (sh/10)*9.25); // 595
+	graphics.fillText("Time Trial:", sw/8, (sh/10)*8); // 560
 	
-	graphics.textAlign = 'center';
+	if( this.highscoreMenu[1].mouseOn ){
+		graphics.strokeText("Challenge", sw/8, (sh/10)*8.8); // 560
+	} else {
+		graphics.fillText("Challenge", sw/8, (sh/10)*8.8); // 560
+	}
+	
+	if( this.highscoreMenu[2].mouseOn ){
+		graphics.strokeText("Easy", sw/3.5, (sh/10)*8); // 595
+	} else {
+		graphics.fillText("Easy", sw/3.5, (sh/10)*8); // 595
+	}
+	
+	if( this.highscoreMenu[3].mouseOn ){
+		graphics.strokeText("Medium", sw/2.2, (sh/10)*8); // 630
+	} else {
+		graphics.fillText("Medium", sw/2.2, (sh/10)*8); // 630
+	}
+	
+	if( this.highscoreMenu[4].mouseOn ){
+		graphics.strokeText("Hard", (sw/16)*10, (sh/10)*8); // 595
+	} else {
+		graphics.fillText("Hard", (sw/16)*10, (sh/10)*8); // 595
+	}
+	
+	if( this.highscoreMenu[5].mouseOn ){
+		graphics.strokeText("Personal", sw/8, (sh/10)*9.6);
+	} else {
+		graphics.fillText("Personal", sw/8, (sh/10)*9.6);
+	}
+	
+	if( this.highscoreMenu[6].mouseOn ){
+		graphics.strokeText("Overall", sw/2.5, (sh/10)*9.6);
+	} else {
+		graphics.fillText("Overall", sw/2.5, (sh/10)*9.6);
+	}
+	
+	if( this.highscoreMenu[7].mouseOn ) {
+		graphics.strokeText("MP Ratings", sw/2.5, (sh/10)*8.8);
+	} else {
+		graphics.fillText("MP Ratings", sw/2.5, (sh/10)*8.8);
+	}
 }
 
 MenuManager.prototype.clearHighScores = function() {
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		this.playerNames[i] = "";
-		this.playerScores[i] = "";
+		if ( i == 9 ) {
+			this.playerNames[i] = "- ";
+		} else {
+			this.playerNames[i] = " - ";
+		}
+		this.playerScores[i] = " - ";
+	}
+}
+
+MenuManager.prototype.setRatings = function(data) {
+	for (var i = 0; i < 10; ++i) {
+		//console.log("ith rating: " + data[i].rating);
+		if(data[i] !== null && data[i] !== undefined) { // should this be null or undefined??
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].rating;
+		} else {
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
 MenuManager.prototype.setDistanceHighScores = function(data) {
-	for (var i = 0; i < data.length; ++i) {
-		this.playerNames[i] = data[i].playerName;
-		this.playerScores[i] = data[i].dist;
+	for (var i = 0; i < 10; ++i) {
+		if(data[i] !== null && data[i] !== undefined) { 
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].dist;
+			console.log("dist: " + data[i].dist);
+		} else {
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
 MenuManager.prototype.setTimeHighScores = function(data) {
-	for (var i = 0; i < data.length; ++i) {
-		this.playerNames[i] = data[i].playerName;
-		this.playerScores[i] = data[i].time;
+	for (var i = 0; i < 10; ++i) {
+		if (data[i] !== null && data[i] !== undefined) {
+			this.playerNames[i] = data[i].playerName;
+			this.playerScores[i] = data[i].time;
+			console.log("time: " + data[i].time);
+		} else {
+			if ( i == 9 ) {
+				this.playerNames[i] = "- ";
+			} else {
+				this.playerNames[i] = " - ";
+			}
+			this.playerScores[i] = " - ";
+		}
 	}
 }
 
 function toMainMenu(){
 
+	if (myGame.menuManager.isWaiting) {
+		myGame.socket.emit('stopWaiting', { userName: myGame.name } );
+		myGame.menuManager.onMPMenu = false;
+		myGame.menuManager.isWaiting = false;
+	}
+	
 	if (myGame.menuManager.currentScreen == HIGHSCORES) {
 		myGame.menuManager.clearHighScores();
+		myGame.menuManager.hsStyle = 0;
 	}
 	myGame.menuManager.currentScreen = MAIN_MENU;
 
@@ -767,6 +937,7 @@ function toSPMenu() {
 	myGame.menuManager.onSPMenu = true;
 }
 
+
 function toMPMenu() {
 	myGame.menuManager.onMPMenu = true;
 }
@@ -794,7 +965,10 @@ function menuHandleClick(event){
 				}
 			}
 			else if (myGame.menuManager.onMPMenu) {
-				menu = myGame.menuManager.multiPlayerMenu;
+					menu = myGame.menuManager.multiPlayerMenu;
+			}
+			else if ( myGame.menuManager.isWaiting ) {
+					menu = myGame.menuManager.waitingScreen;
 			}
 			else{
 				menu = myGame.menuManager.mainMenu;
@@ -883,6 +1057,9 @@ function menuHandleScroll( event ){
 			else if (myGame.menuManager.onMPMenu) {
 				menu = myGame.menuManager.multiPlayerMenu;
 			}
+			else if ( myGame.menuManager.isWaiting ) {
+					menu = myGame.menuManager.waitingScreen;
+				}
 			else{
 				menu = myGame.menuManager.mainMenu;
 			}			
@@ -967,7 +1144,7 @@ function menuHandleScroll( event ){
 function setHighscoreStyle( style ){
 
 	myGame.menuManager.hsStyle = style;
-	socket.emit('highScoresRequest', { scoreType: style });
+	socket.emit('highScoresRequest', { scoreType: style, isOverall: myGame.menuManager.hsIsOverall, userName: myGame.name });
 	
 	socket.on(
 			'highScoresResponse',
@@ -977,6 +1154,11 @@ function setHighscoreStyle( style ){
 					if (style == CHALLENGE) {
 						myGame.menuManager.clearHighScores();
 						myGame.menuManager.setDistanceHighScores(data.scores);
+					}
+					else if (style == RATING) {
+						console.log("Rating response");
+						myGame.menuManager.clearHighScores();
+						myGame.menuManager.setRatings(data.scores);
 					}
 					else {
 						myGame.menuManager.clearHighScores();

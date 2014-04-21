@@ -80,19 +80,20 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.deathDSO;
 	
 	g.font = sh/10+"px Courier";
-	this.rtmText = new CanvasText( "MAIN MENU", sw/2, sh/2, g.measureText( "MAIN MENU" ).width, 65, true, goToMenu );
+	this.rtmText = new CanvasText( "MAIN MENU", sw/2, (sh/12)*5.5, g.measureText( "MAIN MENU" ).width, sh/10, true, goToMenu );
 	this.rtmScroll = false;
 	
-	this.reText = new CanvasText( "RESTART", sw/2, sh/2 + 100, g.measureText( "RESTART" ).width, 65, true, restart );
+	this.reText = new CanvasText( "RESTART", sw/2, (sh/12)*7.1, g.measureText( "RESTART" ).width, sh/10, true, restart );
 	this.reScroll = false
 	
 	g.font = sh/15+"px Courier";
-	this.endRTM = new CanvasText( "MAIN MENU", sw/2, sh/2 + 175, g.measureText( "MAIN MENU" ).width, 45, true, goToMenu );
+	this.endRTM = new CanvasText( "MAIN MENU", sw/2, (sh/12)*8, g.measureText( "MAIN MENU" ).width, sh/15, true, goToMenu );
 	this.endScroll = false;
 	
 	this.isTutorial = false
 	this.tutorialPause = false;
 	this.tutorialStage = 1;
+	this.playerLeft = false;
 	
 	this.difficulty
 	
@@ -155,6 +156,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	}
 	
 	this.levelGenerator();
+	this.playerLeft = false;
 	
 	//document.addEventListener('keydown', gameHandleKeyDown);
 	//document.addEventListener('keyup', gameHandleKeyUp);
@@ -240,7 +242,7 @@ GameManager.prototype.draw = function( graphics ){
 	}
 	
 	if( this.gameOver ){ 
-		this.drawEndGame( graphics, this.winner );
+		this.drawEndGame( graphics, this.winner, this.playerLeft );
 		return;
 	}
 	
@@ -276,7 +278,7 @@ GameManager.prototype.update = function(){
 	
 	if( this.isMulti() ){
 		// send own update
-		this.socket.emit('update', { xPosition: this.ship.xPos, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
+		this.socket.emit('update', { xPosition: this.ship.xPos/sw, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
 	
 		// get update object from other player
 		this.socket.on(
@@ -285,7 +287,7 @@ GameManager.prototype.update = function(){
 				if (update) {
 					//console.log('update x position is: ' + update.xPosition );
 						//var u = JSON.parse( update );
-						myGame.gameManager.opShip.xPos = update.xPosition;
+						myGame.gameManager.opShip.xPos = update.xPosition * sw;
 						myGame.gameManager.opShip.yPos = update.yPosition + sh/2;
 						myGame.gameManager.opShip.rotation = update.rotation;
 						
@@ -314,6 +316,16 @@ GameManager.prototype.update = function(){
 						myGame.gameManager.onWin();
 				}
 		});	
+		
+		this.socket.on(
+			'opponentLeftGame',
+			function(name) {
+				if(name){
+					console.log("opponentLeftGame");
+					myGame.gameManager.opponentLeft();
+				//user left menu
+				}
+		});
 		
 	}
 	
@@ -513,13 +525,28 @@ GameManager.prototype.onWin = function( ){
 		console.log("Sending time");
 		// console.log("name: " + this.name);
 		// console.log("time: " + timer.min);
-		this.socket.emit('newTime', { userName: this.name, min: timer.min, sec: timer.sec, tenth: timer.tenth });
+		this.socket.emit('newTime', { userName: this.name, min: timer.min, sec: timer.sec, tenth: timer.tenth, difficulty: this.difficulty });
 	}
 
 	
 	this.winner = true;
 	//this.parentGame.returnToMenu(); //??
 }
+
+GameManager.prototype.opponentLeft = function( ){
+	
+	this.playerLeft = true;
+	this.gameOver = true;
+	
+	if( this.isMulti() && this.gameMode == MULTI_RACE){
+		console.log("Player Left");
+		
+	}
+	
+	//this.winner = true;
+	//this.parentGame.returnToMenu(); //??
+	
+};
 
 GameManager.prototype.onLoss = function(){
 	this.gameOver = true;
@@ -683,11 +710,11 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
 	graphics.textAlign = 'right';
-	this.raceProgress = Math.floor(100*((this.ship.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))
+	this.raceProgress = Math.floor(100*((this.ship.xPos-(sw/2))/(((this.levelLayout.length-1)*sw)-sw)))
 	// graphics.strokeText("Progress: " + (this.raceProgress)-1 + "%",sw,bw/2);
 	// graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw))))-1 + "%",sw,sh/2+bw/2); 
 	graphics.strokeText("Progress: " + (this.raceProgress) + "%",sw,bw/2);
-	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-500)/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
+	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-(sw/2))/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
 }
 
 GameManager.prototype.drawChallengeScore = function( graphics ){
@@ -943,26 +970,26 @@ GameManager.prototype.drawPause = function( graphics ){
 	
 	graphics.font = sh/7+"px Courier";
 	
-	graphics.strokeText("PAUSED", sw/2, sh/2 - 100);
+	graphics.strokeText("PAUSED", sw/2, (sh/12)*4);
 	
 	graphics.fillStyle = "green";
 	graphics.font = sh/10+"px Courier";
 	
 	if( this.rtmScroll ){
-		graphics.strokeText("MAIN MENU", sw/2, sh/2 );
+		graphics.strokeText("MAIN MENU", sw/2, (sh/12)*5.5 );
 	}else{
-		graphics.fillText("MAIN MENU", sw/2, sh/2 );
+		graphics.fillText("MAIN MENU", sw/2, (sh/12)*5.5 );
 	}
 	
 	if( this.reScroll ){
-		graphics.strokeText("RESTART", sw/2, sh/2 + 100 );
+		graphics.strokeText("RESTART", sw/2, (sh/12)*7.1 );
 	}else{
-		graphics.fillText("RESTART", sw/2, sh/2 + 100 );
+		graphics.fillText("RESTART", sw/2, (sh/12)*7.1 );
 	}
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	graphics.fillText("'P' TO CONTINUE", sw/2, (sh/12)*8.5 );
 	
 }
 
@@ -1075,7 +1102,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	for( i in text ){
 	
-		graphics.fillText(text[i], sw/2, sh/2 - 120 + 40*i);
+		graphics.fillText(text[i], sw/2, (sh/12)*4 + (sh/20)*i);
 		
 	}
 	
@@ -1084,12 +1111,12 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	
 	graphics.font = sh/15+"px Courier";
 	
-	graphics.fillText("'P' TO CONTINUE", sw/2, sh/2 + 175 );
+	graphics.fillText("'P' TO CONTINUE", sw/2, (sh/12)*8 );
 	
 	graphics.stroke();
 }	
 
-GameManager.prototype.drawEndGame = function( graphics, won ){
+GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 
 	//draw the pause menu
 	graphics.lineWidth = 3;
@@ -1108,31 +1135,50 @@ GameManager.prototype.drawEndGame = function( graphics, won ){
 	graphics.font = sh/9+"px Courier";
 	
 	var text;
-	if( won ){
+	
+	if(playerLeft){
+		text = "OPPONENT";
+	}
+	else if( won ){
 		text = "YOU WON!";
 	}else{
-		text = "GOOD GAME!"; //just for giggles but we should let the loser down softly
+		text = "GOOD GAME!";
 	}
 	
-	graphics.strokeText(text, sw/2+50, sh/2 - 100 );
+	graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	
 	graphics.fillStyle = "green";
-	
-	graphics.font = sh/13+"px Courier";
-	if( this.isChallenge() ){
-		text = "SCORE: " + this.highChallengeScore;
-	}else{
-		text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
+	if( playerLeft ){
+		graphics.lineWidth = 1;
+		graphics.textAlign = 'center';
+		graphics.font = sh/9+"px Courier";
+	}
+	else{
+		graphics.font = sh/13+"px Courier";
 	}
 	
-	graphics.fillText(text, sw/2 + 50, sh/2 + 50);
+	
+	if ( playerLeft ){
+		text = "LEFT";
+	}
+	else if( this.isChallenge() ){
+		text = "SCORE: " + this.highChallengeScore;
+	}else{
+		if (timer.sec < 10) {
+			text = "TIME: " + timer.min+":0"+timer.sec+"."+timer.tenth;
+		} else {
+			text = "TIME: " + timer.min+":"+timer.sec+"."+timer.tenth;
+		}
+	}
+	
+	graphics.fillText(text, sw/2, sh/2);
 	
 	graphics.font = sh/15+"px Courier";
 	
 	if( this.endScroll ){
-		graphics.strokeText("Main Menu", sw/2 + 50, sh/2 + 175 );
+		graphics.strokeText("Main Menu", sw/2, (sh/12)*8 );
 	}else{
-		graphics.fillText("Main Menu", sw/2 + 50, sh/2 + 175 );
+		graphics.fillText("Main Menu", sw/2, (sh/12)*8 );
 	}
 	
 }
