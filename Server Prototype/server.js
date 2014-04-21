@@ -109,8 +109,8 @@ function RatingItem(pName, r) {
 	this.rating = r;
 }
 
-function ratingCompareGreaterThan(r1, r2) {
-	if (r1 > r2) {
+function ratingCompareGreaterThan(r1, r2) { //change name to less
+	if (r1.rating < r2.rating) {
 		return true;
 	}
 	return false;

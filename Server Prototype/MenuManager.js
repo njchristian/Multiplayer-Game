@@ -204,7 +204,7 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 
 	g.font = sh/10+"px Courier";
 	
-	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", 3*sw/4, (sh/10)*9, g.measureText( "MAIN MENU" ).width, sh/10, true, toMainMenu ); // 600
+	this.highscoreMenu[0] = new CanvasText( "MAIN MENU", sw/2, (sh/10)*9, g.measureText( "MAIN MENU" ).width, sh/10, true, toMainMenu ); // 600
 	
 	g.font = sh/20+"px Courier";
 	
@@ -219,10 +219,10 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	var w = g.measureText("Hard").width; 
 	this.highscoreMenu[4] = new CanvasText( "Hard", (sw/16)*10, (sh/10)*8, w, sh/20, true, setHighscoreStyle, TT_HARD); // 595
 	
-	this.highscoreMenu[5] = new CanvasText( "Personal", sw/8, (sh/10)*9.6, g.measureText( "Personal" ).width, sh/20, true, setHSPersonal);
-	this.highscoreMenu[6] = new CanvasText( "Overall", sw/2.5, (sh/10)*9.6, g.measureText( "Overall" ).width, sh/20, true, setHSOverall);
+	this.highscoreMenu[5] = new CanvasText( "Personal", (sw/12)*10, (sh/10)*8.8, g.measureText( "Personal" ).width, sh/20, true, setHSPersonal);
+	this.highscoreMenu[6] = new CanvasText( "Overall", (sw/12)*10, (sh/10)*9.6, g.measureText( "Overall" ).width, sh/20, true, setHSOverall);
 	
-	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/2.5, (sh/10)*8.8, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
+	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/8, (sh/10)*9.6, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
 	
 }
 
@@ -665,10 +665,10 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	if( this.highscoreMenu[0].mouseOn ){
 		
-		graphics.strokeText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
+		graphics.strokeText("MAIN MENU", sw/2, (sh/10)*9); // 600
 	}else{
 		
-		graphics.fillText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
+		graphics.fillText("MAIN MENU", sw/2, (sh/10)*9); // 600
 	}
 	
 	//Draw table
@@ -736,13 +736,6 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.textAlign = 'center';
 	
 	graphics.fillText(styleText, sw/2, (sh/10)*2.65); // 150
-	
-	
-	//populate this array...
-		
-	
-	//Client sends the server a request given this.hsStyle. hsStyle is the enum style description of the game type we want the highscores for.
-	//It can return this in any way you want, as long as it has the player names and score
 	
 	
 	//Output names
@@ -815,22 +808,34 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	}
 	
 	if( this.highscoreMenu[5].mouseOn ){
-		graphics.strokeText("Personal", sw/8, (sh/10)*9.6);
+		graphics.strokeText("Personal", (sw/12)*10, (sh/10)*8.8);
 	} else {
-		graphics.fillText("Personal", sw/8, (sh/10)*9.6);
+		graphics.fillText("Personal", (sw/12)*10, (sh/10)*8.8);
 	}
 	
 	if( this.highscoreMenu[6].mouseOn ){
-		graphics.strokeText("Overall", sw/2.5, (sh/10)*9.6);
+		graphics.strokeText("Overall", (sw/12)*10, (sh/10)*9.6);
 	} else {
-		graphics.fillText("Overall", sw/2.5, (sh/10)*9.6);
+		graphics.fillText("Overall", (sw/12)*10, (sh/10)*9.6);
 	}
 	
 	if( this.highscoreMenu[7].mouseOn ) {
-		graphics.strokeText("MP Ratings", sw/2.5, (sh/10)*8.8);
+		graphics.strokeText("MP Ratings", sw/8, (sh/10)*9.6);
 	} else {
-		graphics.fillText("MP Ratings", sw/2.5, (sh/10)*8.8);
+		graphics.fillText("MP Ratings", sw/8, (sh/10)*9.6);
 	}
+	
+	//graphics.textAlign = 'center';
+	
+	// graphics.lineWidth = 3;
+	
+	// graphics.beginPath();
+	
+	// graphics.moveTo( 0, (sh/10)*9.2 );
+	// graphics.lineTo( sw/2, (sh/10)*9.2 );
+	// graphics.stroke();
+	
+	// graphics.lineWidth = 1;
 }
 
 MenuManager.prototype.clearHighScores = function() {
