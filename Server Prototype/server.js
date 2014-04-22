@@ -493,6 +493,19 @@ function GameManager()
 		return null;
 	};
 	
+	this.isPlayerPlaying = function ( playerID )
+	{
+		if( this.findSingleGame( playerID ) !== null )
+		{
+			return true;
+		}
+		if( this.findMultiGame( playerID ) !== null )
+		{
+			return true;
+		}
+		return false;
+	};
+	
 	this.removeMultiGame = function( playerID ) {
 		var index;
 		for( var game in this.multiGames)
@@ -679,8 +692,8 @@ io.sockets.on(
         // This function extracts the user name from the login message, stores
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
-        if (message && message.user_name) {
-			//check if this user is playing
+        if ( message.user_name && !gameManager.isPlayerPlaying(client.id)) {
+		
           client.set('user_name', message.user_name);
           client.emit('login_ok');
           // client.broadcast.emits() will send to all clients except the
@@ -724,6 +737,9 @@ io.sockets.on(
 				
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player time trial game.\n");
 				
+				var newGame = new activeSingleGame( client.id, msg.user_name, 1);
+				gameManager.addSingleGame( newGame );
+				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
 				clearAllWaiting(msg.user_name);
@@ -752,6 +768,9 @@ io.sockets.on(
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
 				
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player challenge game.\n");
+				
+				var newGame = new activeSingleGame( client.id, msg.user_name, 2);
+				gameManager.addSingleGame( newGame );
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
