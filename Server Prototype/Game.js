@@ -106,6 +106,7 @@ function goToGame( gm, difficulty ){
 			function(message) {
 				if (message) {
 					myGame.menuManager.isWaiting = true;
+					myGame.gameManager.host = true;
 					console.log('waiting for opponent');
 				}
 		});
