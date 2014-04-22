@@ -166,9 +166,10 @@ html {
 				$('#login').attr('disabled', false);
 			  });
 			  
-			   socket.on(
+			socket.on(
 			  'login_failed',
 			  function() {
+				$('#login_section').css('display', 'none');
 				$('#gameCanvas').css('display', 'none');
 				$('#login_fail').css('display', 'block');
 			  }); 

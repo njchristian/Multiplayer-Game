@@ -11,6 +11,7 @@
 	-need a way to delete games
 	-timer keeps counting after player wins
 	-clients don't require a re-login when the server goes down, this is probably not an issue
+	--remove single player games at the right time
 */
 
 var TT_EASY = 1;
@@ -449,11 +450,18 @@ function activeSingleGame(player1, p1Name, gameMode)
 	this.gameMode = gameMode;
 }
 
+function currenlyLoginPlayer(id, Name)
+{
+	this.id = id;
+	this.Name = Name;
+}
+
 //manages all of the active games
 function GameManager()
 {
 	this.multiGames = [];
-	this.singleGames = []
+	this.singleGames = [];
+	this.currentlyLogin = [];
 	
 	this.addMultiGame = function( game )
 	{
@@ -463,6 +471,23 @@ function GameManager()
 	this.addSingleGame = function( game )
 	{
 		this.singleGames[ this.singleGames.length ] = game;
+	};
+	
+	this.addLoginUser = function( player )
+	{
+		this.currentlyLogin[ this.currentlyLogin.length ] = player;
+	}
+	
+	this.isPlayerLogin = function( name )
+	{
+		for( var player in this.currentlyLogin)
+		{
+			if( this.currentlyLogin[player].Name === name)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	this.findMultiGame = function( playerId )
@@ -531,6 +556,20 @@ function GameManager()
 		return false;
 	};
 	
+	this.removeLoginUser = function( id )
+	{
+		var index; 
+		for( var player in this.currentlyLogin)
+		{
+			if( this.currentlyLogin[player].id === id )
+			{
+				index = this.currentlyLogin.indexOf( this.currentlyLogin[player] );
+				this.currentlyLogin.splice(index, 1);
+			}
+			
+		}
+	};
+	
 	this.removeMultiGame = function( playerID ) {
 		var index;
 		for( var game in this.multiGames)
@@ -548,7 +587,7 @@ function GameManager()
 		}
 	};
 	
-	this.removeSingleMultiGame = function( playerID )
+	this.removeSingleGame = function( playerID )
 	{
 		var index;
 		for( var game in this.singleGames)
@@ -717,8 +756,9 @@ io.sockets.on(
         // This function extracts the user name from the login message, stores
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
-        if ( message.user_name && !gameManager.isPlayerPlaying(message.user_name)) {
-		
+        if ( message.user_name && !gameManager.isPlayerLogin(message.user_name)) {
+			var player = new currenlyLoginPlayer( client.id, message.user_name);
+			gameManager.addLoginUser(player);
           client.set('user_name', message.user_name);
           client.emit('login_ok');
           // client.broadcast.emits() will send to all clients except the
@@ -958,6 +998,11 @@ io.sockets.on(
 				emitOtherPlayer( client.id , 'opponentLeftGame', 'opponentLeftGame' );
 				gameManager.removeMultiGame(client.id);
 			}
+			if( gameManager.findSingleGame( client.id ) !== null)
+			{
+				gameManager.removeSingleGame(client.id);
+			}
+			gameManager.removeLoginUser(client.id);
 			
 	});
 	
