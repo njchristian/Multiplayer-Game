@@ -467,6 +467,7 @@ function GameManager()
 	
 	this.findMultiGame = function( playerId )
 	{
+		//checks the ids of the players
 		for( var game in this.multiGames)
 		{
 			if( this.multiGames[game].player1id === playerId)
@@ -478,11 +479,25 @@ function GameManager()
 				return this.multiGames[game];
 			}
 		}
+		
+		//check the name of players
+		for( var game in this.multiGames)
+		{
+			if( this.multiGames[game].player1Name === playerId)
+			{
+				return this.multiGames[game];
+			}
+			if( this.multiGames[game].player2Name === playerId )
+			{
+				return this.multiGames[game];
+			}
+		}
 		return null;
 	};
 	
 	this.findSingleGame = function( playerId )
 	{
+		//check the id of the players
 		for( var game in this.singleGames)
 		{
 			if( this.singleGames[game].player1id === playerId)
@@ -490,10 +505,20 @@ function GameManager()
 				return this.singleGames[game];
 			}
 		}
+		
+		//checks the names of the players
+		for( var game in this.singleGames)
+		{
+			if( this.singleGames[game].player1Name === playerId)
+			{
+				return this.singleGames[game];
+			}
+		}
 		return null;
 	};
 	
-	this.isPlayerPlaying = function ( playerID )
+	//go through all of the game to see if someone has the same username
+	this.isPlayerPlaying = function ( playerName )
 	{
 		if( this.findSingleGame( playerID ) !== null )
 		{
@@ -692,7 +717,7 @@ io.sockets.on(
         // This function extracts the user name from the login message, stores
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
-        if ( message.user_name && !gameManager.isPlayerPlaying(client.id)) {
+        if ( message.user_name && !gameManager.isPlayerPlaying(message.user_name)) {
 		
           client.set('user_name', message.user_name);
           client.emit('login_ok');
@@ -710,7 +735,7 @@ io.sockets.on(
 			//not sure what goes here
 			}
 			fs.appendFileSync(message.user_name + ".txt", message.user_name + " logged in.\n");
-          return
+          return;
         }
         // When something is wrong, send a login_failed message to the client.
         client.emit('login_failed');
