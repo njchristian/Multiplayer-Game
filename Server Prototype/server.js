@@ -460,7 +460,7 @@ function GameManager()
 		this.multiGames[ this.multiGames.length ] = game;
 	};
 	
-	this.singleGame = function( game )
+	this.addSingleGame = function( game )
 	{
 		this.singleGames[ this.singleGames.length ] = game;
 	}
@@ -520,11 +520,11 @@ function GameManager()
 	//go through all of the game to see if someone has the same username
 	this.isPlayerPlaying = function ( playerName )
 	{
-		if( this.findSingleGame( playerID ) !== null )
+		if( this.findSingleGame( playerName ) !== null )
 		{
 			return true;
 		}
-		if( this.findMultiGame( playerID ) !== null )
+		if( this.findMultiGame( playerName ) !== null )
 		{
 			return true;
 		}
