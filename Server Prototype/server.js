@@ -408,7 +408,7 @@ Player.prototype.updateMPRating = function(rating) {
 //takes cliend.id and sends a value to the oppopent
 function emitOtherPlayer( myid , msg, value )
 {
-	var game = gameManager.findGame( myid );
+	var game = gameManager.findMultiGame( myid );
 	if( game !== null ){
 		var otherPlayer = game.otherPlayer( myid );
 		io.sockets.socket( otherPlayer ).emit( msg, value );
@@ -444,57 +444,44 @@ function activeGame(player1, p1Name, player2, p2Name, gameMode)
 //manages all of the active games
 function GameManager()
 {
-	this.allGames = [];
+	this.multiGames = [];
 	
-	this.addGame = function( game )
+	this.addMultiGame = function( game )
 	{
-		this.allGames[ this.allGames.length ] = game;
+		this.multiGames[ this.multiGames.length ] = game;
 	};
 	
-	this.findGame = function( playerId )
+	this.findMultiGame = function( playerId )
 	{
-		for( var game in this.allGames)
+		for( var game in this.multiGames)
 		{
-			if( this.allGames[game].player1id === playerId)
+			if( this.multiGames[game].player1id === playerId)
 			{
-				return this.allGames[game];
+				return this.multiGames[game];
 			}
-			if( this.allGames[game].player2id === playerId )
+			if( this.multiGames[game].player2id === playerId )
 			{
-				return this.allGames[game];
+				return this.multiGames[game];
 			}
 		}
 		return null;
 	};
 	
-	this.removeGame = function( playerID ) {
+	this.removeMultiGame = function( playerID ) {
 	var index;
-		for( var game in this.allGames)
+		for( var game in this.multiGames)
 			{
-				if( this.allGames[game].player1id === playerID)
+				if( this.multiGames[game].player1id === playerID)
 				{
-					index = this.allGames.indexOf( this.allGames[game] );
-					this.allGames.splice(index, 1);
+					index = this.multiGames.indexOf( this.multiGames[game] );
+					this.multiGames.splice(index, 1);
 				}
-				else if( this.allGames[game].player2id === playerID )
+				else if( this.multiGames[game].player2id === playerID )
 				{
-					index = this.allGames.indexOf( this.allGames[game] );
-					this.allGames.splice(index, 1);
+					index = this.multiGames.indexOf( this.multiGames[game] );
+					this.multiGames.splice(index, 1);
 				}
 			}
-		// for( var i = this.allGames.length - 1; i >= 0; --i)
-		// {
-			// if( this.allGames[i].player1id === playerID)
-			// {
-				// this.allGames.splice(i, 1);
-				// console.log("removed a game");
-			// }
-			// else if( this.allGames[i].player2id === playerID )
-			// {
-				// this.allGames.splice(i, 1);
-				// console.log("removed a game");
-			// }
-		// }
 	};
 };
 
@@ -654,6 +641,7 @@ io.sockets.on(
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
         if (message && message.user_name) {
+			//check if this user is playing
           client.set('user_name', message.user_name);
           client.emit('login_ok');
           // client.broadcast.emits() will send to all clients except the
@@ -784,7 +772,7 @@ io.sockets.on(
 					waitingOnRace.isWaiting = false;
 					
 					var newGame = new activeGame( waitingId, waitingOnRace.userName, client.id, msg.user_name, 3);
-					gameManager.addGame( newGame );
+					gameManager.addMultiGame( newGame );
 					
 					//emit to both players to play
 					io.sockets.socket( waitingId ).emit( 'opponentForRace', 'Opponent found, get ready to race.');
@@ -839,7 +827,7 @@ io.sockets.on(
 					// clear the waiting on race array
 					waitingOnChallenge.isWaiting = false;
 					var newGame = new activeGame( waitingChallengeId, waitingOnChallenge.userName, client.id, msg.user_name, 4);
-					gameManager.addGame( newGame );
+					gameManager.addMultiGame( newGame );
 					
 					//emit to both players to play
 					io.sockets.socket( waitingChallengeId ).emit( 'opponentForChallenge', 'Opponent found, get ready to race.');
@@ -882,10 +870,10 @@ io.sockets.on(
 		'disconnect',
 		function() {
 			console.log("Lost connection with the client");
-			if( gameManager.findGame( client.id ) !== null )
+			if( gameManager.findMultiGame( client.id ) !== null )
 			{
 				emitOtherPlayer( client.id , 'opponentLeftGame', 'opponentLeftGame' );
-				gameManager.removeGame(client.id);
+				gameManager.removeMultiGame(client.id);
 			}
 			
 	});
@@ -1139,7 +1127,7 @@ io.sockets.on(
 			
 			// update the losing player so that it loses rating
 
-			var game = gameManager.findGame(client.id);
+			var game = gameManager.findMultiGame(client.id);
 			var oppName = game.otherPlayerName(winObject.userName);
 			
 			var otherPlayerIndex = findPlayerIndex(oppName);
@@ -1155,7 +1143,7 @@ io.sockets.on(
 			
 			// remove the game from the games array
 			console.log('Remove game');
-			//gameManager.removeGame(client.id);
+			//gameManager.removeMultiGame(client.id);
 
 	});
 	
@@ -1183,7 +1171,7 @@ io.sockets.on(
 			
 			// update the losing player so that it loses rating
 
-			var game = gameManager.findGame(client.id);
+			var game = gameManager.findMultiGame(client.id);
 			var oppName = game.otherPlayerName(lostObject.userName);
 			
 			var otherPlayerIndex = findPlayerIndex(oppName);
@@ -1199,7 +1187,7 @@ io.sockets.on(
 			
 			// remove the game from the games array
 			console.log('Remove game');
-			gameManager.removeGame(client.id);
+			gameManager.removeMultiGame(client.id);
 
 	});
 	
