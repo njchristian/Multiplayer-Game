@@ -461,13 +461,14 @@ function GameManager()
 		this.multiGames[ this.multiGames.length ] = game;
 	};
 	
-	this.singleGame = function( game )
+	this.addSingleGame = function( game )
 	{
 		this.singleGames[ this.singleGames.length ] = game;
 	}
 	
 	this.findMultiGame = function( playerId )
 	{
+		//checks the ids of the players
 		for( var game in this.multiGames)
 		{
 			if( this.multiGames[game].player1id === playerId)
@@ -479,11 +480,25 @@ function GameManager()
 				return this.multiGames[game];
 			}
 		}
+		
+		//check the name of players
+		for( var game in this.multiGames)
+		{
+			if( this.multiGames[game].player1Name === playerId)
+			{
+				return this.multiGames[game];
+			}
+			if( this.multiGames[game].player2Name === playerId )
+			{
+				return this.multiGames[game];
+			}
+		}
 		return null;
 	};
 	
 	this.findSingleGame = function( playerId )
 	{
+		//check the id of the players
 		for( var game in this.singleGames)
 		{
 			if( this.singleGames[game].player1id === playerId)
@@ -491,7 +506,30 @@ function GameManager()
 				return this.singleGames[game];
 			}
 		}
+		
+		//checks the names of the players
+		for( var game in this.singleGames)
+		{
+			if( this.singleGames[game].player1Name === playerId)
+			{
+				return this.singleGames[game];
+			}
+		}
 		return null;
+	};
+	
+	//go through all of the game to see if someone has the same username
+	this.isPlayerPlaying = function ( playerName )
+	{
+		if( this.findSingleGame( playerName ) !== null )
+		{
+			return true;
+		}
+		if( this.findMultiGame( playerName ) !== null )
+		{
+			return true;
+		}
+		return false;
 	};
 	
 	this.removeMultiGame = function( playerID ) {
@@ -680,8 +718,8 @@ io.sockets.on(
         // This function extracts the user name from the login message, stores
         // it to the client object, sends a login_ok message to the client, and
         // sends notifications to other clients.
-        if (message && message.user_name) {
-			//check if this user is playing
+        if ( message.user_name && !gameManager.isPlayerPlaying(message.user_name)) {
+		
           client.set('user_name', message.user_name);
           client.emit('login_ok');
           // client.broadcast.emits() will send to all clients except the
@@ -698,7 +736,7 @@ io.sockets.on(
 			//not sure what goes here
 			}
 			fs.appendFileSync(message.user_name + ".txt", message.user_name + " logged in.\n");
-          return
+          return;
         }
         // When something is wrong, send a login_failed message to the client.
         client.emit('login_failed');
@@ -724,6 +762,9 @@ io.sockets.on(
 				client.emit('sp_tt_msg', 'You have selected SinglePlayer Time Trial!' );
 				
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player time trial game.\n");
+				
+				var newGame = new activeSingleGame( client.id, msg.user_name, 1);
+				gameManager.addSingleGame( newGame );
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
@@ -753,6 +794,9 @@ io.sockets.on(
 				client.emit('sp_ch_msg', 'You have selected SinglePlayer Challenge!');
 				
 				fs.appendFileSync(msg.user_name + ".txt", msg.user_name + " started a single player challenge game.\n");
+				
+				var newGame = new activeSingleGame( client.id, msg.user_name, 2);
+				gameManager.addSingleGame( newGame );
 				
 				// need to make sure that this player was not waiting for a MP mode,
 				// if they were then they need to be removed from that queue.
