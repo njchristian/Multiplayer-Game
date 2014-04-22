@@ -40,6 +40,8 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.challengeSV = 2;
 	this.challengeShipOffset = 0;
 	
+	this.host = false;
+	
 	//Scroll offset
 	this.so = 0;
 	
@@ -124,7 +126,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 		this.difficulty = difficulty;
 	}
 	
-	this.challengeSV = 2;
+	this.challengeSV = 2 * sw/1000;
 	
 	this.ship.xPos = sw/2;
 	this.ship.yPos = sh/2;
@@ -327,6 +329,16 @@ GameManager.prototype.update = function(){
 				}
 		});
 		
+		this.socket.on(
+			'newChallengeLevel', 
+			function(update) {
+				console.log("Received new level");
+				makeChallengeLevelX( myGame.gameManager.challengeBuffer, myGame.gameManager.isMulti(), true, myGame.gameManager.currentLevel - 1, myGame.gameManager.challengeTotalLevels + 3, update.level );
+				myGame.gameManager.challengeSV = update.sv;
+				myGame.gameManager.so = update.so;
+		});
+			
+		
 	}
 	
 
@@ -371,9 +383,15 @@ GameManager.prototype.update = function(){
 		
 		if( this.isChallenge() ){
 			this.challengeTotalLevels++;
-			this.challengeSV+=.2;
 			
-			makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
+			
+			if( this.host ){
+				var l = makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
+				this.challengeSV+=(.2 * sw/1000);
+				console.log("Emit");
+				this.socket.emit('newCL', { level : l, sv : this.challengeSV, so : this.so } );
+				
+			}
 			//
 			this.currentLevel = (this.currentLevel + 1)%4;
 			//console.log( "Now in level: " + this.currentLevel );
@@ -392,7 +410,8 @@ GameManager.prototype.update = function(){
 	}
 	
 	if( this.ship.xPos < (this.currentLevel * sw ) ){
-		this.currentLevel--;
+		this.currentLevel = (this.currentLevel-1)%4;
+		this.challengeTotalLevels--;
 	}
 	
 	for( b in this.bulletSet ){
@@ -515,6 +534,7 @@ GameManager.prototype.respawn = function(){
 GameManager.prototype.onWin = function( ){
 
 	this.gameOver = true;
+	this.host = false;
 	
 	if( this.isMulti() && this.gameMode == MULTI_RACE){
 		console.log("Win");
@@ -537,6 +557,7 @@ GameManager.prototype.opponentLeft = function( ){
 	
 	this.playerLeft = true;
 	this.gameOver = true;
+	this.host = false;
 	
 	if( this.isMulti() && this.gameMode == MULTI_RACE){
 		console.log("Player Left");
@@ -550,6 +571,7 @@ GameManager.prototype.opponentLeft = function( ){
 
 GameManager.prototype.onLoss = function(){
 	this.gameOver = true;
+	this.host = false;
 	
 	if( this.isMulti() && this.gameMode == MULTI_CHALLENGE){
 		console.log("Lose");
@@ -619,7 +641,11 @@ GameManager.prototype.drawBackground = function( graphics ){
 			var x = (this.levelLayout.length - 1.5) * sw - this.so;
 			
 			graphics.moveTo( x, bw );
-			graphics.lineTo( x, sh-bw );
+			if( this.isMulti() ){
+				graphics.lineTo( x, sh/2-bw/2 );
+			}else{
+				graphics.lineTo( x, sh-bw );
+			}
 			
 			graphics.stroke();
 			
@@ -629,7 +655,31 @@ GameManager.prototype.drawBackground = function( graphics ){
 			var y = sh/2;
 			if( this.isMulti() ){
 				y = sh/4;
+				graphics.font = sh/10+"px Courier";
 			}
+			graphics.strokeText( "FINISH", x, y);
+			
+		}
+	
+		if( this.isMulti() && this.opLevel >= this.levelLayout.length - 3){
+			
+			//Draw finish line
+			graphics.lineWidth = 1;
+			graphics.strokeStyle = "red";
+			
+			graphics.beginPath();
+			
+			var x = (this.levelLayout.length - 1.5) * sw - this.so;
+			
+			graphics.moveTo( x, sh/2+bw/2 );
+			graphics.lineTo( x, sh-bw/2 );
+			
+			graphics.stroke();
+			
+			graphics.textAlign = 'center';
+	
+			graphics.font = sh/10+"px Courier";
+			var y = 3*sh/4;
 			graphics.strokeText( "FINISH", x, y);
 			
 		}
@@ -1002,45 +1052,6 @@ GameManager.prototype.drawBullets = function(g){
 	}
 
 }
-
-//Attemp at adding a wait menu
-//the error is that the graphics object doesn't have any members
-// GameManager.prototype.drawWait = function( graphics )
-// {	
-	// //draw the wait menu
-	// //graphics.lineWidth = 3;
-	
-	// graphics.strokeStyle = "green";
-	// graphics.strokeRect( sw/2 - 200, sh/2 - 200, 500, 500 );
-	
-	// graphics.fillStyle = "black";
-	
-	// graphics.fillRect( sw/2 - 200, sh/2 - 200, 500, 500 );
-	
-	// //graphics.lineWidth = 1;
-	
-	// graphics.textAlign = 'center';
-	
-	// graphics.font = sh/7+"px Courier";
-	
-	// var text;
-	// //if( won ){
-		// text = "WAITING";
-	// //}else{
-	// //	text = "YOU SUCK"; //just for giggles but we should let the loser down softly
-	// //}
-	
-	// graphics.strokeText(text, sw/2+50, sh/2+50 );
-	
-	// graphics.fillStyle = "green";
-	// graphics.font = sh/15+"px Courier";
-	
-	// if( this.endScroll ){
-		// graphics.strokeText("Main Menu", sw/2, sh/2 + 175 );
-	// }else{
-		// graphics.fillText("Main Menu", sw/2, sh/2 + 175 );
-	// }
-// };
 
 GameManager.prototype.drawTutorialPause = function( graphics ){
 

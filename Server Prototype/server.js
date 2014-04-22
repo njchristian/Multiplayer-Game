@@ -411,6 +411,7 @@ function emitOtherPlayer( myid , msg, value )
 	var game = gameManager.findMultiGame( myid );
 	if( game !== null ){
 		var otherPlayer = game.otherPlayer( myid );
+		
 		io.sockets.socket( otherPlayer ).emit( msg, value );
 	}
 };
@@ -765,7 +766,10 @@ io.sockets.on(
 	});		
 	  
 	// MULTI PLAYER Messages  
-	  
+	
+
+
+	
 	// multiplayer race message
 	client.on(
 		'mp_race',
@@ -1136,6 +1140,12 @@ io.sockets.on(
 			emitOtherPlayer( client.id, 'newUpdate', updateObject);
 
 	});	
+	
+	client.on(
+		'newCL',
+		function(level){
+				emitOtherPlayer( client.id, 'newChallengeLevel', level );
+		});
 	
 	
 	// GAME ENDING Messages 

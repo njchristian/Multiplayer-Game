@@ -800,8 +800,6 @@ function initializeLevels( levels, multi, top, opLevels, difficulty){
 
 function initChallengeBuffer( challengeBuffer, multi, top ){
 
-	
-
 	makeStart( challengeBuffer, multi, top );
 	for(var i = 1; i < 4; ++i){
 		challengeBuffer[i] = new Level();
@@ -821,7 +819,31 @@ function makeChallengeLevel( challengeBuffer, multi, top, index, swOffset ){
 	lastIndex = rand;
 	if( index == -1 ) index = 3;
 	levelFactory[ rand ].levelGenerator(challengeBuffer, multi, top, true, index, swOffset);
+	
+	return rand;
+
+}
+
+function makeChallengeLevelX( challengeBuffer, multi, top, index, swOffset, x ){
+	
+	if( index == -1 ) index = 3;
+	levelFactory[ x ].levelGenerator(challengeBuffer, multi, top, true, index, swOffset);
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
