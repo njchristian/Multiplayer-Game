@@ -333,7 +333,7 @@ GameManager.prototype.update = function(){
 			'newChallengeLevel', 
 			function(update) {
 				console.log("Received new level");
-				makeChallengeLevelX( myGame.gameManager.challengeBuffer, myGame.gameManager.isMulti(), true, myGame.gameManager.currentLevel - 1, myGame.gameManager.challengeTotalLevels + 3, update.level );
+				makeChallengeLevelX( myGame.gameManager.challengeBuffer, myGame.gameManager.isMulti(), true, update.currentLevel - 1,update.totalLevels + 3, update.level );
 				myGame.gameManager.challengeSV = update.sv;
 				myGame.gameManager.so = update.so;
 		});
@@ -389,7 +389,7 @@ GameManager.prototype.update = function(){
 				var l = makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 				this.challengeSV+=(.2 * sw/1000);
 				console.log("Emit");
-				this.socket.emit('newCL', { level : l, sv : this.challengeSV, so : this.so } );
+				this.socket.emit('newCL', { level : l, sv : this.challengeSV, so : this.so, currentLevel:this.currentLevel, totalLevels:levelVar } );
 				
 			}
 			//
