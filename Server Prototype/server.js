@@ -415,7 +415,7 @@ function emitOtherPlayer( myid , msg, value )
 	}
 };
 
-//class to hold games
+//class to multiplayer games
 function activeGame(player1, p1Name, player2, p2Name, gameMode)
 {
 	this.player1id = player1;
@@ -441,15 +441,29 @@ function activeGame(player1, p1Name, player2, p2Name, gameMode)
 	}
 };
 
+//Class for single player games
+function activeSingleGame(player1, p1Name, gameMode)
+{
+	this.player1id = player1;
+	this.player1Name = p1Name;
+	this.gameMode = gameMode;
+}
+
 //manages all of the active games
 function GameManager()
 {
 	this.multiGames = [];
+	this.singleGames = []
 	
 	this.addMultiGame = function( game )
 	{
 		this.multiGames[ this.multiGames.length ] = game;
 	};
+	
+	this.singleGame = function( game )
+	{
+		this.singleGames[ this.singleGames.length ] = game;
+	}
 	
 	this.findMultiGame = function( playerId )
 	{
@@ -467,21 +481,46 @@ function GameManager()
 		return null;
 	};
 	
-	this.removeMultiGame = function( playerID ) {
-	var index;
-		for( var game in this.multiGames)
+	this.findSingleGame = function( playerId )
+	{
+		for( var game in this.singleGames)
+		{
+			if( this.singleGames[game].player1id === playerId)
 			{
-				if( this.multiGames[game].player1id === playerID)
-				{
-					index = this.multiGames.indexOf( this.multiGames[game] );
-					this.multiGames.splice(index, 1);
-				}
-				else if( this.multiGames[game].player2id === playerID )
-				{
-					index = this.multiGames.indexOf( this.multiGames[game] );
-					this.multiGames.splice(index, 1);
-				}
+				return this.singleGames[game];
 			}
+		}
+		return null;
+	};
+	
+	this.removeMultiGame = function( playerID ) {
+		var index;
+		for( var game in this.multiGames)
+		{
+			if( this.multiGames[game].player1id === playerID)
+			{
+				index = this.multiGames.indexOf( this.multiGames[game] );
+				this.multiGames.splice(index, 1);
+			}
+			else if( this.multiGames[game].player2id === playerID )
+			{
+				index = this.multiGames.indexOf( this.multiGames[game] );
+				this.multiGames.splice(index, 1);
+			}
+		}
+	};
+	
+	this.removeSingleMultiGame = function( playerID )
+	{
+		var index;
+		for( var game in this.singleGames)
+		{
+			if( this.singleGames[game].player1id === playerID)
+			{
+				index = this.singleGames.indexOf( this.singleGames[game] );
+				this.singleGames.splice(index, 1);
+			}
+		}
 	};
 };
 
