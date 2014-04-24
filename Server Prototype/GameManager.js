@@ -385,7 +385,11 @@ GameManager.prototype.update = function(){
 			this.challengeTotalLevels++;
 			
 			
-			if( this.host ){
+			if( !this.isMulti() ){
+			
+				makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
+				
+			}else if( this.host ){
 				var l = makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
 				this.challengeSV+=(.2 * sw/1000);
 				console.log("Emit");
