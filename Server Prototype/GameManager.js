@@ -1191,15 +1191,19 @@ GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 	var text;
 	
 	if(playerLeft){
+		graphics.fillStyle = "green";
 		text = "OPPONENT";
+		graphics.fillText(text, sw/2, (sh/12)*4.5);
 	}
 	else if( won ){
 		text = "YOU WON!";
+		graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	}else{
 		text = "GOOD GAME!";
+		graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	}
 	
-	graphics.strokeText(text, sw/2, (sh/12)*4.5 );
+	
 	
 	graphics.fillStyle = "green";
 	if( playerLeft ){
