@@ -2,15 +2,7 @@
 
 /*
 	TODO:
-	-maybe the client menu should highlight or somehow indicate a player's choice if it is a MP
-	mode and they are having to wait, therefore they for sure know what they selected
-	-should scores be stored separately for each game mode?
-	-make log in better and require password
-	-file IO with player data
-	-rethink addPlayerRating function of HighScores.js
-	-need a way to delete games
-	-timer keeps counting after player wins
-	-clients don't require a re-login when the server goes down, this is probably not an issue
+	
 	--remove single player games at the right time
 */
 
@@ -19,6 +11,7 @@ var TT_MEDIUM = 2;
 var TT_HARD = 3;
 var CHALLENGE = 4;
 var RATING = 5;
+var RACE = 6;
 
 // Semi-random global variable in order to reference in Player.js:
 
@@ -34,7 +27,7 @@ var players = []; // array of all the players
 // }.bind(this);
 // includeInThisContext(__dirname+"/HighScoreItem.js");
 
-// need to make into modules if possible
+
 // ----------------------StringTime.js-----------------------------------------
 
 function StringTime(name, t) {
@@ -123,6 +116,7 @@ function HighScores() {
 	this.overallBestEasyTimes = [];
 	this.overallBestMedTimes = [];
 	this.overallBestHardTimes = [];
+	this.overallBestRaceTimes = [];
 	this.overallBestDistances = [];
 	this.playerRatings = [];
 }
@@ -203,6 +197,31 @@ HighScores.prototype.addNewHardTime = function(time) {
 }
 
 
+HighScores.prototype.addNewRaceTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.overallBestRaceTimes.length < 10) {
+		this.overallBestRaceTimes[this.overallBestRaceTimes.length] = time;
+		// sort in descending order
+		this.overallBestRaceTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		console.log("added a new time");
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.overallBestRaceTimes[this.overallBestRaceTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.overallBestRaceTimes[this.overallBestRaceTimes.length - 1] = time;
+			
+			// sort in descending order
+			this.overallBestRaceTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+}
+
+
 HighScores.prototype.addNewDistance = function(distance) {
 	// Stores the top 10 longest distances in challenge mode
 	
@@ -274,6 +293,7 @@ function Player(name) {
 	this.bestEasyTimes = []; // best times from time trial easy
 	this.bestMedTimes = [];
 	this.bestHardTimes = [];
+	this.bestRaceTimes = [];
 	this.bestDistances = []; // furtherest distances from challenge mode
 	this.multiplayerRating = 0;
 }
@@ -361,6 +381,33 @@ Player.prototype.addNewHardTime = function(time) {
 			this.bestHardTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
 			
 			highScores.addNewHardTime(time);
+		}
+		// else the new time isn't as fast as any of the saved times
+	}
+	
+}
+
+
+Player.prototype.addNewRaceTime = function(time) {
+	// Stores the top 10 times
+	
+	// So if there are less than 10 times, just store it
+	if (this.bestRaceTimes.length < 10) {
+		this.bestRaceTimes[this.bestRaceTimes.length] = time;
+		// sort in descending order
+		this.bestRaceTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+		highScores.addNewRaceTime(time);
+	}
+	else {
+		// assume it is sorted in descending order, therefore the slowest time 
+		// is the last one
+		if (timeCompareLessThan(time, this.bestRaceTimes[this.bestRaceTimes.length - 1])) {
+			// replace the slowest time with the new time
+			this.bestRaceTimes[this.bestRaceTimes.length - 1] = time;
+			// sort in descending order
+			this.bestRaceTimes.sort(function(a, b) {return timeCompareLessThan(a, b)});
+			
+			highScores.addNewRaceTime(time);
 		}
 		// else the new time isn't as fast as any of the saved times
 	}
@@ -667,6 +714,9 @@ fs.readFileSync('./data.txt').toString().split('\n').forEach(function (line) {
 		for ( var i = 0; i < newPlayer.bestHardTimes.length; ++i) {
 			players[players.length - 1 ].addNewHardTime( new Time( newPlayer.bestHardTimes[i].min, newPlayer.bestHardTimes[i].sec, newPlayer.bestHardTimes[i].tenth, newPlayer.bestHardTimes[i].player ) ); 
 		}
+		for ( var i = 0; i < newPlayer.bestRaceTimes.length; ++i) {
+			players[players.length - 1 ].addNewRaceTime( new Time( newPlayer.bestRaceTimes[i].min, newPlayer.bestRaceTimes[i].sec, newPlayer.bestRaceTimes[i].tenth, newPlayer.bestRaceTimes[i].player ) ); 
+		}
 		for ( var i = 0; i < newPlayer.bestDistances.length; ++i) {
 			players[players.length - 1 ].addNewDistance( new Distance( newPlayer.bestDistances[i].playerName, newPlayer.bestDistances[i].dist ) ); 
 		}
@@ -690,6 +740,9 @@ fs.readFileSync("./highscores.txt").toString().split('\n').forEach(function (lin
 		}
 		for (var i = 0; i < newHighScore.overallBestHardTimes.length; ++i) {
 			highScores.addNewHardTime(new Time(newHighScore.overallBestHardTimes[i].min, newHighScore.overallBestHardTimes[i].sec, newHighScore.overallBestHardTimes[i].tenth, newHighScore.overallBestHardTimes[i].player));
+		}
+		for (var i = 0; i < newHighScore.overallBestRaceTimes.length; ++i) {
+			highScores.addNewRaceTime(new Time(newHighScore.overallBestRaceTimes[i].min, newHighScore.overallBestRaceTimes[i].sec, newHighScore.overallBestRaceTimes[i].tenth, newHighScore.overallBestRaceTimes[i].player));
 		}
 		for (var i = 0; i < newHighScore.overallBestDistances.length; ++i) {
 			highScores.addNewDistance(new Distance(newHighScore.overallBestDistances[i].playerName, newHighScore.overallBestDistances[i].dist));
@@ -1066,7 +1119,18 @@ io.sockets.on(
 					for (var i = 0; i < highScores.playerRatings.length; ++i) {
 						console.log(highScores.playerRatings[i].rating);
 					}
+					highScores.updateRatings();
 					client.emit('highScoresResponse', { scores: highScores.playerRatings } );
+				}
+				else if (highScoresRequest.scoreType == RACE) {
+					var times = [];
+					for (var i = 0; i < highScores.overallBestRaceTimes.length; ++i) {
+						console.log("Min: " + highScores.overallBestRaceTimes[i].min);
+						console.log("Sec: " + highScores.overallBestRaceTimes[i].sec);
+						var temp = new StringTime(highScores.overallBestRaceTimes[i].player, highScores.overallBestRaceTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
 				}
 				else {
 					console.log("Somehow there was an invalid scoreType in a highScoresRequest");
@@ -1116,6 +1180,14 @@ io.sockets.on(
 					console.log("Rating: " + rating[0].rating);
 					client.emit('highScoresResponse', { scores: rating } );
 				}
+				else if (highScoresRequest.scoreType == RACE) {
+					var times = [];
+					for (var i = 0; i < players[playerIndex].bestRaceTimes.length; ++i) {
+						var temp = new StringTime(players[playerIndex].bestRaceTimes[i].player, players[playerIndex].bestRaceTimes[i].convertToString());
+						times[times.length] = temp;
+					}
+					client.emit('highScoresResponse', {scores: times});
+				}
 				else {
 					console.log("Somehow there was an invalid scoreType in a highScoreRequest");
 				}
@@ -1156,6 +1228,9 @@ io.sockets.on(
 				}
 				else if (timeObject.difficulty == 3) {
 					players[playerIndex].addNewHardTime(time);
+				}
+				else if (timeObject.difficulty == 6) {
+					players[playerIndex].addNewRaceTime(time);
 				}
 				else {
 					console.log('error setting new time');
@@ -1340,12 +1415,20 @@ io.sockets.on(
 			for ( var j = 0; j < players.length; ++j)
 			{
 				player = players[ j ];
-				var json = { user_name: player.userName, bestEasyTimes: player.bestEasyTimes, bestMedTimes: player.bestMedTimes, bestHardTimes: player.bestHardTimes, bestDistances: player.bestDistances, multiplayerRating: player.multiplayerRating };
+				var json = { user_name: player.userName, bestEasyTimes: player.bestEasyTimes, 
+					bestMedTimes: player.bestMedTimes, bestHardTimes: player.bestHardTimes, 
+					bestRaceTimes: player.bestRaceTimes, bestDistances: player.bestDistances, 
+					multiplayerRating: player.multiplayerRating };
 				var line = JSON.stringify(json);	
 				fs.appendFileSync("./data.txt", line.toString() + "\n");
 			}
 			
-			var highScoreJSON = { overallBestEasyTimes: highScores.overallBestEasyTimes, overallBestMedTimes: highScores.overallBestMedTimes, overallBestHardTimes: highScores.overallBestHardTimes, overallBestDistances: highScores.overallBestDistances, playerRatings: highScores.playerRatings };
+			var highScoreJSON = { overallBestEasyTimes: highScores.overallBestEasyTimes, 
+				overallBestMedTimes: highScores.overallBestMedTimes, 
+				overallBestHardTimes: highScores.overallBestHardTimes, 
+				overallBestRaceTimes: highScores.overallBestRaceTimes, 
+				overallBestDistances: highScores.overallBestDistances, 
+				playerRatings: highScores.playerRatings };
 			var line2 = JSON.stringify(highScoreJSON);
 			fs.writeFileSync("./highscores.txt", line2.toString());
 	});

@@ -7,6 +7,7 @@ var TT_MEDIUM = 2;
 var TT_HARD = 3;
 var CHALLENGE = 4;
 var RATING = 5;
+var RACE = 6;
 
 
 //Pass the parent game object, and a graphics object to measure text with
@@ -224,7 +225,7 @@ MenuManager.prototype.createHighscoreMenu = function( g ){
 	
 	this.highscoreMenu[7] = new CanvasText( "MP Ratings", sw/8, (sh/10)*9.6, g.measureText( "MP Ratings" ).width, sh/20, true, setHighscoreStyle, RATING);
 	
-	this.highscoreMenu[8] = new CanvasText( "Online Race", (sw/12)*10, sh/10*8, g.measureText( "Online Race" ).width, sh/20, true); // need to add the function to call and all that jazz
+	this.highscoreMenu[8] = new CanvasText( "Online Race", (sw/12)*10, sh/10*8, g.measureText( "Online Race" ).width, sh/20, true, setHighscoreStyle, RACE); // need to add the function to call and all that jazz
 	
 }
 
@@ -729,6 +730,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		break;
 	case RATING:
 		styleText = "MP Ratings";
+		break;
+	case RACE:
+		styleText = "Online Race";
 		break;
 	default:
 		styleText = "";
