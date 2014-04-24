@@ -804,26 +804,26 @@ GameManager.prototype.drawChallengeScore = function( graphics ){
 GameManager.prototype.drawTimer = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
-	graphics.textAlign = 'center';
+	graphics.textAlign = 'left';
 	if(timer.min==0){		
 		if(timer.sec==0){
-			graphics.strokeText("0."+timer.tenth,sw/2,bw/2);
+			graphics.strokeText("0."+timer.tenth,10,bw/2);
 		}
 		else{
-			graphics.strokeText(timer.sec+"."+timer.tenth,sw/2, bw/2);
+			graphics.strokeText(timer.sec+"."+timer.tenth,10, bw/2);
 		}
 	}
 	else{
 	if(timer.sec<10){
 		if(timer.sec==0){
-			graphics.strokeText(timer.min+":00."+timer.tenth,sw/2,bw/2);
+			graphics.strokeText(timer.min+":00."+timer.tenth,10,bw/2);
 		}
 		else{
-			graphics.strokeText(timer.min+":0"+timer.sec+"."+timer.tenth,sw/2, bw/2);
+			graphics.strokeText(timer.min+":0"+timer.sec+"."+timer.tenth,10, bw/2);
 		}
 	}
 	else{
-		graphics.strokeText(timer.min+":"+timer.sec+"."+timer.tenth, sw/2, bw/2);
+		graphics.strokeText(timer.min+":"+timer.sec+"."+timer.tenth, 10, bw/2);
 	}
 }
 }
@@ -1187,15 +1187,19 @@ GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 	var text;
 	
 	if(playerLeft){
+		graphics.fillStyle = "green";
 		text = "OPPONENT";
+		graphics.fillText(text, sw/2, (sh/12)*4.5);
 	}
 	else if( won ){
 		text = "YOU WON!";
+		graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	}else{
 		text = "GOOD GAME!";
+		graphics.strokeText(text, sw/2, (sh/12)*4.5 );
 	}
 	
-	graphics.strokeText(text, sw/2, (sh/12)*4.5 );
+	
 	
 	graphics.fillStyle = "green";
 	if( playerLeft ){
