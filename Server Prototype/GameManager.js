@@ -805,26 +805,26 @@ GameManager.prototype.drawChallengeScore = function( graphics ){
 GameManager.prototype.drawTimer = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
-	graphics.textAlign = 'center';
+	graphics.textAlign = 'left';
 	if(timer.min==0){		
 		if(timer.sec==0){
-			graphics.strokeText("0."+timer.tenth,sw/2,bw/2);
+			graphics.strokeText("0."+timer.tenth,10,bw/2);
 		}
 		else{
-			graphics.strokeText(timer.sec+"."+timer.tenth,sw/2, bw/2);
+			graphics.strokeText(timer.sec+"."+timer.tenth,10, bw/2);
 		}
 	}
 	else{
 	if(timer.sec<10){
 		if(timer.sec==0){
-			graphics.strokeText(timer.min+":00."+timer.tenth,sw/2,bw/2);
+			graphics.strokeText(timer.min+":00."+timer.tenth,10,bw/2);
 		}
 		else{
-			graphics.strokeText(timer.min+":0"+timer.sec+"."+timer.tenth,sw/2, bw/2);
+			graphics.strokeText(timer.min+":0"+timer.sec+"."+timer.tenth,10, bw/2);
 		}
 	}
 	else{
-		graphics.strokeText(timer.min+":"+timer.sec+"."+timer.tenth, sw/2, bw/2);
+		graphics.strokeText(timer.min+":"+timer.sec+"."+timer.tenth, 10, bw/2);
 	}
 }
 }
