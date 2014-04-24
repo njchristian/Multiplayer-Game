@@ -47,9 +47,11 @@ function GameManager( gameObject, g, websocket, userName ){
 	
 	//Flags for ship movement
 	this.thrust = false;
+	this.opThrust = false;
 	this.leftTurn = false;
 	this.rightTurn = false;
 	
+	this.opThrustC = 0;
 	this.thrustC = 0;
 	this.thrustRate = 4;
 	
@@ -107,7 +109,9 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	timer.clearTime();
 	this.gameMode = gm;
 	this.highChallengeScore = 0;
-	this.highChallengeScore = 0;
+	
+	this.opThrust = false;
+	this.opThrustC = 0;
 	
 	//Sets all states to those to start a new game
 	this.dead = false;
@@ -145,6 +149,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	
 	this.so = 0;
 	this.currentLevel = 0;
+	this.opLevel = 0;
 	this.challengeTotalLevels = 0;
 	
 	this.levelLayout = new Array();
@@ -280,7 +285,7 @@ GameManager.prototype.update = function(){
 	
 	if( this.isMulti() ){
 		// send own update
-		this.socket.emit('update', { xPosition: this.ship.xPos/sw, yPosition : this.ship.yPos, rotation : this.ship.rotation, screenOffset : this.so, level : this.currentLevel } );
+		this.socket.emit('update', { xPosition: this.ship.xPos/sw, yPosition : this.ship.yPos/sh, rotation : this.ship.rotation, screenOffset : this.so/sw, level : this.currentLevel, thrust : this.thrust, thrustC : this.thrustC } );
 	
 		// get update object from other player
 		this.socket.on(
@@ -290,12 +295,20 @@ GameManager.prototype.update = function(){
 					//console.log('update x position is: ' + update.xPosition );
 						//var u = JSON.parse( update );
 						myGame.gameManager.opShip.xPos = update.xPosition * sw;
-						myGame.gameManager.opShip.yPos = update.yPosition + sh/2;
+						myGame.gameManager.opShip.yPos = update.yPosition*sh + sh/2;
 						myGame.gameManager.opShip.rotation = update.rotation;
 						
-						myGame.gameManager.opSO = update.screenOffset;
+						myGame.gameManager.opSO = update.screenOffset*sw;
+						
+						if( update.level > myGame.gameManager.opLevel ){
+							console.log(update.level);
+						}
 						
 						myGame.gameManager.opLevel = update.level;
+						
+						myGame.gameManager.opThrust = level.thrust;
+						myGame.gameManager.opThrustC = level.thrustC;
+						
 				}
 		});	
 		
@@ -388,6 +401,7 @@ GameManager.prototype.update = function(){
 			if( !this.isMulti() ){
 			
 				makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
+				this.challengeSV+=(.2 * sw/1000);
 				
 			}else if( this.host ){
 				var l = makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
@@ -432,25 +446,25 @@ GameManager.prototype.update = function(){
 	
 	//Same change as in Draw function to change to challenge mode
 	
-	// var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
+	var collisionArray = this.isChallenge() ? this.challengeBuffer : this.levelLayout;
 	
-	// updateCDVerticesAndLines( this.ship, this.isMulti() );
+	updateCDVerticesAndLines( this.ship, this.isMulti() );
 	
-	// for( i in collisionArray[this.currentLevel].blocks ){
+	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		// if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
-		// //if( false ){			
-			// //console.log("Collision");
+		//if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
+		if( false ){			
+			//console.log("Collision");
 			
-			// //progess is not used in single player challenge mode  and should be
-			// this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
+			//progess is not used in single player challenge mode  and should be
+			this.socket.emit('deathByWall', { user_name: this.name, progress : this.raceProgress } );
 			
-			// this.onDeath();		
+			this.onDeath();		
 				
-			// break;
-		// }
+			break;
+		}
 			
-	// }
+	}
 	
 	// for( i in this.bulletSet ){
 	
@@ -648,10 +662,12 @@ GameManager.prototype.drawBackground = function( graphics ){
 			
 			var x = (this.levelLayout.length - 1.5) * sw - this.so;
 			
-			graphics.moveTo( x, bw );
+			
 			if( this.isMulti() ){
+				graphics.moveTo( x, bw/2 );
 				graphics.lineTo( x, sh/2-bw/2 );
 			}else{
+				graphics.moveTo( x, bw );
 				graphics.lineTo( x, sh-bw );
 			}
 			
@@ -834,7 +850,8 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 		if( startIndex == -1 ) startIndex == 3;
 		endIndex = (this.currentLevel + 1) % 4;
 	}else{
-		drawArray = this.opponentLevelLayout;
+		//drawArray = this.opponentLevelLayout;
+		drawArray = this.levelLayout;
 		startIndex = (this.opLevel - 1);
 		endIndex = (this.opLevel + 1);
 	}
@@ -846,7 +863,8 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 		co = sh/2;
 	}else{
 		so = this.opSO;
-		co = 0;
+		//co = 0;
+		co = sh/2;
 	}
 	
 	for( var i = 0; i < 3; ++i){
@@ -931,9 +949,9 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	
 	var tc;
 	if( this.thrustC < 2 ){
-		tc = 5;
+		tc = 5 * sw/1000;
 	}else{
-		tc = 3;
+		tc = 3 * sw/1000;
 	}
 	
 	graphics.beginPath();
@@ -976,7 +994,24 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
 		
 		
+	}else if( this.opThrust && isOp ){
+	
+		graphics.moveTo(
+			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( -5*PI/12 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		
+		graphics.moveTo(
+			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
+			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
+		graphics.lineTo(
+			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ) - offset, 
+			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
+		
 	}
+	
 	graphics.stroke();
 }
 
