@@ -1,8 +1,18 @@
 var shipVertices = new Array();
 var shipHalfVertices = new Array();
 var shipLines = new Array();
+var lastFrameVertices = new Array();
+var vBuf = new Array();
 
 function updateCDVerticesAndLines( ship, multi ){
+
+	if( vBuf.length > 0 ){
+	
+		for( i in vBuf ){
+			lastFrameVertices[i] = vBuf[i];
+		}
+	
+	}
 
 	var shipHeight = (multi) ? ship.height * .5 : ship.height;
 
@@ -19,7 +29,23 @@ function updateCDVerticesAndLines( ship, multi ){
 								
 	shipLines[0] = new LinearFunction( shipVertices[0], shipVertices[1] );
 	shipLines[1] = new LinearFunction( shipVertices[1], shipVertices[2] );
-	shipLines[2] = new LinearFunction( shipVertices[2], shipVertices[0] );						
+	shipLines[2] = new LinearFunction( shipVertices[2], shipVertices[0] );
+
+	if( lastFrameVertices.length == 0 ){
+	
+		lastFrameVertices[0] = shipVertices[0];
+		lastFrameVertices[1] = shipVertices[1];
+		lastFrameVertices[2] = shipVertices[2];
+	
+	}
+	
+	shipLines[3] = new LinearFunction( shipVertices[0], lastFrameVertices[0] );
+	shipLines[4] = new LinearFunction( shipVertices[1], lastFrameVertices[1] );
+	shipLines[5] = new LinearFunction( shipVertices[2], lastFrameVertices[2] );
+	
+	vBuf[0] = shipVertices[0];
+	vBuf[1] = shipVertices[1];
+	vBuf[2] = shipVertices[2];
 
 }
 
@@ -89,6 +115,43 @@ function hasCollidedWithShip(ship, block, multi, isChallenge, so){
 					intersection.x <  Math.max( block.points[j].x, block.points[(j+1)%4].x ) && 
 					intersection.x >= Math.min( shipVertices[i].x, shipVertices[(i+1)%3].x ) && 
 					intersection.x <  Math.max( shipVertices[i].x, shipVertices[(i+1)%3].x ) ){
+							
+					return true;
+				}
+					
+			}
+				
+		}
+	
+	}
+	
+	for( var i = 3; i < 6; i++){
+			
+		for( var j = 0; j < 4; j++ ){
+			
+			if(blockLines[j].isVertical){
+						
+				//for vertical lines, the variable b describes the constant x value
+				//So the intersection is just the ship lines function executed at the x value
+				var intersection = new Point( blockLines[j].b, shipLines[i].m * blockLines[j].b + shipLines[i].b);
+						
+				if( intersection.y >= Math.min( block.points[j].y, block.points[(j+1)%4].y ) && 
+					intersection.y <  Math.max( block.points[j].y, block.points[(j+1)%4].y ) && 
+					intersection.x >= Math.min( shipVertices[i-3].x, lastFrameVertices[i-3].x ) && 
+					intersection.x <  Math.max( shipVertices[i-3].x, lastFrameVertices[i-3].x ) ){
+								
+						return true;
+				}
+					
+
+			}else{
+			
+				var intersection = intersect( shipLines[i], blockLines[j] );
+			
+				if( intersection.x >= Math.min( block.points[j].x, block.points[(j+1)%4].x ) && 
+					intersection.x <  Math.max( block.points[j].x, block.points[(j+1)%4].x ) && 
+					intersection.x >= Math.min( shipVertices[i-3].x, lastFrameVertices[i-3].x ) && 
+					intersection.x <  Math.max( shipVertices[i-3].x, lastFrameVertices[i-3].x ) ){
 							
 					return true;
 				}

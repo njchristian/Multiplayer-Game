@@ -66,14 +66,20 @@ function animateDeath( ship, respawnX, respawnY, so, multi, ro ){
 	
 	//Add multiple of two for splitting animation in two
 	segDX = 2*ship.vx * fps/frames + dso;
-	segOnedy = Math.floor( Math.random() * sh/4 - sh/8 )/frames;
+	// segOnedy = (ship.vy +Math.floor( Math.random() * sh/4 - sh/8 ))/frames;
 	
-	segTwody = Math.floor( Math.random() * sh/4 - sh/8 )/frames;
+	// segTwody = (ship.vy + Math.floor( Math.random() * sh/4 - sh/8 ))/frames;
 	
-	segThreedy = Math.floor( Math.random() * sh/4 - sh/8 )/frames;
+	// segThreedy = (ship.vy + Math.floor( Math.random() * sh/4 - sh/8 ))/frames;
+	
+	segOnedy = (ship.vy*frames +Math.floor( Math.random() * sh/8 - sh/16 ))/frames;
+	
+	segTwody = (ship.vy * frames + Math.floor( Math.random() * sh/8 - sh/16 ))/frames;
+	
+	segThreedy = (ship.vy * frames + Math.floor( Math.random() * sh/8 - sh/16 ))/frames;
 
 	//Move back to respawn points
-	
+	/*
 	rp1 = new Point(respawnX + shipHeight * Math.cos( PI/2 ) - so, 
 							    respawnY - shipHeight * Math.sin( PI/2 ));
 	rp2 = new Point(respawnX + shipHeight * Math.cos(  0 - 2*PI/6 ) - so, 
@@ -85,11 +91,13 @@ function animateDeath( ship, respawnX, respawnY, so, multi, ro ){
 	r2dx = (segDX * frames - rp2.x)/frames;	
 	r3dx = (segDX * frames - rp3.x)/frames;	
 	
-	r1dy = (segTwody * frames - rp1.y)/frames;
-	r2dy = (segTwody * frames - rp2.y)/frames;
-	r3dy = (segTwody * frames - rp3.y)/frames;
-	
-
+	// r1dy = (segTwody * frames - rp1.y)/frames;
+	// r2dy = (segTwody * frames - rp2.y)/frames;
+	// r3dy = (segTwody * frames - rp3.y)/frames;
+	r1dy = segOnedy;
+	r2dy = segTwody;
+	r3dy = segThreedy;
+	*/
 }
 
 function drawDeathAnimation( g ){
