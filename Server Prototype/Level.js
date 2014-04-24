@@ -1,6 +1,6 @@
 var levelFactory = new Array();
 var levelFactory = new Array();
-var lastIndex = 0;
+var lastIndex = 1;
 
 function Level(){
 		
@@ -813,7 +813,7 @@ function initChallengeBuffer( challengeBuffer, multi, top ){
 }
 
 function makeChallengeLevel( challengeBuffer, multi, top, index, swOffset ){
-	
+
 	var rand = Math.floor((Math.random()* levelFactory.length ));
 	while ( rand == lastIndex ) {rand = Math.floor((Math.random()*5));}
 	lastIndex = rand;
