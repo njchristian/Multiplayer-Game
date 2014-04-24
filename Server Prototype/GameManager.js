@@ -1007,7 +1007,7 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
 	//graphics.stroke();
 	
-	if( (this.thrust && !isOp) || (this.opThrust && isOp ) ){
+	if( !this.gameOver && (this.thrust && !isOp) || (this.opThrust && isOp ) ){
 	
 		graphics.moveTo(
 			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
