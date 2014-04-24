@@ -1,2 +1,2 @@
-{"user_name":"taylor1","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":30}
-{"user_name":"taylor2","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestDistances":[],"multiplayerRating":-30}
+{"user_name":"taylor2","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestRaceTimes":[{"min":0,"sec":42,"tenth":4,"player":"taylor2"}],"bestDistances":[],"multiplayerRating":-10}
+{"user_name":"Taylor","bestEasyTimes":[],"bestMedTimes":[],"bestHardTimes":[],"bestRaceTimes":[{"min":0,"sec":40,"tenth":3,"player":"Taylor"},{"min":0,"sec":41,"tenth":9,"player":"Taylor"}],"bestDistances":[],"multiplayerRating":10}

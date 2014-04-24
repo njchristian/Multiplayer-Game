@@ -1,1 +1,1 @@
-{"overallBestEasyTimes":[],"overallBestMedTimes":[],"overallBestHardTimes":[],"overallBestDistances":[],"playerRatings":[{"playerName":"taylor1","rating":30},{"playerName":"taylor2","rating":-30}]}
+{"overallBestEasyTimes":[],"overallBestMedTimes":[],"overallBestHardTimes":[],"overallBestRaceTimes":[{"min":0,"sec":40,"tenth":3,"player":"Taylor"},{"min":0,"sec":41,"tenth":9,"player":"Taylor"},{"min":0,"sec":42,"tenth":4,"player":"taylor2"}],"overallBestDistances":[],"playerRatings":[{"playerName":"Taylor","rating":10},{"playerName":"taylor2","rating":-10}]}
