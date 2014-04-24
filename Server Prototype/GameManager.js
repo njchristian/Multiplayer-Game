@@ -99,7 +99,9 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.tutorialStage = 1;
 	this.playerLeft = false;
 	
-	this.difficulty
+	this.difficulty;
+	
+	this.clc = 0;
 	
 }
 
@@ -155,6 +157,8 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	this.levelLayout = new Array();
 	this.challengeBuffer = new Array();
 	
+	this.clc = 0;
+	
 	this.tutorialStage = 1;
 	if( gm == TUTORIAL ){
 		this.isTutorial = true;
@@ -164,6 +168,8 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	
 	this.levelGenerator();
 	this.playerLeft = false;
+	
+	lastFrameVertices = new Array();
 	
 	//document.addEventListener('keydown', gameHandleKeyDown);
 	//document.addEventListener('keyup', gameHandleKeyUp);
@@ -343,8 +349,7 @@ GameManager.prototype.update = function(){
 			function(update) {
 				console.log("Received new level");
 				makeChallengeLevelX( myGame.gameManager.challengeBuffer, myGame.gameManager.isMulti(), true, update.currentLevel - 1,update.totalLevels + 3, update.level );
-				myGame.gameManager.challengeSV = update.sv;
-				myGame.gameManager.so = update.so;
+				myGame.gameManager.so = update.so * sw;
 		});
 			
 		
@@ -384,6 +389,16 @@ GameManager.prototype.update = function(){
 		
 	}
 	
+	if( this.isChallenge() ){
+	
+		if( this.so > this.clc * sw ){
+			console.log("Speed");
+			this.challengeSV+=(.2 * sw/1000);
+			this.clc++;
+		}
+	
+	}
+	
 	//update active blocks
 	
 	var levelVar = this.isChallenge() ? this.challengeTotalLevels : this.currentLevel;
@@ -397,13 +412,13 @@ GameManager.prototype.update = function(){
 			if( !this.isMulti() ){
 			
 				makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
-				this.challengeSV+=(.2 * sw/1000);
+				//this.challengeSV+=(.2 * sw/1000);
 				
 			}else if( this.host ){
 				var l = makeChallengeLevel( this.challengeBuffer, this.isMulti(), true, this.currentLevel - 1, levelVar + 3 );
-				this.challengeSV+=(.2 * sw/1000);
+				//this.challengeSV+=(.2 * sw/1000);
 				console.log("Emit");
-				this.socket.emit('newCL', { level : l, sv : this.challengeSV, so : this.so, currentLevel:this.currentLevel, totalLevels:levelVar } );
+				this.socket.emit('newCL', { level : l, so : this.so/sw, currentLevel:this.currentLevel, totalLevels:levelVar } );
 				
 			}
 			//
@@ -480,6 +495,9 @@ GameManager.prototype.update = function(){
 }
 
 GameManager.prototype.onDeath = function(){
+	
+	lastFrameVertices = new Array();
+	vBuf = new Array();
 
 	if( this.isChallenge() ){
 
@@ -497,7 +515,7 @@ GameManager.prototype.onDeath = function(){
 			
 		//if( this.currentLevel == 0 ) respawnOffset-=(2*bw);
 		
-		animateDeath( this.ship, this.currentLevel * sw, sh/4, this.so, this.isMulti(), respawnOffset);
+		animateDeath( this.ship, this.currentLevel * sw, sh/2, this.so, this.isMulti(), respawnOffset);
 		this.deathCounter++;	
 		
 		//this.deathDSO = respawnOffset/frames;
