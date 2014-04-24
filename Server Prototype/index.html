@@ -140,8 +140,8 @@ html {
 			var wh = $(window).height() - 50; 
 			
 			if( wh > .65 * ww ){
-				sh = wh*.65;
 				sw = ww;
+				sh = .65 * sw;
 			}else{
 				sh = wh;
 				sw = sh/.65;

@@ -299,15 +299,11 @@ GameManager.prototype.update = function(){
 						myGame.gameManager.opShip.rotation = update.rotation;
 						
 						myGame.gameManager.opSO = update.screenOffset*sw;
-						
-						if( update.level > myGame.gameManager.opLevel ){
-							console.log(update.level);
-						}
-						
+			
 						myGame.gameManager.opLevel = update.level;
 						
-						myGame.gameManager.opThrust = level.thrust;
-						myGame.gameManager.opThrustC = level.thrustC;
+						myGame.gameManager.opThrust = update.thrust;
+						myGame.gameManager.opThrustC = update.thrustC;
 						
 				}
 		});	
@@ -452,8 +448,8 @@ GameManager.prototype.update = function(){
 	
 	for( i in collisionArray[this.currentLevel].blocks ){
 			
-		//if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
-		if( false ){			
+		if( hasCollidedWithShip(this.ship, collisionArray[this.currentLevel].blocks[i] , this.isMulti(), this.isChallenge(), this.so) ){
+		//if( false ){			
 			//console.log("Collision");
 			
 			//progess is not used in single player challenge mode  and should be
@@ -684,8 +680,10 @@ GameManager.prototype.drawBackground = function( graphics ){
 			graphics.strokeText( "FINISH", x, y);
 			
 		}
-	
+		
 		if( this.isMulti() && this.opLevel >= this.levelLayout.length - 3){
+			
+			console.log("Here");
 			
 			//Draw finish line
 			graphics.lineWidth = 1;
@@ -693,7 +691,8 @@ GameManager.prototype.drawBackground = function( graphics ){
 			
 			graphics.beginPath();
 			
-			var x = (this.levelLayout.length - 1.5) * sw - this.so;
+			
+			var x = (this.levelLayout.length - 1.5) * sw - this.opSO;
 			
 			graphics.moveTo( x, sh/2+bw/2 );
 			graphics.lineTo( x, sh-bw/2 );
@@ -948,10 +947,23 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	var tHeight= this.isMulti() ? this.shipThrustHeight * .5 : this.shipThrustHeight;
 	
 	var tc;
-	if( this.thrustC < 2 ){
-		tc = 5 * sw/1000;
+	
+	if( !isOp ){
+	
+		if( this.thrustC < 2 ){
+			tc = 5 * sw/1000;
+		}else{
+			tc = 3 * sw/1000;
+		}
+	
 	}else{
-		tc = 3 * sw/1000;
+	
+		if( this.opThrustC < 2 ){
+			tc = 5 * sw/1000;
+		}else{
+			tc = 3 * sw/1000;
+		}
+	
 	}
 	
 	graphics.beginPath();
@@ -977,7 +989,7 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
 	//graphics.stroke();
 	
-	if( this.thrust && !isOp ){
+	if( (this.thrust && !isOp) || (this.opThrust && isOp ) ){
 	
 		graphics.moveTo(
 			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
@@ -993,22 +1005,6 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ) - offset, 
 			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
 		
-		
-	}else if( this.opThrust && isOp ){
-	
-		graphics.moveTo(
-			ship.xPos + tHeight * Math.cos( -5*PI/12 + ship.rotation ) - offset, 
-			ship.yPos - tHeight * Math.sin( -5*PI/12 + ship.rotation ));
-		graphics.lineTo(
-			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
-			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
-		
-		graphics.moveTo(
-			ship.xPos + (height + tc) * Math.cos( 3*PI/2 + ship.rotation ) - offset, 
-			ship.yPos - (height + tc) * Math.sin( 3*PI/2 + ship.rotation ));
-		graphics.lineTo(
-			ship.xPos + tHeight * Math.cos( 17*PI/12 + ship.rotation ) - offset, 
-			ship.yPos - tHeight * Math.sin( 17*PI/12 + ship.rotation ));
 		
 	}
 	

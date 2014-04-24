@@ -55,11 +55,11 @@ function MenuManager( gameObject, g ){
 	
 	this.playerNames = new Array(10);
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		if (i == 9) {
-			this.playerNames[i] = "- ";
-		} else {
+		// if (i == 9) {
+			// this.playerNames[i] = "- ";
+		// } else {
 			this.playerNames[i] = " - ";
-		}
+		// }
 	}
 	this.playerScores = new Array(10);
 	for (var i = 0; i < this.playerScores.length; ++i) {
@@ -752,7 +752,9 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	for( i = 0; i < this.playerNames.length; ++i){
 		var text = "";
-		text = text + (i+1) + ". " + this.playerNames[i];
+		text = text + (i+1) + ". ";
+		if( i<9) text = text + ' ';
+		text = text + this.playerNames[i];
 		
 		//make sure not to draw on the highscore buttons
 		//if( ( (sh/10)*8 ) > ( (sh/10)*3.6 + 35*(i+1) ) ) { 
@@ -760,13 +762,14 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		//}
 	}
 	
-	
+	/*
 	for( var j = i; j < 10; ++j ){
 		var text = "";
 		
 		text = text + (j+1) + ". ..."; // this got broken somehow
 		graphics.strokeText(text, sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
+	*/
 	
 	graphics.textAlign = 'right';
 	
@@ -776,11 +779,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		graphics.strokeText(text, 9*sw/10, (sh/10)*3.35 + (sh/23)*i); // was 210 + 35*i
 	}
 	
-	
+	/*
 	for( var j = i; j < 10; ++j ){
 		
 		graphics.strokeText("...", 9*sw/10, (sh/10)*3.35 + 35*j); // was 210 + 35*i
 	}
+	*/
 	
 	//graphics.textAlign = 'left';
 	graphics.textAlign = 'center';
@@ -852,11 +856,11 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 
 MenuManager.prototype.clearHighScores = function() {
 	for (var i = 0; i < this.playerNames.length; ++i) {
-		if ( i == 9 ) {
-			this.playerNames[i] = "- ";
-		} else {
+		// if ( i == 9 ) {
+			// this.playerNames[i] = "- ";
+		// } else {
 			this.playerNames[i] = " - ";
-		}
+		// }
 		this.playerScores[i] = " - ";
 	}
 }
@@ -868,11 +872,11 @@ MenuManager.prototype.setRatings = function(data) {
 			this.playerNames[i] = data[i].playerName;
 			this.playerScores[i] = data[i].rating;
 		} else {
-			if ( i == 9 ) {
-				this.playerNames[i] = "- ";
-			} else {
+			// if ( i == 9 ) {
+				// this.playerNames[i] = "- ";
+			// } else {
 				this.playerNames[i] = " - ";
-			}
+			// }
 			this.playerScores[i] = " - ";
 		}
 	}
@@ -885,11 +889,11 @@ MenuManager.prototype.setDistanceHighScores = function(data) {
 			this.playerScores[i] = data[i].dist;
 			console.log("dist: " + data[i].dist);
 		} else {
-			if ( i == 9 ) {
-				this.playerNames[i] = "- ";
-			} else {
+			// if ( i == 9 ) {
+				// this.playerNames[i] = "- ";
+			// } else {
 				this.playerNames[i] = " - ";
-			}
+			// }
 			this.playerScores[i] = " - ";
 		}
 	}
@@ -902,11 +906,11 @@ MenuManager.prototype.setTimeHighScores = function(data) {
 			this.playerScores[i] = data[i].time;
 			console.log("time: " + data[i].time);
 		} else {
-			if ( i == 9 ) {
-				this.playerNames[i] = "- ";
-			} else {
+			// if ( i == 9 ) {
+				// this.playerNames[i] = "- ";
+			// } else {
 				this.playerNames[i] = " - ";
-			}
+			// }
 			this.playerScores[i] = " - ";
 		}
 	}
@@ -1039,16 +1043,16 @@ function menuHandleClick(event){
 				text.callback( );
 			
 			}
-		}
 		
-		text = myGame.gameManager.reText;
+			text = myGame.gameManager.reText;
 			
-		if( text.clicked( event.clientX, event.clientY ) ){
+			if( text.clicked( event.clientX, event.clientY ) ){
 			
-			text.callback();
+				text.callback();
+			
+			}
 			
 		}
-		
 	}
 
 }
