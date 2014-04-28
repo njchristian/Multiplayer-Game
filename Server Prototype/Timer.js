@@ -1,3 +1,14 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This is for the in-game timer, both creating it and updating it.
+	
+	Requires Node.js and socket.io
+*/
 
 
 function Timer(){

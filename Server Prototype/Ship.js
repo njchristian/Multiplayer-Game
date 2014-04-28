@@ -1,3 +1,16 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This files houses the ship classes and its necessary mechanics.
+	
+	Requires Node.js and socket.io
+*/
+
+
 var MAX_SPEED = 20;
 var SHIP_HEIGHT;
 

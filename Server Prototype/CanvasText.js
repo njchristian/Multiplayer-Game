@@ -1,3 +1,16 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file houses the class for creating our buttons.
+	
+	Requires Node.js and socket.io
+*/
+
+
 function CanvasText( text, x, y, width, height, c, cb, arg1, arg2, arg3 ){
 
 	this.clickable = c;

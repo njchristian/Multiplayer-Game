@@ -1,3 +1,15 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file handles the death animation.
+	
+	Requires Node.js and socket.io
+*/
+
 
 var deathAnimationTime = 3.0;
 

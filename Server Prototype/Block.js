@@ -1,3 +1,16 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file has the block class. A block is the building block for levels.
+	
+	Requires Node.js and socket.io
+*/
+
+
 function Block(p1, p2, p3, p4){
 	
 	this.points = new Array();

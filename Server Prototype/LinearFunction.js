@@ -1,3 +1,15 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file is for calculating if two lines have intersected.
+	Used in collision detection.
+	
+	Requires Node.js and socket.io
+*/
 
 
 //Intersect two linear functions

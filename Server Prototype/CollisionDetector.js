@@ -1,3 +1,16 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file has the collision detection code.
+	
+	Requires Node.js and socket.io
+*/
+
+
 var shipVertices = new Array();
 var shipHalfVertices = new Array();
 var shipLines = new Array();

@@ -1,3 +1,15 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file handles the managing of the actual gameplay.
+	
+	Requires Node.js and socket.io
+*/
+
 
 var TIME_TRIAL = 1;
 var SINGLE_CHALLENGE = 2;

@@ -1,3 +1,17 @@
+/* 
+	Space Escape
+	By: Cameron Hill, Taylor Hunt, Chris Langham, Nick Lonsway
+	
+	CSCE 315-503
+	4/28/2014
+	
+	This file handles level creation and management.
+	The game courses are made up of either fix or random sets of these levels.
+	
+	Requires Node.js and socket.io
+*/
+
+
 var levelFactory = new Array();
 var levelFactory = new Array();
 var lastIndex = 1;
