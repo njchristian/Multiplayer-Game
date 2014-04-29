@@ -99,9 +99,8 @@ html {
 		var KEYCODE_P = 80;
 		var PI = Math.PI;
 		
-		//I dunno how to get this from the canvas - I'll keep looking
-		var sw;// = $(window).width() - 50;
-		var sh;// = $(window).height() - 50;
+		var sw; //screen width
+		var sh; //screen height
 		
 		var bw;
 		
@@ -141,8 +140,8 @@ html {
 			*/
 		
 		$(document).ready(function() {
+		
 			// Hide the warning section and show the login section.
-			
 			$('#gameCanvas').css('display', 'none');
 			$('#disconnect').css('display', 'none');
 			$('#login_section').css('display', 'block');
@@ -169,8 +168,7 @@ html {
 			// document.location.host returns the host of the current page.
 			socket = io.connect('http://' + document.location.host);
 			
-			//var name;
-			
+			//recieves welcome from the server
 			socket.on(
 			  'welcome',
 			  function(message) {
@@ -178,6 +176,7 @@ html {
 				$('#login').attr('disabled', false);
 			  });
 			  
+			 //if the login fail generally because the username is already being used
 			socket.on(
 			  'login_failed',
 			  function() {
@@ -186,13 +185,14 @@ html {
 				$('#login_fail').css('display', 'block');
 			  }); 
 			
+			//connect ot server ok, now login
 			socket.on(
 				'login_ok',
 				  function() {
 					$('#login_section').css('display', 'none');
 					$('#gameCanvas').css('display', 'block');
-					//I forgot the format for adding event listeners, so here it is for reference
 			
+					//event listeners
 					document.addEventListener('keydown', gameHandleKeyDown);
 					document.addEventListener('keyup', gameHandleKeyUp);
 					
@@ -201,12 +201,18 @@ html {
 					
 					var c = document.getElementById("gameCanvas");
 					
+					//get graphics object
 					var graphics = c.getContext("2d");
+					
+					//create timer object
 					timer = new Timer();
+					
+					//create game object
 					myGame = new Game( graphics, socket, name );
 					
 					console.log('init check');
 					
+					//start the game
 					myGame.start();
 					
 				  });
@@ -222,6 +228,7 @@ html {
 					$('#disconnect').css('display', 'block');
 			});
 			
+			//when the user logins, send the username to the server
 			$('#login').click(function() {
 			  name = $('#name').val();
 			  if (name) {
@@ -263,7 +270,7 @@ html {
 		<div id="status">Login Failed.</br> Someone with the same username might be already be playing</div>
 	</div>
 
-    <canvas id="gameCanvas" ><!--width="1000" height="650">-->
+    <canvas id="gameCanvas" >
         alternate content
     </canvas>
 </body>
