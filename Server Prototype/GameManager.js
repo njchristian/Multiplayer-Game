@@ -10,7 +10,7 @@
 	Requires Node.js and socket.io
 */
 
-
+//The enums of the game modes
 var TIME_TRIAL = 1;
 var SINGLE_CHALLENGE = 2;
 var MULTI_RACE = 3;
@@ -23,6 +23,8 @@ var T_STAGE3 = 3;
 var T_STAGE4 = 4;
 var T_STAGE5 = 5;
 
+//GameManager object. It takes the game object that it belongs to, graphics object that it will modify
+//the socket it will use, and the username of the player
 function GameManager( gameObject, g, websocket, userName ){
 
 	this.parentGame = gameObject;
@@ -31,7 +33,8 @@ function GameManager( gameObject, g, websocket, userName ){
 	
 	this.socket = websocket;
 	this.name = userName; // store the user name
-
+	
+	//create the ship obejct
 	this.ship = new Ship();
 	this.shipHeight = this.ship.height;
 	this.shipThrustHeight = this.shipHeight * Math.cos( PI/6 ) / Math.cos( PI/12 );
@@ -39,6 +42,7 @@ function GameManager( gameObject, g, websocket, userName ){
 	//An array of levels
 	this.levelLayout = new Array();
 	
+	//opponent array of levels. use in multiplayer
 	this.opponentLevelLayout = new Array();
 	
 	this.currentLevel = 0;
@@ -74,49 +78,60 @@ function GameManager( gameObject, g, websocket, userName ){
 	this.pause = false;
 	//this.progress = 0; //used to log progess
 	
+	//flag for which player is the winner
 	this.winner = false;
 	this.gameOver = false;
 	
 	//Identify a variable for game mode.
 	this.gameMode = 0;
 	
+	//opponent ship. used in multiplay mode
 	this.opShip = new Ship();
 	
 	//opponent screen offset
 	this.opSO = 0;
 	this.opLevel = 0;
 	
+	//array for bullets
 	this.bulletSet = new Array();
 	
+	//keeps track of the player's game status
 	this.deathCounter = 0;
 	this.raceProgress = 0;
 	
 	this.warningCounter = 0;
 	
+	//used to determine respawn point after a death
 	this.deathDSO;
 	
+	//text for main menu
 	g.font = sh/10+"px Courier";
 	this.rtmText = new CanvasText( "MAIN MENU", sw/2, (sh/12)*5.5, g.measureText( "MAIN MENU" ).width, sh/10, true, goToMenu );
 	this.rtmScroll = false;
 	
+	//text for restart
 	this.reText = new CanvasText( "RESTART", sw/2, (sh/12)*7.1, g.measureText( "RESTART" ).width, sh/10, true, restart );
 	this.reScroll = false
 	
+	//smaller text for main menu
 	g.font = sh/15+"px Courier";
 	this.endRTM = new CanvasText( "MAIN MENU", sw/2, (sh/12)*8, g.measureText( "MAIN MENU" ).width, sh/15, true, goToMenu );
 	this.endScroll = false;
 	
+	//flags for gamePlay
 	this.isTutorial = false
 	this.tutorialPause = false;
 	this.tutorialStage = 1;
 	this.playerLeft = false;
 	
+	//difficult level of the game
 	this.difficulty;
 	
 	this.clc = 0;
 	
 }
 
+//starting a new game in the gameManager with a game mode and a level of difficulty 
 GameManager.prototype.newGame = function( gm, difficulty ){
 
 	console.log("New Game");
@@ -138,6 +153,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 	this.thrust = false;
 	this.leftTurn = false;
 	this.rightTurn = false;
+	
 	
 	if( gm == TIME_TRIAL ){
 		console.log( "Game Manager: " + difficulty);
@@ -188,6 +204,7 @@ GameManager.prototype.newGame = function( gm, difficulty ){
 
 }
 
+//use to call which course to generator based on the game mode
 GameManager.prototype.levelGenerator = function(){
 
 	if( this.gameMode == TIME_TRIAL ){
@@ -208,6 +225,7 @@ GameManager.prototype.levelGenerator = function(){
 
 }
 
+//generates single or multiplayer levels
 GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLevels ){
 
 	if( !this.isMulti() ){
@@ -218,6 +236,7 @@ GameManager.prototype.generateLevelLayout = function( levels, multi, top, opLeve
 
 }
 
+//generates the tutorial course
 GameManager.prototype.generateTutorial = function( ){
 
 	initializeTutorial( this.levelLayout );
@@ -225,7 +244,7 @@ GameManager.prototype.generateTutorial = function( ){
 
 }
 
-
+//initalizes the buffer of the levels in challenge mode
 GameManager.prototype.initChallengeBuffer = function(){
 
 	var multi = this.isMulti();
@@ -235,6 +254,7 @@ GameManager.prototype.initChallengeBuffer = function(){
 		
 }
 
+//draw function for the gameManager that draw all of its necessary members
 GameManager.prototype.draw = function( graphics ){
 
 	//graphics.clearRect(0,0,sw, sh);
@@ -275,19 +295,8 @@ GameManager.prototype.draw = function( graphics ){
 	if( this.tutorialPause ) this.drawTutorialPause( graphics );
 
 }
-/*
-GameManager.prototype.handleUpdate = function( update ){
 
-
-	var u = JSON.parse( update );
-	this.opShip.xPos = u.xPos;
-	this.opShip.yPos = u.yPos;
-	this.opShip.rotation = u.rotation;
-	
-	this.opSO = u.screenOffset;
-
-} */
-
+//manages the update in game play
 GameManager.prototype.update = function(){
 
 	if( this.pause || this.gameOver || this.tutorialPause ) return;
@@ -303,15 +312,14 @@ GameManager.prototype.update = function(){
 	
 	if( this.isMulti() ){
 		// send own update
+		//emits all of the gameManager updates to the server
 		this.socket.emit('update', { xPosition: this.ship.xPos/sw, yPosition : this.ship.yPos/sh, rotation : this.ship.rotation, screenOffset : this.so/sw, level : this.currentLevel, thrust : this.thrust, thrustC : this.thrustC } );
 	
-		// get update object from other player
+		// get update object from server about the other player
 		this.socket.on(
 			'newUpdate',
 			function(update) {
 				if (update) {
-					//console.log('update x position is: ' + update.xPosition );
-						//var u = JSON.parse( update );
 						myGame.gameManager.opShip.xPos = update.xPosition * sw;
 						myGame.gameManager.opShip.yPos = update.yPosition*sh + sh/2;
 						myGame.gameManager.opShip.rotation = update.rotation;
@@ -326,6 +334,7 @@ GameManager.prototype.update = function(){
 				}
 		});	
 		
+		//did the opponent win
 		this.socket.on(
 			'opponentWon',
 			function(name) {
@@ -336,6 +345,7 @@ GameManager.prototype.update = function(){
 				}
 		});	
 		
+		//did the opponent lost
 		this.socket.on(
 			'opponentLost',
 			function(name) {
@@ -346,6 +356,7 @@ GameManager.prototype.update = function(){
 				}
 		});	
 		
+		//run this if the opponent disconnects
 		this.socket.on(
 			'opponentLeftGame',
 			function(name) {
@@ -356,6 +367,7 @@ GameManager.prototype.update = function(){
 				}
 		});
 		
+		//new challenge level to the challenge buffer
 		this.socket.on(
 			'newChallengeLevel', 
 			function(update) {
@@ -506,6 +518,7 @@ GameManager.prototype.update = function(){
 
 }
 
+//when a ship crashes animate death and handle death for the current game mode
 GameManager.prototype.onDeath = function(){
 	
 	lastFrameVertices = new Array();
@@ -553,6 +566,7 @@ GameManager.prototype.onDeath = function(){
 		
 }
 
+//determines the respawn point of the shi[
 GameManager.prototype.respawn = function(){
 
 	this.dead = false;
@@ -575,6 +589,7 @@ GameManager.prototype.respawn = function(){
 
 }
 
+//handles when a player wins
 GameManager.prototype.onWin = function( ){
 
 	this.gameOver = true;
@@ -601,6 +616,7 @@ GameManager.prototype.onWin = function( ){
 	//this.parentGame.returnToMenu(); //??
 }
 
+//handles when a opponent leaves
 GameManager.prototype.opponentLeft = function( ){
 	
 	this.playerLeft = true;
@@ -617,6 +633,7 @@ GameManager.prototype.opponentLeft = function( ){
 	
 };
 
+//handles when the player loses
 GameManager.prototype.onLoss = function(){
 	this.gameOver = true;
 	this.host = false;
@@ -631,26 +648,31 @@ GameManager.prototype.onLoss = function(){
 	//this.parentGame.returnToMenu(); //??
 }
 
+//is the current game mode a multiplayer game
 GameManager.prototype.isMulti = function(){
 	return this.gameMode == MULTI_RACE || this.gameMode == MULTI_CHALLENGE;
 }
 
+//is the current game mode a challenge game mode
 GameManager.prototype.isChallenge = function(){
 	return this.gameMode == MULTI_CHALLENGE || this.gameMode == SINGLE_CHALLENGE;
 }
 
+//resume the game from a pause
 GameManager.prototype.resumeGame = function(){
 
 	this.pause = false;
 
 }
 
+//set pause gameplay flag
 GameManager.prototype.pauseGame = function(){
 
 	this.pause = true;
 
 }
 
+//sets the quit game flag
 GameManager.prototype.quitGame = function(){
 
 	//Clear game state
@@ -659,6 +681,7 @@ GameManager.prototype.quitGame = function(){
 
 }
 
+//draws the background during gameplay
 GameManager.prototype.drawBackground = function( graphics ){
 
 	graphics.clearRect(100,100,100, 100);
@@ -745,6 +768,7 @@ GameManager.prototype.drawBackground = function( graphics ){
 	//console.log("Back");
 }
 
+//draws the current blocks in the gameplay
 GameManager.prototype.drawBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
@@ -809,6 +833,7 @@ GameManager.prototype.drawBlocks = function( graphics ){
 
 }
 
+//draw the player progress status
 GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
@@ -820,6 +845,7 @@ GameManager.prototype.drawRaceProgress = function( graphics ){
 	graphics.strokeText("Progress: " + (Math.floor(100*((this.opShip.xPos-(sw/2))/(((this.levelLayout.length-1)*sw)-sw)))) + "%",sw,sh/2+bw/2); 
 }
 
+//shows the player real time score
 GameManager.prototype.drawChallengeScore = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
@@ -831,6 +857,7 @@ GameManager.prototype.drawChallengeScore = function( graphics ){
 	graphics.strokeText("Score: " + this.highChallengeScore,sw,bw/2);
 }
 
+//draw the clock in gamePlay
 GameManager.prototype.drawTimer = function( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
@@ -858,6 +885,7 @@ GameManager.prototype.drawTimer = function( graphics ){
 }
 }
 
+//shows the player the number of deaths
 GameManager.prototype.drawDeaths = function ( graphics ){
 	graphics.strokeStyle = "white";
 	graphics.font = sh/15+"px Courier";
@@ -865,6 +893,7 @@ GameManager.prototype.drawDeaths = function ( graphics ){
 	graphics.strokeText("Deaths: " + this.deathCounter, sw,bw/2);
 }
 
+//draw the opponents current levels, used in multiplayer
 GameManager.prototype.drawOpBlocks = function( graphics ){
 
 	graphics.strokeStyle = "green";
@@ -938,6 +967,7 @@ GameManager.prototype.drawOpBlocks = function( graphics ){
 
 }
 
+//generate the bullets, currently not used but works
 GameManager.prototype.generateBulletSet = function(){
 
 	var rand = Math.floor((Math.random()*sh-2*bw));
@@ -957,6 +987,7 @@ GameManager.prototype.generateBulletSet = function(){
 
 }
 
+//draw the ship object
 GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 		
 	graphics.lineWidth = 1;
@@ -1041,6 +1072,7 @@ GameManager.prototype.drawShip = function( graphics, ship, isOp ){
 	graphics.stroke();
 }
 
+//draws the background for the time trail mode
 GameManager.prototype.drawTimeTrialBackground = function( g ){
 
 	g.textAlign = 'center';
@@ -1056,6 +1088,7 @@ GameManager.prototype.drawTimeTrialBackground = function( g ){
 
 }
 
+//draws the background for the challenge mode
 GameManager.prototype.drawChallengeBackground = function( g ){
 
 	g.textAlign = 'center';
@@ -1071,6 +1104,7 @@ GameManager.prototype.drawChallengeBackground = function( g ){
 
 }
 
+//draws the pause menu
 GameManager.prototype.drawPause = function( graphics ){
 
 	//draw the pause menu
@@ -1112,6 +1146,7 @@ GameManager.prototype.drawPause = function( graphics ){
 	
 }
 
+//draws the bullets
 GameManager.prototype.drawBullets = function(g){
 
 	for( b in this.bulletSet ){
@@ -1122,6 +1157,7 @@ GameManager.prototype.drawBullets = function(g){
 
 }
 
+//draws the different pause menu in tutorial mode
 GameManager.prototype.drawTutorialPause = function( graphics ){
 
 	//draw the pause menu
@@ -1196,6 +1232,7 @@ GameManager.prototype.drawTutorialPause = function( graphics ){
 	graphics.stroke();
 }	
 
+//draws a menu at the end of the game
 GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 
 	//draw the pause menu
@@ -1267,6 +1304,7 @@ GameManager.prototype.drawEndGame = function( graphics, won, playerLeft ){
 	
 }
 
+//keyboard input handler when keys are pressed down
 function gameHandleKeyDown(e){
 		
 	//if( myGame.isOnMenu ) return;	
@@ -1322,6 +1360,7 @@ function gameHandleKeyDown(e){
 	}
 }
 
+//keyboard input handler when keys are released
 function gameHandleKeyUp(e){
 		
 	if( myGame.gameManager.pause ) return;
@@ -1359,22 +1398,19 @@ function gameHandleKeyUp(e){
 	
 }
 
+//cales respawn fucntion
 function alive(){
 
 	myGame.gameManager.respawn();
 
 }
 
-function gameHandleClick(e){
-
-
-
-}
-
+//go to main menu
 function goToMenu(){
 	myGame.returnToMenu();
 }
 
+//restarts the game, called in the pause menu
 function restart(){
 
 	myGame.gameManager.newGame( myGame.gameManager.gameMode, myGame.gameManager.difficulty );
