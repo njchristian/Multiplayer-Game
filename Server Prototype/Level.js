@@ -894,7 +894,8 @@ function makeLevelNineteen (levels, multi, top, isChallenge, index, swOffset ){
 	makeBoundingBlocks (levels, multi, top, isChallenge, index, swOffset );
 }
 
-levelFactory[19] = new LevelGenerator( makeLevelTwenty, 3 ){
+levelFactory[19] = new LevelGenerator( makeLevelTwenty, 3 );
+function makeLevelTwenty (levels, multi, top, isChallenge, index, swOffset) {
 	
 	this.difficulty = 3;
 
