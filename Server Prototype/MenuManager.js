@@ -92,6 +92,7 @@ MenuManager.prototype.draw = function( graphics ){
 	graphics.fillStyle ="#000000";
 	graphics.fillRect(0,0,sw, sh);
 
+	// draw the current menu that the user is on
 	if( this.currentScreen == MAIN_MENU ){
 		this.drawMainMenu(graphics);
 		if (this.onSPMenu) {
@@ -125,6 +126,7 @@ MenuManager.prototype.createMainMenu = function( g ){
 
 	g.font = sh/8+"px Courier";
 	
+	// each of these is a button
 	this.mainMenu[0] = new CanvasText( "SINGLE PLAYER", sw/2, (sh/12)*5.25, 
 		g.measureText( "SINGLE PLAYER" ).width, sh/8, true, toSPMenu );
 	
@@ -141,7 +143,7 @@ MenuManager.prototype.createMainMenu = function( g ){
 		
 	g.font = sh/8+"px Courier";
 	this.mainMenu[4] = new CanvasText( "TUTORIAL", sw/2, (sh/12)*3.25, 
-		g.measureText( "TUTORIAL" ).width, sh/8, true, goToGame, TUTORIAL);
+		g.measureText( "TUTORIAL" ).width, sh/8, true, goToGame, TUTORIAL );
 
 }
 
@@ -175,7 +177,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	//graphics.font = sh/11+"px Courier";
 	
-	
+	// draw the buttons and highlight if mouse on
 	if( this.mainMenu[0].mouseOn && !this.onSPMenu && !this.onMPMenu && !this.isWaiting ){
 		
 		graphics.strokeText("SINGLE PLAYER", sw/2, (sh/12)*5.25); // was 235
@@ -224,6 +226,7 @@ MenuManager.prototype.drawMainMenu = function( graphics ){
 	
 	// graphics.strokeStyle = "green";
 	
+	// draw the little triangle line things on the side of the main menu
 	graphics.beginPath();
 	
 	graphics.moveTo( 7*sw/8, sh/2 );
@@ -267,7 +270,7 @@ function toMainMenu(){
 
 
 // Draw the ship for the instructions page
-MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
+MenuManager.prototype.drawInstructionShip = function( graphics, ship ) { 
 		
 	graphics.lineWidth = 1;
 	graphics.strokeStyle = "red";
@@ -276,12 +279,13 @@ MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 	var tHeight= myGame.gameManager.shipThrustHeight;
 	
 	var tc;
-	if( this.thrustC < 2 ){
+	if( this.thrustC < 2 ) {
 		tc = 5;
 	}else{
 		tc = 3;
 	}
 	
+	// draw the actual ship
 	graphics.beginPath();
 	graphics.moveTo(
 		ship.xPos + height * Math.cos( PI/2 + ship.rotation ), 
@@ -305,6 +309,7 @@ MenuManager.prototype.drawInstructionShip = function( graphics, ship ){
 		ship.yPos - height * Math.sin( PI/2 + ship.rotation ));
 	//graphics.stroke();
 	
+	// draw the thrust if necessary
 	if( this.thrust ){
 	
 		graphics.moveTo(
@@ -348,7 +353,7 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	
 	graphics.font = sh/5+"px Courier";
 	
-	
+	// draw all the instructions text
 	graphics.strokeText("INSTRUCTIONS",sw/2, (sh/12)); // was 75
 	
 	graphics.font = sh/25+"px Courier";
@@ -376,6 +381,7 @@ MenuManager.prototype.drawInstructions = function( graphics ){
 	graphics.textAlign = 'center';
 	graphics.font = sh/10+"px Courier";
 	
+	// draw the main menu button and highlight if mouse on
 	if( this.instructionMenu[0].mouseOn ){
 		
 		graphics.strokeText("MAIN MENU", 3*sw/4, (sh/10)*9); // 600
@@ -408,6 +414,7 @@ MenuManager.prototype.instructionShipUpdate = function(){
 		}
 	}
 
+	// update the position of the ship
 	ship.xPos+=ship.vx;
 	ship.yPos+=ship.vy;
 
@@ -505,11 +512,12 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.font = sh/5+"px Courier";
 	
-	
+	// draw the high score menu stuff
 	graphics.strokeText("HIGHSCORES",sw/2,sh/12); // was 75
 	
 	graphics.font = sh/10+"px Courier";
 	
+	// highlight the main menu button if mouse over
 	if( this.highscoreMenu[0].mouseOn ){
 		
 		graphics.strokeText("MAIN MENU", sw/2, (sh/10)*9); // 600
@@ -518,7 +526,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 		graphics.fillText("MAIN MENU", sw/2, (sh/10)*9); // 600
 	}
 	
-	//Draw table
+	//Draw the table with the appropriate high scores
 	
 	graphics.lineWidth = 5;
 	
@@ -533,6 +541,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.lineWidth = 1;
 	graphics.font = sh/12+"px Courier";
 	
+	// draw overall/personal at the top
 	if (this.hsIsOverall) {
 		graphics.strokeText("(Overall)", sw/2, (sh/10)*1.9); 
 	} else {
@@ -544,7 +553,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.strokeText("Player", sw/5, (sh/10)*2.65); // 150
 	
 	
-	// 
+	// Draw Score/Rating/Time
 	if ( this.hsStyle == CHALLENGE ) {
 		graphics.strokeText("Score", 4*sw/5, (sh/10)*2.65); // 150
 	} else if ( this.hsStyle == RATING ) {
@@ -557,6 +566,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.font = sh/20+"px Courier";
 	
+	// Draw the game mode that is selected for scores
 	var styleText;
 	switch (this.hsStyle){
 	
@@ -593,7 +603,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	graphics.textAlign = 'left';
 	var i = 0;
 	
-	
+	// draw names
 	for( i = 0; i < this.playerNames.length; ++i){
 		var text = "";
 		text = text + (i+1) + ". ";
@@ -605,6 +615,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 
 	graphics.textAlign = 'right';
 	
+	// draw the actual scores
 	for( i = 0; i < this.playerScores.length; ++i){
 		var text = this.playerScores[i];
 	
@@ -617,6 +628,7 @@ MenuManager.prototype.drawHighscores = function( graphics ){
 	
 	graphics.fillText("Time Trial:", sw/8, (sh/10)*8); // 560
 	
+	// draw the buttons and highlight if mouse on
 	if( this.highscoreMenu[1].mouseOn ){
 		graphics.strokeText("Challenge", sw/8, (sh/10)*8.8); // 560
 	} else {
@@ -764,9 +776,13 @@ MenuManager.prototype.setTimeHighScores = function(data) {
 // and requests the server to send the corresponding scores
 function setHighscoreStyle( style ){
 
+	// request the specified high scores from the server
 	myGame.menuManager.hsStyle = style;
 	socket.emit('highScoresRequest', { scoreType: style, isOverall: myGame.menuManager.hsIsOverall, userName: myGame.name });
 	
+	// what to do with the high scores when the server sends them
+	// basically just call the appropriate function to set them
+	// they will then by drawn by the function that draws the high score screen
 	socket.on(
 			'highScoresResponse',
 			function(data) {
@@ -797,6 +813,7 @@ function setHighscoreStyle( style ){
 MenuManager.prototype.createSPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
+	// create the buttons
 	this.singlePlayerMenu[0] = new CanvasText( "TIME TRIAL", sw/2, (sh/12)*4.5, g.measureText( "TIME TRIAL" ).width, sh/12, true, selectDifficulty, TIME_TRIAL );
 	this.singlePlayerMenu[1] = new CanvasText( "CHALLENGE", sw/2, (sh/12)*6, g.measureText( "CHALLENGE" ).width, sh/12, true, goToGame, SINGLE_CHALLENGE );
 	this.singlePlayerMenu[2] = new CanvasText( "Back to Menu", sw/2, (sh/12)*7.5, g.measureText( "Back to Menu").width, sh/12, true, backToMenu );
@@ -806,6 +823,7 @@ MenuManager.prototype.createSPMenu = function( g ) {
 //draw the single player mode menu
 MenuManager.prototype.drawSPMenu = function( graphics ) {
 	
+	// draw the border of the menu
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
@@ -822,6 +840,7 @@ MenuManager.prototype.drawSPMenu = function( graphics ) {
 	graphics.font = sh/12+"px Courier";
 	graphics.fillStyle = "green";
 	
+	// draw the buttons and highlight if mouse on
 	if ( this.singlePlayerMenu[0].mouseOn ) {
 		graphics.strokeText("TIME TRIAL", sw/2, (sh/12)*4.5);
 	} else {
@@ -843,6 +862,7 @@ MenuManager.prototype.drawSPMenu = function( graphics ) {
 }
 
 
+// takes the user to the SP game modes menu
 function toSPMenu() {
 	myGame.menuManager.onSPMenu = true;
 }
@@ -855,6 +875,7 @@ function toSPMenu() {
 MenuManager.prototype.createMPMenu = function( g ) {
 	g.font = sh/12+"px Courier";
 	
+	// create the buttons for it
 	this.multiPlayerMenu[0] = new CanvasText( "ONLINE RACE", sw/2, (sh/12)*4.5, g.measureText( "ONLINE RACE" ).width, sh/12, true, goToGame, MULTI_RACE ); 
 	g.font = sh/14+"px Courier";
 	this.multiPlayerMenu[1] = new CanvasText( "ONLINE CHALLENGE", sw/2, (sh/12)*6, g.measureText( "ONLINE CHALLENGE" ).width, sh/14, true, goToGame, MULTI_CHALLENGE); 
@@ -866,6 +887,8 @@ MenuManager.prototype.createMPMenu = function( g ) {
 
 // draw the multiplayer mode menu
 MenuManager.prototype.drawMPMenu = function( graphics ) {
+	
+	// draw the border of the menu
 	graphics.lineWidth = 3;
 	
 	graphics.strokeStyle = "green";
@@ -882,6 +905,7 @@ MenuManager.prototype.drawMPMenu = function( graphics ) {
 	graphics.font = sh/12+"px Courier";
 	graphics.fillStyle = "green";
 	
+	// draw the buttons and highlight if mouse on
 	if ( this.multiPlayerMenu[0].mouseOn ) {
 		graphics.strokeText("ONLINE RACE", sw/2, (sh/12)*4.5);
 	} else {
@@ -959,6 +983,7 @@ MenuManager.prototype.drawSelectTTD = function( graphics ){
 	
 	graphics.fillStyle = "green";
 	
+	// draw the buttons and highlight if mouse on
 	if(this.difficultyMenu[0].mouseOn){
 		graphics.strokeText("Easy", sw/2, (sh/12)*4);
 	}else{
@@ -988,7 +1013,7 @@ MenuManager.prototype.drawSelectTTD = function( graphics ){
 }
 
 
-// Go to diff menu
+// Go to time trial difficulty menu
 function selectDifficulty( ){
 
 	myGame.menuManager.selectingTTD = true;
@@ -996,7 +1021,7 @@ function selectDifficulty( ){
 }
 
 
-// Leave diff menu
+// Leave time trial difficulty menu
 function unselectDifficulty( ) {
 	
 	myGame.menuManager.selectingTTD = false;
@@ -1046,6 +1071,7 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	
 	var w = graphics.measureText( "Waiting...").width/2;
 	
+	// draw the waiting animation
 	if (this.waitAnim < fps/4){
 		graphics.fillText("Waiting", sw/2-w, (sh/12)*5);
 	}else if (this.waitAnim < fps/2){
@@ -1058,6 +1084,7 @@ MenuManager.prototype.drawWaiting = function( graphics ){
 	
 	graphics.textAlign = 'center';
 	
+	// draw the back to menu button and highlight if mouse over
 	if (this.waitingScreen[0].mouseOn) {
 		graphics.strokeText("Back to Menu", sw/2, (sh/12)*7);
 	} else {
@@ -1079,7 +1106,7 @@ function menuHandleClick(event){
 	if( myGame.isOnMenu ){
 	
 		var menu;
-	
+		// get the correct set of buttons to check for callbacks
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
@@ -1114,6 +1141,7 @@ function menuHandleClick(event){
 	
 		}
 	
+		// check each button to see which was clicked
 		for( textElement in menu ){
 		
 			var text = menu[textElement];
@@ -1129,7 +1157,7 @@ function menuHandleClick(event){
 		}
 	
 	}else{
-	
+		// check buttons from in-game menus
 		if(myGame.gameManager.gameOver){
 			
 			var text = myGame.gameManager.endRTM;
@@ -1171,7 +1199,7 @@ function menuHandleScroll( event ){
 	if( myGame.isOnMenu ){
 	
 		var menu;
-	
+		// get the correct set of buttons
 		switch (myGame.menuManager.currentScreen){
 	
 		case MAIN_MENU:
@@ -1205,7 +1233,8 @@ function menuHandleScroll( event ){
 			return;
 	
 		}
-	
+		
+		// if mouse over then change cursor
 		for( textElement in menu ){
 		
 			var text = menu[textElement];
@@ -1224,7 +1253,8 @@ function menuHandleScroll( event ){
 		}
 		
 	}else{
-	
+		
+		// same for these buttons
 		if(myGame.gameManager.gameOver){
 			
 			var text = myGame.gameManager.endRTM;
